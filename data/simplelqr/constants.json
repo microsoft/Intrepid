@@ -1,0 +1,21 @@
+{
+"max_iter": 10000,
+"learning_rate": 0.01,
+"k0": 50,
+"batch_size": 32,
+"samples": 4000,
+"max_epoch": 50,
+"validation_data_percent": 0.2,
+"failed_homing_policy_filter": false,
+"encoder_sampling_style": "reuse",
+"data_aggregation": false,
+"reward_free_planner": "gps",
+"reward_sensitive_planner": "fqi",
+"patience": 100,
+"bias_homing_policy": false,
+"entropy_policy": "none",
+"filter_unreachable_abstract_states": false,
+"filter_old_abstract_states": false,
+"expected_optima": 0.685,
+"max_try": 10
+}

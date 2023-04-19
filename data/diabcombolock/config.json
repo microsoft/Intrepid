@@ -1,0 +1,14 @@
+{
+"num_actions": 10,
+"actions": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+"horizon": 20, 
+"obs_dim": -1,
+"swap_prob": 0.0,
+"spawn_prob": 0.0,
+"optimal_reward": 5.0,
+"anti_shaping_reward": 0.0,
+"anti_shaping_reward2": 1.0,
+"feature_type": "feature",
+"return_state": true,
+"gamma": 1.0
+}

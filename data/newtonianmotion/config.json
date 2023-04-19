@@ -1,0 +1,12 @@
+{
+"world_dim": 2,
+"state_dim": 4,
+"act_dim": 2,
+"actions": ["continuous"],
+"horizon": 1000,
+"noise": 0.1,  
+"obs_dim": 4,
+"feature_type": "feature",
+"acc_penalty": 0.5, 
+"gamma": 1.0
+}

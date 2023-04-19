@@ -1,0 +1,10 @@
+{
+"num_actions": 18,
+"actions": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
+"horizon": 30, 
+"obs_dim": [84, 84, 1],
+"feature_type": "image",
+"openai_state_type": "ram",
+"gamma": 1.0,
+"num_repeat_action": 4
+}

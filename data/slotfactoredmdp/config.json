@@ -1,0 +1,11 @@
+{
+"num_actions": 10,
+"state_dim": 10,
+"actions": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+"horizon": 10, 
+"obs_dim": -1,
+"atom_dim": 1,
+"feature_type": "feature",
+"return_state": true,
+"gamma": 1.0
+}

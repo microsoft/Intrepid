@@ -1,0 +1,14 @@
+{
+  "num_actions": 4,
+  "actions": [0, 1, 2, 3],
+  "horizon": 30,
+  "obs_dim": [60, 80, 3],
+  "feature_type": "image",
+  "gamma": 1.0,
+   "use_exo": true,
+  "height": 480,
+  "width": 640,
+  "vfov": 60,
+  "dataset": "/root/mount/Matterport3DSimulator/data/v1/scans",
+  "connectivity": "/root/mount/Matterport3DSimulator/connectivity/"
+}

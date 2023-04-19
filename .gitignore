@@ -1,0 +1,21 @@
+# PyCharm
+__pycache__
+.DS_Store
+
+# Executables
+*.o
+*.a
+bin
+*.tgz
+*.pc
+*.pyc
+*~
+
+# VS files
+*.so
+
+# IntelliJ
+*.idea
+
+# Java
+java/pom.xml

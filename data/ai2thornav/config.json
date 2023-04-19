@@ -1,0 +1,10 @@
+{
+"num_actions": 4,
+"actions": [0, 1, 2, 3],
+"horizon": 7,
+"scene_name": "FloorPlan201",
+"headless": -1, 
+"obs_dim": [56, 112, 3],
+"feature_type": "image",
+"gamma": 1.0
+}

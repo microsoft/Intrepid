@@ -1,0 +1,21 @@
+{
+  "num_actions": 3,
+  "actions": [0, 1, 2],
+  "horizon": 10,
+  "obs_dim": [56, 56, 3],
+  "agent_view_size": 7,
+  "width": 12,
+  "height": 12,
+  "tile_size": 8,
+  "color_map": 1,
+  "exo_type": "pixel",
+  "num_exo_var": 10,
+  "pixel_size": 5,
+  "circle_width": 1,
+  "circle_motion": 0.05,
+  "feature_type": "image",
+  "noise_type": "none",
+  "return_state": true,
+  "gamma": 1.0,
+  "ego_centric": 1
+}
