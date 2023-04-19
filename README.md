@@ -52,7 +52,7 @@ If you use this repository in your research and find it helpful, then please cit
 
 title="Intrepid: INTeractive REPresentatIon Discovery, a library for decision making algorithms that learn latent state representation",
 
-authors="Dipendra Misra, Rajan Chari, Alex Lamb, Anurag Koul, Akshay Krishnamurthy, Dylan Foster, John Langford",
+authors="Dipendra Misra, Rajan Chari, Alex Lamb, Anurag Koul, Byron Xu, Akshay Krishnamurthy, Dylan Foster, John Langford",
 
 year="2023"
 
