@@ -9,17 +9,19 @@ A list of algorithms, environments, and utils are given below. For full details 
 
 ## Algorithms Currently Supported
 
-1. Homer: Learns latent state/representation using temporal constrastive learning loss. Provably explores and optimizes reward in Block MDP setting. 
+1. **Homer**. Learns latent state/representation using temporal constrastive learning loss. Provably explores and optimizes reward in Block MDP setting. 
           
    **Citation**: Kinematic State Abstraction and Provably Efficient Rich-Observation Reinforcement Learning, _Dipendra Misra, Mikael Henaff, Akshay Krishnamurthy, John Langford_ [\[ICML 2020\]](http://proceedings.mlr.press/v119/misra20a/misra20a.pdf)
         
-2. PPE: Path Prediction and Elimination. Learns latent state/representation using a variant of multi-step inverse dynamics where the model predicts the identity of the path (sequence of actions) used to reach a given observation. Provably ignores noisy TV like temporal distractions. A very fast and scalable algorithm for near-deterministic problems.
+2. **PPE: Path Prediction and Elimination**. Learns latent state/representation using a variant of multi-step inverse dynamics where the model predicts the identity of the path (sequence of actions) used to reach a given observation. Provably ignores noisy TV like temporal distractions. A very fast and scalable algorithm for near-deterministic problems.
 
-   **Citation**: Provable Rich Observation Reinforcement Learning with Combinatorial Latent States.
+   **Citation**: Provable RL with Exogenous Distractors via Multistep Inverse Dynamics, _Yonathan Efroni, Dipendra Misra, Akshay Krishnamurthy, Alekh Agarwal, and John Langford_ [\[ICLR 2022 Oral\]](https://openreview.net/pdf?id=RQLLzMCefQu)
 
-3. RicHID
+3. **RicHID**: Algorithm designed for control problems where the latent dynamics are [LQR](https://en.wikipedia.org/wiki/Linear%E2%80%93quadratic_regulator) but the LQR state is obfuscated by rich observational noise. Provably explores and extracts the latent state by predicting past actions from observation.
 
-4. FactoRL
+    **Citation**: Learning the Linear Quadratic Regulator from Nonlinear Observations, _Zakaria Mhammedi, Dylan J. Foster, Max Simchowitz, Dipendra Misra, Wen Sun, Akshay Krishnamurthy, Alexander Rakhlin, John Langford_ [\[NeurIPS 2020\]](https://papers.nips.cc/paper/2020/file/a70145bf8b173e4496b554ce57969e24-Paper.pdf)
+
+4. **FactoRL**:
 
 5. PSDP: Policy Search by Dynamic Programming
 
