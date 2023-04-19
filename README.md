@@ -1,3 +1,65 @@
+# Intrepid: INTeractive REPresentatIon Discovery
+
+Version: 0.0.1 beta
+
+This repository contains various decision making algorithms that learn a representation (or a latent state) from observational data
+in order to complete their tasks. 
+
+A list of algorithms, environments, and utils are given below. For full details see Wiki of this repository.
+
+## Algorithms Currently Supported
+
+1. Homer: Learns latent state/representation using temporal constrastive learning loss. Provably explores and optimizes reward in Block MDP setting. 
+          
+   **Citation**: Kinematic State Abstraction and Provably Efficient Rich-Observation Reinforcement Learning, _Dipendra Misra, Mikael Henaff, Akshay Krishnamurthy, John Langford_ [\[ICML 2020\]](http://proceedings.mlr.press/v119/misra20a/misra20a.pdf)
+        
+2. PPE: Path Prediction and Elimination. Learns latent state/representation using a variant of multi-step inverse dynamics where the model predicts the identity of the path (sequence of actions) used to reach a given observation. Provably ignores noisy TV like temporal distractions. A very fast and scalable algorithm for near-deterministic problems.
+
+   **Citation**: Provable Rich Observation Reinforcement Learning with Combinatorial Latent States.
+
+3. RicHID
+
+4. FactoRL
+
+5. PSDP: Policy Search by Dynamic Programming
+
+6. FQI: Fitted Q-Iteration
+
+7. 
+
+## Environments currently supported
+
+1. Challenging Block MDP environments: This includes Diabolical Combination Lock [Misra et al., 2020](http://proceedings.mlr.press/v119/misra20a/misra20a.pdf)
+2. Simple Newtonian Mechanics LQR problem
+3. Wrappers for OpenAI Gym, Matterport Simulator, Minigrid, and AI2Thor. You will need to install these packages on your own. We provide no guarantee for these repositories. See Wiki for details. 
+
+## Basic Usage in under 1 minute
+
+1. Git clone the repository.
+
+2. Go to the experiment folder.
+
+3. Run a sample code as `sh local_runs/run_homer.sh`
+
+## Citing this repository
+
+If you use this repository in your research and find it helpful, then please cite the usage as:
+
+``` 
+{Intrepid,
+
+title="Intrepid: INTeractive REPresentatIon Discovery, a library for decision making algorithms that learn latent state representation",
+
+authors="Dipendra Misra, Rajan Chari, Alex Lamb, Anurag Koul, Akshay Krishnamurthy, Dylan Foster, John Langford",
+
+year="2023"
+
+}
+```
+
+
+#### To remove stuff below ####
+
 # Project
 
 > This repo has been populated by an initial template to help get you started. Please
