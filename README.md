@@ -21,13 +21,13 @@ A list of algorithms, environments, and utils are given below. For full details 
 
     **Citation**: Learning the Linear Quadratic Regulator from Nonlinear Observations, _Zakaria Mhammedi, Dylan J. Foster, Max Simchowitz, Dipendra Misra, Wen Sun, Akshay Krishnamurthy, Alexander Rakhlin, John Langford_ [\[NeurIPS 2020\]](https://papers.nips.cc/paper/2020/file/a70145bf8b173e4496b554ce57969e24-Paper.pdf)
 
-4. **FactoRL**:
+4. **FactoRL (pron. Factorel)**: Algorithm designed for settings where the latent representation is factorized over a set of states with sparse dynamical evolution (Factored MDP dynamics). The latent state is extracted by performing independence test over pairs of atoms (e.g., pixels/tokens) of the observation. This is followed by performing contrastive learning similar to in-painting. The algorithm has guarantee of success under certain assumptions. However, the algorithm is quite computationally expensive to run.
 
-5. PSDP: Policy Search by Dynamic Programming
+     **Citation**: Provable Rich Observation Reinforcement Learning with Combinatorial Latent States, _Dipendra Misra, Qinghua Liu, Chi Jin, John Langford_ [\[ICLR 2021\]](https://openreview.net/pdf?id=hx1IXFHAw7R) [\[RL Theory Seminar\]](https://www.youtube.com/watch?v=SEE5Snqhd40&ab_channel=RLtheoryseminars)
 
-6. FQI: Fitted Q-Iteration
+5. **Sabre**: Sabre is an algorithm for Safe Reinforcement Learning that assumes a safety function that can only provide binary feedback (safe/unsafe). This safety function is unknown but can be queried. The algorithm works by performing a sequence of active learning queries for safety while ensuring possible coverage so safety can be learned everywhere. Under certain assumptions, the algorithm can guarantee never taking any unsafe action even during training, optimizing calls to safety, and finding safest optimal policy.
 
-7. 
+    **Citation**: Provable Safe Reinforcement Learning with Binary Feedback, _Andrew Bennett, Dipendra Misra, and Nathan Kallus_ [\[AISTATS 2023\]](https://arxiv.org/pdf/2210.14492.pdf)
 
 ## Environments currently supported
 
