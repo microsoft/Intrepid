@@ -1,0 +1,19 @@
+## Requirements file for INTREPID: Interactive Representation Discovery
+## Note that not all algorithms may need all of the packages below.
+
+## Requirements without Version Specifiers
+scikit-learn
+scikit-image
+scipy
+imageio
+tensorboardX
+matplotlib
+torch
+torchvision
+ai2thor
+
+## Requirements with Version Specifiers
+torch>=1.8.1
+torchvision>=0.9.1
+gym-minigrid>=1.0.3
+gym>=0.17.3
