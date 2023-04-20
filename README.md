@@ -48,31 +48,16 @@ A list of algorithms, environments, and utils are given below. For full details 
 If you use this repository in your research and find it helpful, then please cite the usage as:
 
 ``` 
-{Intrepid,
+@software{Intrepid,
 
-title="Intrepid: INTeractive REPresentatIon Discovery, a library for decision making algorithms that learn latent state representation",
+title = "Intrepid: INTeractive REPresentatIon Discovery, a library for decision making algorithms that learn latent state representation",
 
-authors="Dipendra Misra, Rajan Chari, Alex Lamb, Anurag Koul, Akshay Krishnamurthy, Dylan Foster, John Langford",
+authors = "Dipendra Misra, Rajan Chari, Alex Lamb, Anurag Koul, Byron Xu, Akshay Krishnamurthy, Dylan Foster, John Langford",
 
-year="2023"
+year = "2023"
 
 }
 ```
-
-
-#### To remove stuff below ####
-
-# Project
-
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
-
-As the maintainer of this project, please make a few updates:
-
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
 
 ## Contributing
 
