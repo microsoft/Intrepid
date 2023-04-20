@@ -1,5 +1,7 @@
 ## Requirements file for INTREPID: Interactive Representation Discovery
 ## Note that not all algorithms may need all of the packages below.
+## If you are unable to install a particular package, then it
+## maybe worth trying to comment it below and install the others.
 
 ## Requirements without Version Specifiers
 scikit-learn
@@ -8,8 +10,6 @@ scipy
 imageio
 tensorboardX
 matplotlib
-torch
-torchvision
 ai2thor
 
 ## Requirements with Version Specifiers
