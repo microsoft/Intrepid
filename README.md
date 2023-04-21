@@ -29,7 +29,7 @@ A list of algorithms, environments, and utils are given below. For full details 
 
     **Citation**: Provable Safe Reinforcement Learning with Binary Feedback, _Andrew Bennett, Dipendra Misra, and Nathan Kallus_ [\[AISTATS 2023\]](https://arxiv.org/pdf/2210.14492.pdf)
     
-In addition to the above, there is also support for frequently used tabular RL methods (e.g., Q-learning with Bonus [\[Jin et al. 2018\]](https://arxiv.org/pdf/1807.03765.pdf)) and policy search methods (e.g., Fitted Q-Iteration [\[FQI\]](https://nanjiang.cs.illinois.edu/files/cs598/note5.pdf) and Policy Search by Dynamic Programming [\[Bagnell et al., 2003\]](https://papers.nips.cc/paper_files/paper/2003/hash/3837a451cd0abc5ce4069304c5442c87-Abstract.html)). 
+In addition to the above, there is also support for frequently used tabular RL methods (e.g., Q-learning with Bonus [\[Jin et al. 2018\]](https://arxiv.org/pdf/1807.03765.pdf)) and policy search methods (e.g., Fitted Q-Iteration [\[Nan Jiang's note on FQI\]](https://nanjiang.cs.illinois.edu/files/cs598/note5.pdf) and Policy Search by Dynamic Programming [\[Bagnell et al., 2003\]](https://papers.nips.cc/paper_files/paper/2003/hash/3837a451cd0abc5ce4069304c5442c87-Abstract.html)). 
 
 We hope to include more algorithms in the future particularly those for representation discovery via self-supervised learning, and any RL algorithm that has provable regret or PAC guarantees which are typically unavailable in popular DeepRL repositories.
 
