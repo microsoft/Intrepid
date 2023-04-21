@@ -1,9 +1,8 @@
-# Intrepid: INTeractive REPresentatIon Discovery
+# INTeractive learning via REPresentatIon Discovery
 
 Version: 0.0.1 beta
 
-This repository contains various decision making algorithms that learn a representation (or a latent state) from observational data
-in order to complete their tasks. 
+INTREPID (stands for INTeractive learning via REPresentatIon Discovery) is a library that contains various decision making algorithms that learn a representation (or a latent state) from observational data in order to complete their tasks. 
 
 A list of algorithms, environments, and utils are given below. For full details see Wiki of this repository.
 
