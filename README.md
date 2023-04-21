@@ -28,20 +28,30 @@ A list of algorithms, environments, and utils are given below. For full details 
 5. **Sabre**: Sabre is an algorithm for Safe Reinforcement Learning that assumes a safety function that can only provide binary feedback (safe/unsafe). This safety function is unknown but can be queried. The algorithm works by performing a sequence of active learning queries for safety while ensuring possible coverage so safety can be learned everywhere. Under certain assumptions, the algorithm can guarantee never taking any unsafe action even during training, optimizing calls to safety, and finding safest optimal policy.
 
     **Citation**: Provable Safe Reinforcement Learning with Binary Feedback, _Andrew Bennett, Dipendra Misra, and Nathan Kallus_ [\[AISTATS 2023\]](https://arxiv.org/pdf/2210.14492.pdf)
+    
+In addition to the above, there is also support for frequently used tabular RL methods (e.g., Q-learning with Bonus [\[Jin et al. 2018\]](https://arxiv.org/pdf/1807.03765.pdf)) and policy search methods (e.g., Fitted Q-Iteration [\[FQI\]](https://nanjiang.cs.illinois.edu/files/cs598/note5.pdf) and Policy Search by Dynamic Programming [\[Bagnell et al., 2003]\](https://papers.nips.cc/paper_files/paper/2003/hash/3837a451cd0abc5ce4069304c5442c87-Abstract.html)). 
+
+We hope to include more algorithms in the future particularly those for representation discovery via self-supervised learning, and any RL algorithm that has provable regret or PAC guarantees which are typically unavailable in popular DeepRL repositories.
 
 ## Environments currently supported
 
-1. Challenging Block MDP environments: This includes Diabolical Combination Lock [Misra et al., 2020](http://proceedings.mlr.press/v119/misra20a/misra20a.pdf)
+1. Challenging Block MDP environments: This includes Diabolical Combination Lock [\[Misra et al., 2020\]](http://proceedings.mlr.press/v119/misra20a/misra20a.pdf)
 2. Simple Newtonian Mechanics LQR problem
 3. Wrappers for OpenAI Gym, Matterport Simulator, Minigrid, and AI2Thor. You will need to install these packages on your own. We provide no guarantee for these repositories. See Wiki for details. 
 
 ## Basic Usage in under 1 minute
 
-1. Git clone the repository.
+The code is built primarily using Python with PyTorch and is regularly tested on OSX and Linux Systems. However, the code should also work on any other system which supports these base dependencies. To run a sample code in under a minute do the following.
 
-2. Go to the experiment folder.
+1. Git clone the repository `git clone https://github.com/microsoft/Intrepid.git`
 
-3. Run a sample code as `sh local_runs/run_homer.sh`
+2. Go to the Intrepid folder in a terminal.
+
+3. Install requirements. If you are using pip then you can install them as `python3 -m pip install requirements.txt`. 
+
+3. Run a sample code as `sh local_runs/run_homer.sh`. This will run the Homer algorithm on a toy task and should generate results inside the `./results` folder.
+
+For full functionality please see the [wiki](https://github.com/microsoft/Intrepid/wiki) of this repository.
 
 ## Citing this repository
 
@@ -67,7 +77,8 @@ the rights to use your contribution. For details, visit https://cla.opensource.m
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide
 a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
+provided by the bot. You will only need to do this once across all repos using our CLA. 
+Please use [PEP](https://peps.python.org/pep-0008/) standards for python programming if you send us pull request.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
