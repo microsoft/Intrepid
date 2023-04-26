@@ -2,9 +2,17 @@
 
 Version: 0.0.1 beta
 
-INTREPID (stands for INTeractive learning via REPresentatIon Discovery) is a library that contains various decision making algorithms that learn a representation (or a latent state) from observational data in order to complete their tasks. 
+INTREPID (stands for INTeractive learning via REPresentatIon Discovery) is a library that contains various interactive learning algorithms that learn a representation (or a latent state) from observational data in order to complete their tasks. 
 
-A list of algorithms, environments, and utils are given below. For full details see Wiki of this repository.
+A list of algorithms, environments, and utils are given below. For full details see [Wiki](https://github.com/microsoft/Intrepid/wiki) of this repository.
+
+## What is Interactive Learning and Representation Discovery
+
+Consider any agent, also called decision maker, (e.g., a bot, robot, LLM) that is taking actions in an environment (e.g., a place, an OS). The world changes as a effect of the agent's action and also because of other noise in (e.g., a person maybe moving in the background or an OS may receive a notification unrelated to what the bot did). The goal of this agent is to solve a task, e.g., navigate safetly to a given location, or compose an email and send it off. The agent maybe take a series of actions to accomplish its goal. This is called an *Interactive Learning* task as the agent interacts with the world.
+
+Typically, the observes the world in the form of a complex representation (e.g., an image, a large piece of text). It is useful for solving the task to map this representation into a more manageable representation from which it is easier to learn how to take actions, or model the dynamics of the world. A large-language-model, for example, does this internally by predicting the next token using a large corpus of data. However, for a robot or software, there can be other approaches for learning this representation. This is called the *Representation Discovery* problem.
+
+As the name suggests, INTREPID is designed to discover representation for the purpose of interactive learning. INTREPID is designed to contain state-of-the-art algorithms for mapping the observation into representation for the purpose of taking actions, learning the world model, debugging, or visualization. INTREPID also contains various interactive learning algorithms that use this representation to optimize reward, and learn a policy. This is an continual evolving repository with a lot of features to come over time. To contribute, see the contributing section below.
 
 ## Algorithms Currently Supported
 
