@@ -11,7 +11,6 @@ from learning.core_learner.sabre import Sabre
 
 
 def main():
-
     exp_setup = get_header()
 
     performance = []
@@ -26,11 +25,12 @@ def main():
     all_metrics = []
 
     for exp_id in range(1, num_runs + 1):
-
         exp_setup.config["seed"] = seeds[exp_id - 1]
         exp_setup.config["env_seed"] = seeds[exp_id - 1] * 10
         exp_setup.logger.log(
-            "========= STARTING EXPERIMENT %d (Seed = %d) ======== " % (exp_id, exp_setup.config["seed"]))
+            "========= STARTING EXPERIMENT %d (Seed = %d) ======== "
+            % (exp_id, exp_setup.config["seed"])
+        )
 
         # Set the random seed
         random.seed(exp_setup.config["seed"])
@@ -52,9 +52,9 @@ def main():
         learning_alg = Sabre(exp_setup)
         exp_setup.logger.log("Running SABRE: Reward Only %r" % reward_only)
 
-        policy_result = learning_alg.train(env=env,
-                                           exp_id=exp_id,
-                                           reward_only=reward_only)
+        policy_result = learning_alg.train(
+            env=env, exp_id=exp_id, reward_only=reward_only
+        )
 
         # fname = "./pt/sabre-clean-1/" \
         #         "sabre_sabre-clean-1_hor_5_max_1000_sabreb_1_sabree_500_sabref_1_sabrem_100_sabren_5_see_1234/" \
@@ -64,13 +64,15 @@ def main():
         #                                                  model_fname=fname)
 
         performance.append(policy_result)
-        all_metrics.append({
-            "Traces": env.get_traces(),
-            "Unsafe Action Metric": env.unsafe_actions_metric,
-            "Total Unsafe Action": env.num_unsafe_actions,
-            "Total Oracle Calls": env.num_oracle_calls,
-            "Oracle Call Metric": env.num_oracle_calls_metric
-        })
+        all_metrics.append(
+            {
+                "Traces": env.get_traces(),
+                "Unsafe Action Metric": env.unsafe_actions_metric,
+                "Total Unsafe Action": env.num_unsafe_actions,
+                "Total Oracle Calls": env.num_oracle_calls,
+                "Oracle Call Metric": env.num_oracle_calls_metric,
+            }
+        )
 
     # Save traces
     with open("%s/metrics.pickle" % exp_setup.experiment, "wb") as f:
@@ -80,8 +82,7 @@ def main():
 
 
 if __name__ == "__main__":
-
     print("SETTING THE START METHOD ")
     mp.freeze_support()
-    mp.set_start_method('spawn')
+    mp.set_start_method("spawn")
     main()

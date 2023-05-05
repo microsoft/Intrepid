@@ -12,7 +12,6 @@ from environments.cerebral_env_meta.make_env import MakeEnvironment
 
 
 def main():
-
     exp_setup = get_header()
 
     performance = []
@@ -25,11 +24,12 @@ def main():
         num_runs = 1
 
     for exp_id in range(1, num_runs + 1):
-
         exp_setup.config["seed"] = seeds[exp_id - 1]
         exp_setup.config["env_seed"] = seeds[exp_id - 1] * 10
         exp_setup.logger.log(
-            "========= STARTING EXPERIMENT %d (Seed = %d) ======== " % (exp_id, exp_setup.config["seed"]))
+            "========= STARTING EXPERIMENT %d (Seed = %d) ======== "
+            % (exp_id, exp_setup.config["seed"])
+        )
 
         # Set the random seed
         random.seed(exp_setup.config["seed"])
@@ -56,9 +56,10 @@ def main():
         plt.pause(1)
 
         for h in range(exp_setup.config["horizon"]):
-
             while True:
-                action_str = input("[Time Step %d] Enter action (or q to quit):" % (h + 1))
+                action_str = input(
+                    "[Time Step %d] Enter action (or q to quit):" % (h + 1)
+                )
                 # action_str = str(random.choice(actions))
                 # action_str = str(env.get_optimal_action())
                 try:
@@ -68,7 +69,9 @@ def main():
                         action = int(action_str)
 
                 except ValueError:
-                    print("Entered value has to be an action (integer) or q to denote quit")
+                    print(
+                        "Entered value has to be an action (integer) or q to denote quit"
+                    )
                     continue
 
                 else:
@@ -96,8 +99,7 @@ def main():
 
 
 if __name__ == "__main__":
-
     print("SETTING THE START METHOD ")
     mp.freeze_support()
-    mp.set_start_method('spawn')
+    mp.set_start_method("spawn")
     main()

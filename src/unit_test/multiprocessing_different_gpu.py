@@ -10,35 +10,39 @@ from copy import deepcopy
 
 
 class Worker:
-
     def __init__(self):
         pass
 
     @staticmethod
-    def forward(id, model, gpu_id): 
-
+    def forward(id, model, gpu_id):
         # Set this process to use a different GPU
         torch.cuda.set_device(gpu_id)
         assert gpu_id == torch.cuda.current_device()
-        
+
         a = np.eye(32)
         vector = cuda_var(torch.from_numpy(a)).float()
 
         output = None
         for i in range(0, 25000):  # A time consuming process
             output = model(vector)
-        print("Client %r: Given GPU-ID to use %d, using GPU-ID %r out of %r, Output Sum is %r" % (id, gpu_id, torch.cuda.current_device(), torch.cuda.device_count(), output.sum()))
+        print(
+            "Client %r: Given GPU-ID to use %d, using GPU-ID %r out of %r, Output Sum is %r"
+            % (
+                id,
+                gpu_id,
+                torch.cuda.current_device(),
+                torch.cuda.device_count(),
+                output.sum(),
+            )
+        )
+
 
 class Model(nn.Module):
-
     def __init__(self):
         super(Model, self).__init__()
 
         self.transform = nn.Sequential(
-            nn.Linear(32, 64),
-            nn.ReLU(),
-            nn.Linear(64, 32),
-            nn.ReLU()
+            nn.Linear(32, 64), nn.ReLU(), nn.Linear(64, 32), nn.ReLU()
         )
 
         if torch.cuda.is_available():
@@ -50,7 +54,7 @@ class Model(nn.Module):
 
 if __name__ == "__main__":
     mp.freeze_support()
-    mp.set_start_method('spawn')
+    mp.set_start_method("spawn")
 
     a = np.eye(32)
     a_v = cuda_var(torch.from_numpy(a)).float()

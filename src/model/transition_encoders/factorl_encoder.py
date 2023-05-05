@@ -8,7 +8,6 @@ from utils.gumbel import gumbel_sample
 
 
 class FactoRLEncoder(nn.Module):
-
     def __init__(self, budget, factor_obs_dim, config, constants):
         super(FactoRLEncoder, self).__init__()
 
@@ -17,24 +16,23 @@ class FactoRLEncoder(nn.Module):
         self.budget = budget
         self.temperature = 1.0
 
-        if config["feature_type"] == 'feature':
+        if config["feature_type"] == "feature":
+            self.obs_encoder = nn.Sequential(nn.Linear(factor_obs_dim, self.budget))
 
-            self.obs_encoder = nn.Sequential(
-                nn.Linear(factor_obs_dim, self.budget)
-            )
-
-            self.prev_encoder = nn.Sequential(
-                nn.Linear(config["obs_dim"], 3)
-            )
+            self.prev_encoder = nn.Sequential(nn.Linear(config["obs_dim"], 3))
 
             # Phi
             self.phi_embedding = nn.Embedding(self.budget, self.budget)
-            self.phi_embedding.weight.data.copy_(torch.from_numpy(np.eye(self.budget)).float())
+            self.phi_embedding.weight.data.copy_(
+                torch.from_numpy(np.eye(self.budget)).float()
+            )
             self.phi_embedding.weight.requires_grad = False
 
             # action embedding
             self.action_emb = nn.Embedding(config["num_actions"], config["num_actions"])
-            self.action_emb.weight.data.copy_(torch.from_numpy(np.eye(config["num_actions"])).float())
+            self.action_emb.weight.data.copy_(
+                torch.from_numpy(np.eye(config["num_actions"])).float()
+            )
             self.action_emb.weight.requires_grad = False
 
             self.abstract_state_emb = self.budget
@@ -43,9 +41,11 @@ class FactoRLEncoder(nn.Module):
 
             # Model head
             self.classifier = nn.Sequential(
-                nn.Linear(3 + config["num_actions"] + self.budget, constants["n_hidden"]),
+                nn.Linear(
+                    3 + config["num_actions"] + self.budget, constants["n_hidden"]
+                ),
                 nn.LeakyReLU(),
-                nn.Linear(constants["n_hidden"], 2)
+                nn.Linear(constants["n_hidden"], 2),
             )
 
         else:
@@ -54,7 +54,9 @@ class FactoRLEncoder(nn.Module):
         if torch.cuda.is_available():
             self.cuda()
 
-    def gen_logits_(self, prev_observations, actions, observations, discretized, type="logsoftmax"):
+    def gen_logits_(
+        self, prev_observations, actions, observations, discretized, type="logsoftmax"
+    ):
         """
         :param prev_obs:    Pytorch float tensor of size batch x dim1
         :param action:      Pytorch long tensor of size batch
@@ -62,7 +64,7 @@ class FactoRLEncoder(nn.Module):
         :return:
         """
 
-        if self.config["feature_type"] == 'image':
+        if self.config["feature_type"] == "image":
             raise AssertionError()
 
         prev_encoding = self.prev_encoder(prev_observations)
@@ -90,19 +92,24 @@ class FactoRLEncoder(nn.Module):
         else:
             raise AssertionError("Unhandled type ", type)
 
-        return result, {"mean_entropy": mean_entropy, "assigned_states": argmax_indices, "prob": prob}
+        return result, {
+            "mean_entropy": mean_entropy,
+            "assigned_states": argmax_indices,
+            "prob": prob,
+        }
 
     def gen_log_prob(self, prev_observations, actions, observations, discretized):
-        return self.gen_logits_(prev_observations, actions, observations, discretized, type="logsoftmax")
+        return self.gen_logits_(
+            prev_observations, actions, observations, discretized, type="logsoftmax"
+        )
 
     def encode_observations(self, observations):
-
         observations = cuda_var(torch.from_numpy(observations)).float()
 
-        if self.config["feature_type"] == 'image':
+        if self.config["feature_type"] == "image":
             observations = observations.view(-1, self.channels, self.height, self.width)
             observations = self.img_encoder_conv(observations).view(1, -1)
-        elif self.config["feature_type"] == 'feature':
+        elif self.config["feature_type"] == "feature":
             assert len(observations.size()) == 1
             observations = observations.view(1, -1)
         else:

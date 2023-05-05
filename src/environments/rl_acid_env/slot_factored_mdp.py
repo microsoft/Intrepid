@@ -4,13 +4,11 @@ import numpy as np
 
 
 class SlotFactoredMDP:
-
     GAUSSIAN, GAUSSIAN2 = range(2)
 
     env_name = "slotfactoredmdp"
 
     def __init__(self, config):
-
         # Dimension of the world
         self.horizon = config["horizon"]
         self.num_factors = config["state_dim"]
@@ -43,23 +41,26 @@ class SlotFactoredMDP:
             for i in range(0, self.num_factors):
                 # Each factor emits two atoms, e.g., factor i emits atoms 2i and 2i+1, and these are, however,
                 # shuffled and put in different buckets
-                self.atom_factor_set[step].append([atom_set[2 * i], atom_set[2 * i + 1]])
+                self.atom_factor_set[step].append(
+                    [atom_set[2 * i], atom_set[2 * i + 1]]
+                )
 
                 # y = np.random.randint(0, 2)
-                y = 0       # TODO enable other noise
+                y = 0  # TODO enable other noise
                 if y == 0:
                     self.noise_type[step].append(SlotFactoredMDP.GAUSSIAN)
                 else:
                     self.noise_type[step].append(SlotFactoredMDP.GAUSSIAN2)
 
-        assert self.num_factors == self.num_action, "Number of actions should be equal to number of factors"
+        assert (
+            self.num_factors == self.num_action
+        ), "Number of actions should be equal to number of factors"
 
         # Quantities below will change as agent takes action
         self.curr_state = None
         self.timestep = 0
 
     def reset(self):
-
         curr_state_ = [0] * self.num_factors
         self.curr_state = np.array(curr_state_)
 
@@ -74,40 +75,45 @@ class SlotFactoredMDP:
         return 0.0
 
     def make_obs(self, state):
-        """ Each state currently gets two atoms """
+        """Each state currently gets two atoms"""
 
         data = []
         for ix in range(0, self.num_factors):
-
             # vec = np.zeros(2).astype(np.float32)
             # vec[state[ix]] = 1.0
             # vec += np.random.normal(loc=0.0, scale=0.1, size=(2,))      # Add noise
 
             if self.noise_type[self.timestep][ix] == SlotFactoredMDP.GAUSSIAN:
-
                 if state[ix] == 0:
                     vec = np.array([1.0, 0.0]).astype(np.float32)
                 elif state[ix] == 1:
                     vec = np.array([0.0, 1.0]).astype(np.float32)
                 else:
-                    raise AssertionError("State can only take value in {0, 1}. Found value %r" % state[ix])
+                    raise AssertionError(
+                        "State can only take value in {0, 1}. Found value %r"
+                        % state[ix]
+                    )
 
                 vec += np.random.normal(loc=0.0, scale=0.1, size=(1,))  # Add noise
 
             elif self.noise_type[self.timestep][ix] == SlotFactoredMDP.GAUSSIAN2:
-
                 val = -1.0 if random.randint(0, 1) == 0 else 1.0
                 if state[ix] == 0:
                     vec = np.array([0.5, val]).astype(np.float32)
                 elif state[ix] == 1:
                     vec = np.array([val, 0.5]).astype(np.float32)
                 else:
-                    raise AssertionError("State can only take value in {0, 1}. Found value %r" % state[ix])
+                    raise AssertionError(
+                        "State can only take value in {0, 1}. Found value %r"
+                        % state[ix]
+                    )
 
                 vec += np.random.normal(loc=0.0, scale=0.1, size=(1,))  # Add noise
 
             else:
-                raise AssertionError("Unhandled noise type %r" % self.noise_type[self.timestep][ix])
+                raise AssertionError(
+                    "Unhandled noise type %r" % self.noise_type[self.timestep][ix]
+                )
 
             data.append(vec)
 
@@ -121,22 +127,22 @@ class SlotFactoredMDP:
         return shuffled_obs
 
     def get_children_factors(self, step):
-
         return self.atom_factor_set[step]
 
     def step(self, action):
-        """ Given an action which is the acceleration output. Returns
-            obs, reward, done, info
+        """Given an action which is the acceleration output. Returns
+        obs, reward, done, info
         """
 
         # self.visualize(self.curr_state, action)
 
         if self.timestep >= self.horizon:
             # Cannot take any more actions
-            raise AssertionError("Cannot take any more actions this episode. Horizon completed")
+            raise AssertionError(
+                "Cannot take any more actions this episode. Horizon completed"
+            )
 
         else:
-
             new_state = self.curr_state.copy()
 
             for i in range(self.num_factors):
@@ -158,9 +164,7 @@ class SlotFactoredMDP:
 
 
 class SlotFactoredMDP1:
-
     def __init__(self, config):
-
         # Dimension of the world
         self.grid_x = config["grid_x"]
         self.grid_y = config["grid_y"]
@@ -178,7 +182,6 @@ class SlotFactoredMDP1:
         self.timestep = 0
 
     def reset(self):
-
         curr_state_ = []
 
         for _ in range(self.grid_y):
@@ -186,7 +189,7 @@ class SlotFactoredMDP1:
             random.shuffle(indices)
             curr_state_.append(indices)
 
-        self.curr_state = np.array(curr_state_).transpose()         # self.grid_x x self.grid_y
+        self.curr_state = np.array(curr_state_).transpose()  # self.grid_x x self.grid_y
 
         self.timestep = 0
         curr_obs = self.make_obs(self.curr_state)
@@ -199,7 +202,6 @@ class SlotFactoredMDP1:
         return 0.0
 
     def make_obs(self, state):
-
         data = []
         for row in range(0, self.grid_x):
             for col in range(0, self.grid_y):
@@ -211,18 +213,19 @@ class SlotFactoredMDP1:
         return np.array(data).astype(np.float32)
 
     def step(self, action):
-        """ Given an action which is the acceleration output. Returns
-            obs, reward, done, info
+        """Given an action which is the acceleration output. Returns
+        obs, reward, done, info
         """
 
         # self.visualize(self.curr_state, action)
 
         if self.timestep >= self.horizon:
             # Cannot take any more actions
-            raise AssertionError("Cannot take any more actions this episode. Horizon completed")
+            raise AssertionError(
+                "Cannot take any more actions this episode. Horizon completed"
+            )
 
         else:
-
             action_x, action_y = action // self.grid_y, action % self.grid_y
             new_state = self.curr_state.copy()
             prev_x = (action_x - 1) % self.grid_x

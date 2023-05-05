@@ -3,11 +3,10 @@ from model.transition_encoders.compositional_encoder_model import *
 
 
 class EncoderModelWrapper:
-    """ Wrapper for encoder model """
+    """Wrapper for encoder model"""
 
     @staticmethod
     def get_encoder_model(model_type, config, constants, bootstrap_model=None):
-
         if model_type == "backwardmodel":
             return BackwardEncoderModel(config, constants, bootstrap_model)
         elif model_type == "forwardmodel":

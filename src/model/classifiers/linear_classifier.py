@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 
 class LinearClassifier(nn.Module):
-    """ Linear classifier """
+    """Linear classifier"""
 
     NAME = "linear"
 
@@ -15,13 +15,12 @@ class LinearClassifier(nn.Module):
         self.config = config
         self.constants = constants
 
-        if config["feature_type"] == 'feature':
-
+        if config["feature_type"] == "feature":
             self.obs_encoder = nn.Sequential(
                 nn.Linear(config["obs_dim"], self.num_class)
             )
 
-        elif config["feature_type"] == 'image':
+        elif config["feature_type"] == "image":
             raise NotImplementedError()
 
         else:
@@ -34,8 +33,7 @@ class LinearClassifier(nn.Module):
             self.load_state_dict(bootstrap_model.state_dict())
 
     def _gen_logits(self, observations, return_log_prob=True):
-
-        if self.config["feature_type"] == 'image':
+        if self.config["feature_type"] == "image":
             raise AssertionError("Cannot handle images right now")
 
         logits = self.obs_encoder(observations)
@@ -52,14 +50,12 @@ class LinearClassifier(nn.Module):
         return self._gen_logits(observations, return_log_prob=False)
 
     def save(self, folder_name, model_name=None):
-
         if model_name is None:
             torch.save(self.state_dict(), folder_name + LinearClassifier.NAME)
         else:
             torch.save(self.state_dict(), folder_name + model_name)
 
     def load(self, folder_name, model_name=None):
-
         if model_name is None:
             self.load_state_dict(torch.load(folder_name + LinearClassifier.NAME))
         else:

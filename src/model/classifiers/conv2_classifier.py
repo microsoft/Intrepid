@@ -7,7 +7,7 @@ from utils.cuda import cuda_var
 
 
 class Conv2Classifier(nn.Module):
-    """ Model for learning the forward kinematic inseparability """
+    """Model for learning the forward kinematic inseparability"""
 
     NAME = "conv2"
 
@@ -19,15 +19,15 @@ class Conv2Classifier(nn.Module):
         self.constants = constants
         self.channel = config["obs_dim"][2]
 
-        if config["feature_type"] == 'feature':
-
+        if config["feature_type"] == "feature":
             raise NotImplementedError()
 
-        elif config["feature_type"] == 'image':
-
-            self.encoding = cuda_var(self.positionalencoding2d(d_model=4,
-                                                               height=config["obs_dim"][0],
-                                                               width=config["obs_dim"][1]))
+        elif config["feature_type"] == "image":
+            self.encoding = cuda_var(
+                self.positionalencoding2d(
+                    d_model=4, height=config["obs_dim"][0], width=config["obs_dim"][1]
+                )
+            )
 
             self.input_shape = config["obs_dim"]
             n = self.input_shape[0]
@@ -40,7 +40,7 @@ class Conv2Classifier(nn.Module):
                 nn.Conv2d(16, 32, (4, 4), 2),
                 nn.ReLU(),
                 nn.Flatten(),
-                nn.Linear(800, num_class)
+                nn.Linear(800, num_class),
             )
 
             if bootstrap_model is not None:
@@ -67,26 +67,44 @@ class Conv2Classifier(nn.Module):
         :return: d_model*height*width position matrix
         """
         if d_model % 4 != 0:
-            raise ValueError("Cannot use sin/cos positional encoding with "
-                             "odd dimension (got dim={:d})".format(d_model))
+            raise ValueError(
+                "Cannot use sin/cos positional encoding with "
+                "odd dimension (got dim={:d})".format(d_model)
+            )
         pe = torch.zeros(d_model, height, width)
         # Each dimension use half of d_model
         d_model = int(d_model / 2)
-        div_term = torch.exp(torch.arange(0., d_model, 2) *
-                             -(math.log(10000.0) / d_model))
-        pos_w = torch.arange(0., width).unsqueeze(1)
-        pos_h = torch.arange(0., height).unsqueeze(1)
-        pe[0:d_model:2, :, :] = torch.sin(pos_w * div_term).transpose(0, 1).unsqueeze(1).repeat(1, height, 1)
-        pe[1:d_model:2, :, :] = torch.cos(pos_w * div_term).transpose(0, 1).unsqueeze(1).repeat(1, height, 1)
-        pe[d_model::2, :, :] = torch.sin(pos_h * div_term).transpose(0, 1).unsqueeze(2).repeat(1, 1, width)
-        pe[d_model + 1::2, :, :] = torch.cos(pos_h * div_term).transpose(0, 1).unsqueeze(2).repeat(1, 1, width)
+        div_term = torch.exp(
+            torch.arange(0.0, d_model, 2) * -(math.log(10000.0) / d_model)
+        )
+        pos_w = torch.arange(0.0, width).unsqueeze(1)
+        pos_h = torch.arange(0.0, height).unsqueeze(1)
+        pe[0:d_model:2, :, :] = (
+            torch.sin(pos_w * div_term)
+            .transpose(0, 1)
+            .unsqueeze(1)
+            .repeat(1, height, 1)
+        )
+        pe[1:d_model:2, :, :] = (
+            torch.cos(pos_w * div_term)
+            .transpose(0, 1)
+            .unsqueeze(1)
+            .repeat(1, height, 1)
+        )
+        pe[d_model::2, :, :] = (
+            torch.sin(pos_h * div_term).transpose(0, 1).unsqueeze(2).repeat(1, 1, width)
+        )
+        pe[d_model + 1 :: 2, :, :] = (
+            torch.cos(pos_h * div_term).transpose(0, 1).unsqueeze(2).repeat(1, 1, width)
+        )
 
         return pe
 
     def _gen_logits(self, observations, return_log_prob=True):
-
-        if self.config["feature_type"] == 'feature':
-            raise AssertionError("Conv classifier can only operate on images and not 1-D features.")
+        if self.config["feature_type"] == "feature":
+            raise AssertionError(
+                "Conv classifier can only operate on images and not 1-D features."
+            )
 
         logits = self.obs_encoder(observations)
 
@@ -114,14 +132,12 @@ class Conv2Classifier(nn.Module):
         return self._gen_logits(observations, return_log_prob=False)
 
     def save(self, folder_name, model_name=None):
-
         if model_name is None:
             torch.save(self.state_dict(), folder_name + Conv2Classifier.NAME)
         else:
             torch.save(self.state_dict(), folder_name + model_name)
 
     def load(self, folder_name, model_name=None):
-
         if model_name is None:
             self.load_state_dict(torch.load(folder_name + Conv2Classifier.NAME))
         else:

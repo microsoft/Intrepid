@@ -10,7 +10,6 @@ from environments.cerebral_env_meta.make_env import MakeEnvironment
 
 
 def main():
-
     exp_setup = get_header()
 
     performance = []
@@ -23,11 +22,12 @@ def main():
         num_runs = 1
 
     for exp_id in range(1, num_runs + 1):
-
         exp_setup.config["seed"] = seeds[exp_id - 1]
         exp_setup.config["env_seed"] = seeds[exp_id - 1] * 10
         exp_setup.logger.log(
-            "========= STARTING EXPERIMENT %d (Seed = %d) ======== " % (exp_id, exp_setup.config["seed"]))
+            "========= STARTING EXPERIMENT %d (Seed = %d) ======== "
+            % (exp_id, exp_setup.config["seed"])
+        )
 
         # Set the random seed
         random.seed(exp_setup.config["seed"])
@@ -44,12 +44,14 @@ def main():
         cover_validator = env.generate_homing_policy_validation_fn()
 
         learning_alg = Homer(exp_setup)
-        policy_result = learning_alg.train(env=env,
-                                           env_name=exp_setup.env_name,
-                                           homing_policy_validator=cover_validator,
-                                           exp_id=exp_id,
-                                           opt_reward=False,
-                                           num_processes=exp_setup.constants["num_processes"])
+        policy_result = learning_alg.train(
+            env=env,
+            env_name=exp_setup.env_name,
+            homing_policy_validator=cover_validator,
+            exp_id=exp_id,
+            opt_reward=False,
+            num_processes=exp_setup.constants["num_processes"],
+        )
 
         performance.append(policy_result)
 
@@ -57,8 +59,7 @@ def main():
 
 
 if __name__ == "__main__":
-
     print("SETTING THE START METHOD ")
     mp.freeze_support()
-    mp.set_start_method('spawn')
+    mp.set_start_method("spawn")
     main()

@@ -2,7 +2,6 @@ from model.inverse_dynamics_model.action_predictor import *
 
 
 class InverseDynamicsWrapper:
-
     FF = range(1)
 
     def __init__(self):
@@ -10,7 +9,6 @@ class InverseDynamicsWrapper:
 
     @staticmethod
     def get_model(config, constants, bootstrap_model=None):
-
         model_type_str = constants["model_type"]
         if model_type_str == "ff":
             return ActionPredictor(config, constants, bootstrap_model)

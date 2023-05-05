@@ -2,7 +2,7 @@ import math
 
 
 def get_conv_out_size(h, w, kernel_size, stride, dilation=1, padding=0):
-    """ Note that in PyTorch the image is channel x height x width """
+    """Note that in PyTorch the image is channel x height x width"""
 
     if type(kernel_size) == tuple:
         kernel_size_h, kernel_size_w = kernel_size
@@ -36,12 +36,18 @@ def get_conv_out_size(h, w, kernel_size, stride, dilation=1, padding=0):
     else:
         raise AssertionError("Stride must either be tuple with 2 values or int")
 
-    h_out = int(math.floor(
-        (h + 2 * padding_h - dilation_h * (kernel_size_h - 1) - 1) / float(stride_h) + 1
-    ))
+    h_out = int(
+        math.floor(
+            (h + 2 * padding_h - dilation_h * (kernel_size_h - 1) - 1) / float(stride_h)
+            + 1
+        )
+    )
 
-    w_out = int(math.floor(
-        (w + 2 * padding_w - dilation_w * (kernel_size_w - 1) - 1) / float(stride_w) + 1
-    ))
+    w_out = int(
+        math.floor(
+            (w + 2 * padding_w - dilation_w * (kernel_size_w - 1) - 1) / float(stride_w)
+            + 1
+        )
+    )
 
     return h_out, w_out

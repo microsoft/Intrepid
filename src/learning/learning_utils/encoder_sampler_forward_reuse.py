@@ -8,24 +8,27 @@ from learning.learning_utils.transition import TransitionDatapoint
 
 
 class EncoderSamplerForwardReUse(AbstractEncoderSampler):
-    """ Sampling procedure: Collect (x, a, x') by rolling in with a uniformly chosen policy
-     followed by taking an action uniformly. For each sample (x, a, x') add k noise of the form
-     (\tilde{x}, \tilde{a}, x') where \tilde{x}, \tilde{a} are randomly sampled from another example.
-     k is tunable and defaults to 1.
+    """Sampling procedure: Collect (x, a, x') by rolling in with a uniformly chosen policy
+    followed by taking an action uniformly. For each sample (x, a, x') add k noise of the form
+    (\tilde{x}, \tilde{a}, x') where \tilde{x}, \tilde{a} are randomly sampled from another example.
+    k is tunable and defaults to 1.
 
-     Each sample takes exactly 1 episode.
-     """
+    Each sample takes exactly 1 episode.
+    """
 
     def __init__(self):
         AbstractEncoderSampler.__init__(self)
 
     @staticmethod
-    def gather_samples(num_samples, env, actions, step, homing_policies, selection_weights=None, k=1):
-
+    def gather_samples(
+        num_samples, env, actions, step, homing_policies, selection_weights=None, k=1
+    ):
         pos_dataset = []
         for _ in range(num_samples):
             pos_dataset.append(
-                EncoderSamplerForwardReUse._gather_sample(env, actions, step, homing_policies, selection_weights)
+                EncoderSamplerForwardReUse._gather_sample(
+                    env, actions, step, homing_policies, selection_weights
+                )
             )
 
         num_pos = len(pos_dataset)
@@ -33,7 +36,6 @@ class EncoderSamplerForwardReUse(AbstractEncoderSampler):
         neg_dataset = []
         for i in range(num_pos):
             for _ in range(k):
-
                 # Find a negative example
                 neg_data = pos_dataset[i].make_copy()
 
@@ -41,13 +43,17 @@ class EncoderSamplerForwardReUse(AbstractEncoderSampler):
                 j = random.randint(0, num_pos - 1)
                 chosen_sample = pos_dataset[j]
 
-                neg_data.y = 0                                      # Marked as fake
-                neg_data.curr_obs = chosen_sample.curr_obs          # Replaced curr observation
-                neg_data.curr_state = chosen_sample.curr_state      # Replaced curr state
-                neg_data.action = chosen_sample.action              # Replaced action
-                neg_data.action_prob = chosen_sample.action_prob    # Replaced action probability
-                neg_data.policy_index = chosen_sample.policy_index  # Replaced policy that generates curr_obs
-                neg_data.reward = None                              # Reward for fake transition makes little sense
+                neg_data.y = 0  # Marked as fake
+                neg_data.curr_obs = chosen_sample.curr_obs  # Replaced curr observation
+                neg_data.curr_state = chosen_sample.curr_state  # Replaced curr state
+                neg_data.action = chosen_sample.action  # Replaced action
+                neg_data.action_prob = (
+                    chosen_sample.action_prob
+                )  # Replaced action probability
+                neg_data.policy_index = (
+                    chosen_sample.policy_index
+                )  # Replaced policy that generates curr_obs
+                neg_data.reward = None  # Reward for fake transition makes little sense
 
                 neg_dataset.append(neg_data)
 
@@ -62,11 +68,10 @@ class EncoderSamplerForwardReUse(AbstractEncoderSampler):
 
     @staticmethod
     def _gather_sample(env, actions, step, homing_policies, selection_weights=None):
-        """ Gather sample using ALL_RANDOM style """
+        """Gather sample using ALL_RANDOM style"""
 
         start_obs, meta = env.reset()
         if step > 1:
-
             if selection_weights is None:
                 # Select a homing policy for the previous time step randomly uniformly
                 ix = random.randint(0, len(homing_policies[step - 1]) - 1)
@@ -94,7 +99,7 @@ class EncoderSamplerForwardReUse(AbstractEncoderSampler):
             curr_state = None
 
         deviation_action = random.choice(actions)
-        action_prob = 1.0/float(max(1, len(actions)))
+        action_prob = 1.0 / float(max(1, len(actions)))
 
         next_obs, reward, done, meta = env.step(deviation_action)
         new_meta = meta
@@ -104,15 +109,17 @@ class EncoderSamplerForwardReUse(AbstractEncoderSampler):
         else:
             next_state = None
 
-        data_point = TransitionDatapoint(curr_obs=current_obs,
-                                         action=deviation_action,
-                                         next_obs=next_obs,
-                                         y=1,
-                                         curr_state=curr_state,
-                                         next_state=next_state,
-                                         action_prob=action_prob,
-                                         policy_index=ix,
-                                         step=step,
-                                         reward=reward)
+        data_point = TransitionDatapoint(
+            curr_obs=current_obs,
+            action=deviation_action,
+            next_obs=next_obs,
+            y=1,
+            curr_state=curr_state,
+            next_state=next_state,
+            action_prob=action_prob,
+            policy_index=ix,
+            step=step,
+            reward=reward,
+        )
 
         return data_point

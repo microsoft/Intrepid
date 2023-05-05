@@ -5,11 +5,10 @@ from model.decoder.feedforward_decoder import FeedForwardDecoder
 
 
 class DecoderModelWrapper:
-    """ Wrapper for decoder models """
+    """Wrapper for decoder models"""
 
     @staticmethod
     def get_decoder(model_name, bootstrap_model=None, **kwargs):
-
         models = [FeedForwardDecoder.NAME, ConvDecoder.NAME, ConvDecoder2.NAME]
 
         if model_name == FeedForwardDecoder.NAME:
@@ -25,5 +24,7 @@ class DecoderModelWrapper:
             return ConvDecoderAI2Thor(**kwargs, bootstrap_model=bootstrap_model)
 
         else:
-            raise NotImplementedError("Model %s is not implemented. Implemented models are linear, %r" %
-                                      (model_name, models))
+            raise NotImplementedError(
+                "Model %s is not implemented. Implemented models are linear, %r"
+                % (model_name, models)
+            )

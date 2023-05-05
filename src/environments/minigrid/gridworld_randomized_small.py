@@ -13,15 +13,41 @@ class GridWorldRandSmall(MiniGridEnv):
     env_name = "gridworld-randomized-small"
 
     WALL_SQUARES = {
-            (3, 2), (3, 3), (3, 4), (3, 5), (3, 6), (3, 7), (3, 8), (3, 9),
-            (2, 3),
-            (4, 5), (5, 5),
-            (2, 8), (3, 8), (4, 8), (5, 8), (6, 8), (7, 8), (8, 8), (9, 8), (10, 8), (11, 8),
-            (9, 4), (9, 5), (9, 6), (9, 7),
-            (8, 2), (8, 3), (8, 4), (9, 4),
-            (6, 11), (7, 11), (8, 11), (9, 11),
-            (6, 10)
-        }
+        (3, 2),
+        (3, 3),
+        (3, 4),
+        (3, 5),
+        (3, 6),
+        (3, 7),
+        (3, 8),
+        (3, 9),
+        (2, 3),
+        (4, 5),
+        (5, 5),
+        (2, 8),
+        (3, 8),
+        (4, 8),
+        (5, 8),
+        (6, 8),
+        (7, 8),
+        (8, 8),
+        (9, 8),
+        (10, 8),
+        (11, 8),
+        (9, 4),
+        (9, 5),
+        (9, 6),
+        (9, 7),
+        (8, 2),
+        (8, 3),
+        (8, 4),
+        (9, 4),
+        (6, 11),
+        (7, 11),
+        (8, 11),
+        (9, 11),
+        (6, 10),
+    }
 
     MIN_GOAL_DIST = 5
     MAX_GOAL_DIST = 10
@@ -42,7 +68,6 @@ class GridWorldRandSmall(MiniGridEnv):
         right_forward = 4
 
     def __init__(self, config):
-
         width = config["width"]
         height = config["height"]
         horizon = config["horizon"]
@@ -63,7 +88,7 @@ class GridWorldRandSmall(MiniGridEnv):
             # Set this to True for maximum speed
             see_through_walls=False,
             seed=seed,
-            agent_view_size=agent_view_size
+            agent_view_size=agent_view_size,
         )
 
         self.min_dist_to_goal = None
@@ -75,10 +100,8 @@ class GridWorldRandSmall(MiniGridEnv):
         self.reward_decay_ratio = 0.1  # config["reward_decay_ratio"]
 
     def _create_bfs_map(self, height, width):
-
         for w in range(1, width - 1):
             for h in range(1, height - 1):
-
                 if (w, h) in GridWorldRandSmall.WALL_SQUARES:
                     continue
 
@@ -89,8 +112,13 @@ class GridWorldRandSmall(MiniGridEnv):
 
                     GridWorldRandSmall.BFS_PATH[start_state] = path_map
 
-                    selected_goals = [goal for goal, path in path_map.items() if
-                                      GridWorldRandSmall.MIN_GOAL_DIST <= len(path) <= GridWorldRandSmall.MAX_GOAL_DIST]
+                    selected_goals = [
+                        goal
+                        for goal, path in path_map.items()
+                        if GridWorldRandSmall.MIN_GOAL_DIST
+                        <= len(path)
+                        <= GridWorldRandSmall.MAX_GOAL_DIST
+                    ]
 
                     if len(selected_goals) > 0:
                         GridWorldRandSmall.BFS_Map[start_state] = selected_goals
@@ -100,14 +128,12 @@ class GridWorldRandSmall(MiniGridEnv):
         GridWorldRandSmall.BFS_MAP_KEYS = list(GridWorldRandSmall.BFS_Map.keys())
 
     def _get_path_map(self, start_state, width, height):
-
-        path_map = dict()       # Goals along with action sequence that takes the agent there
+        path_map = dict()  # Goals along with action sequence that takes the agent there
 
         queue = deque([start_state])
         path_map[start_state] = []
 
         while len(queue) > 0:
-
             state = queue.popleft()
             children = self._get_children(state, width, height)
 
@@ -127,7 +153,6 @@ class GridWorldRandSmall(MiniGridEnv):
         coalesced_path_map = dict()
 
         for goal, path in path_map.items():
-
             goal_pos = goal[0], goal[1]
 
             if goal_pos in coalesced_path_map:
@@ -140,7 +165,6 @@ class GridWorldRandSmall(MiniGridEnv):
 
     @staticmethod
     def _get_children(state, width, height):
-
         children = dict()
         children_set = set()
 
@@ -154,7 +178,6 @@ class GridWorldRandSmall(MiniGridEnv):
                 new_state = (w, h, (direction + 1) % 4)
 
             elif action == GridWorldRandSmall.Actions.forward:
-
                 if direction == 0:  # right
                     new_state = (w + 1, h, direction)
                 elif direction == 1:  # down
@@ -166,9 +189,13 @@ class GridWorldRandSmall(MiniGridEnv):
                 else:
                     raise AssertionError("Direction can only be in {0, 1, 2, 3}")
 
-                if new_state[0] == 0 or new_state[0] == width - 1 or \
-                    new_state[1] == 0 or new_state[1] == height - 1 or \
-                    (new_state[0], new_state[1]) in GridWorldRandSmall.WALL_SQUARES:
+                if (
+                    new_state[0] == 0
+                    or new_state[0] == width - 1
+                    or new_state[1] == 0
+                    or new_state[1] == height - 1
+                    or (new_state[0], new_state[1]) in GridWorldRandSmall.WALL_SQUARES
+                ):
                     continue
 
             else:
@@ -181,7 +208,6 @@ class GridWorldRandSmall(MiniGridEnv):
         return children
 
     def _gen_grid(self, width, height):
-
         assert width == 12 and height == 12
 
         # Create an empty grid
@@ -198,7 +224,9 @@ class GridWorldRandSmall(MiniGridEnv):
 
         agent_state = self.agent_pos[0], self.agent_pos[1], self.agent_dir
 
-        self.min_dist_to_goal = len(GridWorldRandSmall.BFS_PATH[agent_state][self.goal_pos])
+        self.min_dist_to_goal = len(
+            GridWorldRandSmall.BFS_PATH[agent_state][self.goal_pos]
+        )
 
         self.put_obj(Key("yellow"), *self.goal_pos)
 
@@ -213,7 +241,6 @@ class GridWorldRandSmall(MiniGridEnv):
 
     @staticmethod
     def _sample_agent_goal():
-
         agent_pos = random.choice(list(GridWorldRandSmall.BFS_MAP_KEYS))
         goal = random.choice(GridWorldRandSmall.BFS_Map[agent_pos])
 
@@ -231,13 +258,11 @@ class GridWorldRandSmall(MiniGridEnv):
         return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
     def reset(self):
-
         self.goal_reached = False
         self.last_done = False
         return super().reset()
 
     def step(self, action):
-
         if self.last_done:
             # If done then the agent gets stuck
             obs = None
@@ -268,19 +293,23 @@ class GridWorldRandSmall(MiniGridEnv):
         # Move forward
         if action == self.actions.left or action == self.actions.right:
             pass
-        elif action == self.actions.forward \
-                or action == self.actions.left_forward or action == self.actions.right_forward:
-
+        elif (
+            action == self.actions.forward
+            or action == self.actions.left_forward
+            or action == self.actions.right_forward
+        ):
             if fwd_cell is None or fwd_cell.can_overlap():
                 self.agent_pos = fwd_pos
 
-            if fwd_cell is not None and (fwd_cell.type == 'goal' or fwd_cell.type == 'key'):
+            if fwd_cell is not None and (
+                fwd_cell.type == "goal" or fwd_cell.type == "key"
+            ):
                 done = True
                 self.goal_reached = True
                 self.agent_pos = fwd_pos
                 reward = self._goal_reward()
 
-            if fwd_cell is not None and fwd_cell.type == 'lava':
+            if fwd_cell is not None and fwd_cell.type == "lava":
                 done = True
                 self.agent_pos = fwd_pos
                 reward = self._lava_reward()
@@ -301,7 +330,6 @@ class GridWorldRandSmall(MiniGridEnv):
         return self.get_goal_pos_action(self.goal_pos)
 
     def get_goal_pos_action(self, goal_pos):
-
         agent_state = self.agent_pos[0], self.agent_pos[1], self.agent_dir
         paths = self.BFS_PATH[agent_state][goal_pos]
 

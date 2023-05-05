@@ -2,7 +2,6 @@ from model.policy.abstract_nonstationary import AbstractNonStationaryPolicy
 
 
 class OpenLoopPolicy(AbstractNonStationaryPolicy):
-
     def __init__(self, actions=None, path_id=None):
         AbstractNonStationaryPolicy.__init__(self)
 
@@ -22,7 +21,6 @@ class OpenLoopPolicy(AbstractNonStationaryPolicy):
         self.parent_path_id = None
 
     def extend(self, action, path_id=None):
-
         policy = self.clone()
         policy._actions.append(action)
 
@@ -48,7 +46,6 @@ class OpenLoopPolicy(AbstractNonStationaryPolicy):
         return self._actions[timestep]
 
     def clone(self):
-
         policy = OpenLoopPolicy()
         policy._actions = list(self._actions)
 
@@ -59,7 +56,6 @@ class OpenLoopPolicy(AbstractNonStationaryPolicy):
         return policy
 
     def __str__(self):
-
         if self.parent_path_id is None or self.action is None or self.path_id is None:
             return "NA"
         else:

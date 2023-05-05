@@ -18,7 +18,6 @@ class GridWorldCanonical(MiniGridEnv):
         down = 3
 
     def __init__(self, config):
-
         width = config["width"]
         height = config["height"]
         horizon = config["horizon"]
@@ -37,7 +36,7 @@ class GridWorldCanonical(MiniGridEnv):
             # Set this to True for maximum speed
             see_through_walls=False,
             seed=seed,
-            agent_view_size=agent_view_size
+            agent_view_size=agent_view_size,
         )
 
         self.min_dist_to_goal = 8
@@ -49,7 +48,6 @@ class GridWorldCanonical(MiniGridEnv):
         self.reward_decay_ratio = 0.1  # config["reward_decay_ratio"]
 
     def _gen_grid(self, width, height):
-
         assert width == 7 and height == 7
 
         # Create an empty grid
@@ -81,12 +79,10 @@ class GridWorldCanonical(MiniGridEnv):
         )
 
     def reset(self):
-
         self.last_done = False
         return super().reset()
 
     def step(self, action):
-
         if self.last_done:
             # If done then the agent gets stuck
             obs = None
@@ -120,12 +116,12 @@ class GridWorldCanonical(MiniGridEnv):
         if fwd_cell is None or fwd_cell.can_overlap():
             self.agent_pos = fwd_pos
 
-        if fwd_cell is not None and fwd_cell.type == 'goal':
+        if fwd_cell is not None and fwd_cell.type == "goal":
             done = True
             self.agent_pos = fwd_pos
             reward = self._goal_reward()
 
-        if fwd_cell is not None and fwd_cell.type == 'lava':
+        if fwd_cell is not None and fwd_cell.type == "lava":
             done = True
             self.agent_pos = fwd_pos
             reward = self._lava_reward()
@@ -152,4 +148,3 @@ class GridWorldCanonical(MiniGridEnv):
 
     def _goal_reward(self):
         return 1
-

@@ -7,12 +7,11 @@ from model.policy.stationary_deterministic_policy import StationaryDeterministic
 
 
 class ContextualBanditOracle:
-    """ Oracle for offline contextual bandit (Zhang and Langford 2006). The dataset for this problem
-     consists of {(x, a, r, p)} where x is an observation, a is an action taken, r is the reward
-     for taking action and p is the probability with which action a was taken. """
+    """Oracle for offline contextual bandit (Zhang and Langford 2006). The dataset for this problem
+    consists of {(x, a, r, p)} where x is an observation, a is an action taken, r is the reward
+    for taking action and p is the probability with which action a was taken."""
 
     def __init__(self, config, constants):
-
         self.config = config
         self.constants = constants
         self.epochs = constants["cb_oracle_epoch"]
@@ -40,7 +39,10 @@ class ContextualBanditOracle:
                 transition[key] = dp[3]
                 counts[key] = 1.0
         for key in sorted(transition):
-            logger.log("CB:: %r, Count %r, Mean Reward %r " % (key, counts[key], transition[key] / counts[key]))
+            logger.log(
+                "CB:: %r, Count %r, Mean Reward %r "
+                % (key, counts[key], transition[key] / counts[key])
+            )
 
     def learn_optimal_policy(self, dataset, logger, tensorboard, debug=False):
         """
@@ -52,43 +54,79 @@ class ContextualBanditOracle:
         """
 
         # A reward regressor class to predict reward for different actions
-        reward_prediction_model = StationaryDeterministicPolicy(self.config, self.constants)
+        reward_prediction_model = StationaryDeterministicPolicy(
+            self.config, self.constants
+        )
 
         # Best model to save the best performing model
-        best_reward_prediction_model = StationaryDeterministicPolicy(self.config, self.constants)
+        best_reward_prediction_model = StationaryDeterministicPolicy(
+            self.config, self.constants
+        )
 
         dataset_size = len(dataset)
-        batches = [dataset[i:i + self.batch_size] for i in range(0, dataset_size, self.batch_size)]
+        batches = [
+            dataset[i : i + self.batch_size]
+            for i in range(0, dataset_size, self.batch_size)
+        ]
         train_batch_size = int((1.0 - self.validation_size_portion) * len(batches))
         train_batches = batches[:train_batch_size]
         test_batches = batches[train_batch_size:]
 
-        optimizer = optim.Adam(params=reward_prediction_model.parameters(), lr=self.learning_rate)
+        optimizer = optim.Adam(
+            params=reward_prediction_model.parameters(), lr=self.learning_rate
+        )
 
         if debug:
             ContextualBanditOracle._log_dataset(dataset, logger)
 
-        best_train_loss, best_test_loss = float('inf'), float('inf')
+        best_train_loss, best_test_loss = float("inf"), float("inf")
         patience = 0
         epoch = 0
 
         for epoch in range(1, self.epochs + 1):
-
             train_loss, num_train_examples = 0.0, 0
 
             # Perform one max_epoch of training on train_batches
             for train_batch in train_batches:
-                
-                observation_batch = cuda_var(torch.cat([torch.from_numpy(np.array(point[0])).view(1, -1)
-                                                        for point in train_batch], dim=0)).float()
-                actions_batch = cuda_var(torch.cat([torch.from_numpy(np.array(point[2])).view(1, -1)
-                                                    for point in train_batch], dim=0)).long()
-                rewards_batch = cuda_var(torch.cat([torch.from_numpy(np.array(point[3])).view(1, -1)
-                                                    for point in train_batch], dim=0)).float().view(-1)
+                observation_batch = cuda_var(
+                    torch.cat(
+                        [
+                            torch.from_numpy(np.array(point[0])).view(1, -1)
+                            for point in train_batch
+                        ],
+                        dim=0,
+                    )
+                ).float()
+                actions_batch = cuda_var(
+                    torch.cat(
+                        [
+                            torch.from_numpy(np.array(point[2])).view(1, -1)
+                            for point in train_batch
+                        ],
+                        dim=0,
+                    )
+                ).long()
+                rewards_batch = (
+                    cuda_var(
+                        torch.cat(
+                            [
+                                torch.from_numpy(np.array(point[3])).view(1, -1)
+                                for point in train_batch
+                            ],
+                            dim=0,
+                        )
+                    )
+                    .float()
+                    .view(-1)
+                )
 
                 predicted_rewards = reward_prediction_model.gen_q_val(observation_batch)
-                selected_rewards = predicted_rewards.gather(1, actions_batch.view(-1,1)).view(-1)
-                loss = torch.mean((selected_rewards - rewards_batch) ** 2)  # TODO Multiply by action probability
+                selected_rewards = predicted_rewards.gather(
+                    1, actions_batch.view(-1, 1)
+                ).view(-1)
+                loss = torch.mean(
+                    (selected_rewards - rewards_batch) ** 2
+                )  # TODO Multiply by action probability
 
                 optimizer.zero_grad()
                 loss.backward()
@@ -109,17 +147,45 @@ class ContextualBanditOracle:
             test_loss, num_test_examples = 0.0, 0
 
             for test_batch in test_batches:
-
-                observation_batch = cuda_var(torch.cat([torch.from_numpy(np.array(point[0])).view(1, -1)
-                                                        for point in test_batch], dim=0)).float()
-                actions_batch = cuda_var(torch.cat([torch.from_numpy(np.array(point[2])).view(1, -1)
-                                                    for point in test_batch], dim=0)).long()
-                rewards_batch = cuda_var(torch.cat([torch.from_numpy(np.array(point[3])).view(1, -1)
-                                                    for point in test_batch], dim=0)).float().view(-1)
+                observation_batch = cuda_var(
+                    torch.cat(
+                        [
+                            torch.from_numpy(np.array(point[0])).view(1, -1)
+                            for point in test_batch
+                        ],
+                        dim=0,
+                    )
+                ).float()
+                actions_batch = cuda_var(
+                    torch.cat(
+                        [
+                            torch.from_numpy(np.array(point[2])).view(1, -1)
+                            for point in test_batch
+                        ],
+                        dim=0,
+                    )
+                ).long()
+                rewards_batch = (
+                    cuda_var(
+                        torch.cat(
+                            [
+                                torch.from_numpy(np.array(point[3])).view(1, -1)
+                                for point in test_batch
+                            ],
+                            dim=0,
+                        )
+                    )
+                    .float()
+                    .view(-1)
+                )
 
                 predicted_rewards = reward_prediction_model.gen_q_val(observation_batch)
-                selected_rewards = predicted_rewards.gather(1, actions_batch.view(-1, 1)).view(-1)
-                loss = torch.mean((selected_rewards - rewards_batch) ** 2)  # TODO Multiply by action probability
+                selected_rewards = predicted_rewards.gather(
+                    1, actions_batch.view(-1, 1)
+                ).view(-1)
+                loss = torch.mean(
+                    (selected_rewards - rewards_batch) ** 2
+                )  # TODO Multiply by action probability
 
                 batch_size = len(test_batch)
                 test_loss = test_loss + float(loss) * batch_size
@@ -130,12 +196,17 @@ class ContextualBanditOracle:
             if test_loss <= best_test_loss:
                 best_test_loss = test_loss
                 patience = 0
-                best_reward_prediction_model.load_state_dict(reward_prediction_model.state_dict())
+                best_reward_prediction_model.load_state_dict(
+                    reward_prediction_model.state_dict()
+                )
             else:
                 patience += 1
                 if patience == self.max_patience:
                     logger.debug("Maximum patience reached")
                     break
-   
-        return best_reward_prediction_model, \
-               {"cb-best-train-loss": best_train_loss, "cb-best-test-loss": best_test_loss, "stopping_epoch": epoch}
+
+        return best_reward_prediction_model, {
+            "cb-best-train-loss": best_train_loss,
+            "cb-best-test-loss": best_test_loss,
+            "stopping_epoch": epoch,
+        }

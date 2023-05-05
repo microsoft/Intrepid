@@ -8,19 +8,17 @@ from utils.gumbel import gumbel_sample
 
 
 class IndependenceTestModel(nn.Module):
-
     def __init__(self, config, model_input_dim, hidden_dim):
         super(IndependenceTestModel, self).__init__()
 
         self.config = config
 
-        if config["feature_type"] == 'feature':
-
+        if config["feature_type"] == "feature":
             # Model head
             self.classifier = nn.Sequential(
                 nn.Linear(model_input_dim, hidden_dim),
                 nn.LeakyReLU(),
-                nn.Linear(hidden_dim, 2)
+                nn.Linear(hidden_dim, 2),
             )
 
         else:
@@ -35,7 +33,7 @@ class IndependenceTestModel(nn.Module):
         :return:
         """
 
-        if self.config["feature_type"] == 'image':
+        if self.config["feature_type"] == "image":
             raise AssertionError()
 
         logits = self.classifier(model_input)

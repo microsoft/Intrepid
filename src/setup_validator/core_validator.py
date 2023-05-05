@@ -1,19 +1,28 @@
-REQUIRED_CONFIG_KEYS = ["num_actions", "actions", "horizon", "obs_dim", "feature_type", "gamma"]
+REQUIRED_CONFIG_KEYS = [
+    "num_actions",
+    "actions",
+    "horizon",
+    "obs_dim",
+    "feature_type",
+    "gamma",
+]
 
-REQUIRED_CONSTANT_KEYS = ["learning_rate",
-                          "num_homing_policy",
-                          "encoder_training_num_samples",
-                          "encoder_training_epoch",
-                          "encoder_training_lr",
-                          "encoder_training_batch_size",
-                          "validation_data_percent",
-                          "psdp_training_num_samples",
-                          "cb_oracle_epoch",
-                          "cb_oracle_lr",
-                          "cb_oracle_batch_size",
-                          "eval_homing_policy_sample_size",
-                          "reward_free_planner",
-                          "reward_sensitive_planner"]
+REQUIRED_CONSTANT_KEYS = [
+    "learning_rate",
+    "num_homing_policy",
+    "encoder_training_num_samples",
+    "encoder_training_epoch",
+    "encoder_training_lr",
+    "encoder_training_batch_size",
+    "validation_data_percent",
+    "psdp_training_num_samples",
+    "cb_oracle_epoch",
+    "cb_oracle_lr",
+    "cb_oracle_batch_size",
+    "eval_homing_policy_sample_size",
+    "reward_free_planner",
+    "reward_sensitive_planner",
+]
 
 
 def validate(config, constants):

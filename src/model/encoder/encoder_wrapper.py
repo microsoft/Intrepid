@@ -6,17 +6,24 @@ from model.encoder.feedforward_encoder import FeedForwardEncoder
 
 
 class EncoderModelWrapper:
-    """ Wrapper for encoder models """
+    """Wrapper for encoder models"""
 
     @staticmethod
     def get_encoder(model_name, bootstrap_model=None, **kwargs):
-
-        models = [FeedForwardEncoder, ConvEncoder, Conv2Encoder, Conv3Encoder, Conv4Encoder]
+        models = [
+            FeedForwardEncoder,
+            ConvEncoder,
+            Conv2Encoder,
+            Conv3Encoder,
+            Conv4Encoder,
+        ]
         model_names = [model.NAME for model in models]
 
         for model in models:
             if model_name == model.NAME:
                 return model(**kwargs, bootstrap_model=bootstrap_model)
 
-        raise NotImplementedError("Model %s is not implemented. Implemented models are %s" %
-                                  (model_name, model_names))
+        raise NotImplementedError(
+            "Model %s is not implemented. Implemented models are %s"
+            % (model_name, model_names)
+        )

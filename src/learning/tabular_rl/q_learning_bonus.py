@@ -11,13 +11,11 @@ class QLearningBonus:
     """
 
     def __init__(self):
-
         self.max_epsiodes = 1000
         self.failure_prob = 0.01
         self.c = 1
 
     def train(self, env, action_space, horizon):
-
         # This value should be of the form log(S A T / p) where p is failure probability
         iota = math.log((2 * 162 * horizon) / self.failure_prob)
 
@@ -49,12 +47,10 @@ class QLearningBonus:
         unique_state_actions = set()
 
         for k in range(0, self.max_epsiodes):
-
             x = env.reset()
             unique_states.add(x)
 
             for h in range(0, horizon):
-
                 if x in q_val[h]:
                     a = np.argmax(q_val[h][x])
                 else:
@@ -78,11 +74,15 @@ class QLearningBonus:
                 alpha_t = (horizon + 1) / float(horizon + count)
                 bonus = self.c * horizon * math.sqrt(horizon * iota / float(count))
 
-                if new_x not in v_val[h+1]:
-                    v_val[h + 1][new_x] = horizon * np.ones(num_actions).astype(np.float32)
+                if new_x not in v_val[h + 1]:
+                    v_val[h + 1][new_x] = horizon * np.ones(num_actions).astype(
+                        np.float32
+                    )
 
                 # Update q_val and v_val
-                q_val[h][x][a] = (1 - alpha_t) * q_val[h][x][a] + alpha_t * (r + v_val[h + 1][new_x] + bonus)
+                q_val[h][x][a] = (1 - alpha_t) * q_val[h][x][a] + alpha_t * (
+                    r + v_val[h + 1][new_x] + bonus
+                )
                 v_val[h][x] = min(horizon, np.max(q_val[h][x]))
 
                 # Update current observation x
@@ -90,8 +90,8 @@ class QLearningBonus:
                 unique_states.add(x)
 
                 if (k + 1) % 100 == 0:
-
-                    print("Episode %d: Total number of states (across time) discovered %d; "
-                          "Total number of state-actions (across time) discovered %d" %
-                          (k, len(unique_states), len(unique_state_actions)))
-
+                    print(
+                        "Episode %d: Total number of states (across time) discovered %d; "
+                        "Total number of state-actions (across time) discovered %d"
+                        % (k, len(unique_states), len(unique_state_actions))
+                    )

@@ -5,7 +5,7 @@ import random
 
 
 def sample_action_from_prob(prob):
-    """ Pick an action sampled from the probability distribution """
+    """Pick an action sampled from the probability distribution"""
 
     num_actions = len(prob)
     if num_actions == 0:
@@ -26,7 +26,7 @@ def sample_uniform_from_prob(num_actions):
 
 
 def get_argmax_action(model_out_val):
-    """ Returns argmax_a model_out_val(a) with random tie breaking. """
+    """Returns argmax_a model_out_val(a) with random tie breaking."""
 
     num_actions = len(model_out_val)
 
