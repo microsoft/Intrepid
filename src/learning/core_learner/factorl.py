@@ -794,17 +794,8 @@ class FactoRL:
         for factor_candidate in factor_candidates:
             len_pc = len(factor_candidate)
             for parent_val in self._generate_prod_values(len_pc):
-                reward_fn = (
-                    lambda state_, step_: 1.0
-                    if step_ == step
-                    and all(
-                        [
-                            state_[k] == parent_val[i]
-                            for i, k in enumerate(factor_candidate)
-                        ]
-                    )
-                    else 0.0
-                )
+                def reward_fn(state_, step_):
+                    return 1.0 if step_ == step and all([(state_[k] == parent_val[i]) for i, k in enumerate(factor_candidate)]) else 0.0
 
                 # print("Trying to learn Policy for Factored Candidate %r and Parent Val is %r" % (factor_candidate, parent_val))
                 learned_policy, policy_val, took_action = self._plan(

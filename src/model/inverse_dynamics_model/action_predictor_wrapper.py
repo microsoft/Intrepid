@@ -1,4 +1,14 @@
-from model.inverse_dynamics_model.action_predictor import *
+from model.inverse_dynamics_model.action_predictor import (
+    ActionPredictor,
+    ActionPredictorFlatNN,
+    ActionPredictorCNN1,
+    ActionPredictorCNN2,
+    ActionPredictorCNN3,
+    ActionPredictorCNN4,
+    ActionPredictorCNN5,
+    ActionPredictorCNN6,
+    ActionPredictorCNN7,
+)
 
 
 class InverseDynamicsWrapper:

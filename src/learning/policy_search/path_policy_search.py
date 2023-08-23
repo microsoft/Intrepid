@@ -82,12 +82,8 @@ class PathPolicySearch(AbstractPolicySearch):
             reward_id = -1
         else:
             encoding_function, reward_id = encoder_reward_args
-            reward_func = (
-                lambda observation, time: 1
-                if time == horizon
-                and encoding_function.encode_observations(observation) == reward_id
-                else 0
-            )
+            def reward_func(observation, time):
+                return 1 if time == horizon and encoding_function.encode_observations(observation) == reward_id else 0
 
         tensorboard = None
 

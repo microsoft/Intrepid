@@ -20,6 +20,7 @@ class RLDiscreteLatentStateUtil:
     def save_homing_policy_figures(env, env_name, homing_policies, step):
         num_samples = 20  # self.constants["eval_homing_policy_sample_size"]
         mixed_image = None
+        mixed_image_step = None
         ctr = 0
 
         for ix, policy in enumerate(homing_policies[step]):

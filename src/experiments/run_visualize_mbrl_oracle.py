@@ -47,7 +47,6 @@ def main():
     args = parser.parse_args()
 
     env_name = args.env
-    num_processes = args.num_processes
     exp_name = args.name
 
     experiment_name = "%s-%s-horizon-%d-noise-%s" % (

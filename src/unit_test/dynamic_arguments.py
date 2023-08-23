@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import argparse
+import pdb
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-args_file", default="args.txt")
@@ -11,8 +12,6 @@ for k, v in data.items():
 
 dynamic_args = parser.parse_args()
 dynamic_args = vars(dynamic_args)
-
-import pdb
 
 pdb.set_trace()
 

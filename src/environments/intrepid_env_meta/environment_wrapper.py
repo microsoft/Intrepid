@@ -1,11 +1,14 @@
 import gym
-
+import numpy as np
+import os
+import pickle
+import time
 from collections import deque
 from skimage.color import rgb2gray
 from skimage.transform import resize
 from environments.rl_acid_env.combolock import CombinationLock
 from environments.rl_acid_env.grid_world import GridWorld
-from environments.rl_acid_env.diabolical_combolock import *
+from environments.rl_acid_env.diabolical_combolock import DiabolicalCombinationLock
 from environments.control_env.newtonian_motion import NewtonianMotion
 from environments.control_env.simple_lqr import SimpleLQR
 from environments.rl_acid_env.slot_factored_mdp import SlotFactoredMDP

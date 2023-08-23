@@ -1,4 +1,7 @@
-from gym_minigrid.minigrid import *
+import numpy as np
+from enum import IntEnum
+from gym import spaces
+from gym_minigrid.minigrid import Goal, Grid, Lava, MiniGridEnv, Wall
 
 
 class GridWorld2(MiniGridEnv):

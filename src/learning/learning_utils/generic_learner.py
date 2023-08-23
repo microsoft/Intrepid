@@ -1,7 +1,8 @@
+import random
+import torch
 import torch.optim as optim
 
 from model.model_wrapper import ModelWrapper
-from learning.learning_utils.clustering_algorithm import *
 
 
 class GenericLearner:

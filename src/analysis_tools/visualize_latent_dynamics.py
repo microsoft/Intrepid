@@ -2,7 +2,6 @@ import math
 import time
 import pickle
 import random
-import threading
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button

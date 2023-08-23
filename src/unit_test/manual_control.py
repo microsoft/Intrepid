@@ -1,10 +1,12 @@
-import os
-import json
-import time
 import argparse
+import gym
+import json
+import os
+import random
+import time
 
 from gym_minigrid.window import Window
-from environments.minigrid.gridworld1 import *
+from environments.minigrid.gridworld_wrapper import GridWorldWrapper
 from utils.beautify_time import beautify
 
 

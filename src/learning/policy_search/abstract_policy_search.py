@@ -202,7 +202,6 @@ class AbstractPolicySearch:
         transition = dict()
         counts = dict()
         predicted_rewards_dict = dict()
-        predicted_max_rewards = dict()
 
         for batch in batches:
             observation_batch = cuda_var(

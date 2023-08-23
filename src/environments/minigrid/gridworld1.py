@@ -1,4 +1,7 @@
-from gym_minigrid.minigrid import *
+import numpy as np
+from enum import IntEnum
+from gym import spaces
+from gym_minigrid.minigrid import Goal, Grid, Lava, MiniGridEnv, Wall
 
 
 class GridWorld1(MiniGridEnv):
@@ -25,7 +28,7 @@ class GridWorld1(MiniGridEnv):
         width = config["width"]
         height = config["height"]
         horizon = config["horizon"]
-        seed = config["env_seed"]
+        config["env_seed"]
         agent_view_size = config["agent_view_size"]
 
         super().__init__(

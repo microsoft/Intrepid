@@ -111,11 +111,11 @@ def get_header():
     # Lastly, if command line arguments are not none then they take top most priority
     for k, v in vars(args).items():
         if k in config and v is not None:
-            assert type(v) == type(config[k])
+            assert isinstance(v, type(config[k]))
             config[k] = v
 
         if k in constants and v is not None:
-            assert type(v) == type(constants[k])
+            assert isinstance(v, type(config[k]))
             constants[k] = v
 
     # TODO find a place to store seed and save_path

@@ -1,7 +1,8 @@
 import random
 from collections import deque
-
-from gym_minigrid.minigrid import *
+from enum import IntEnum
+from gym import spaces
+from gym_minigrid.minigrid import Grid, Key, Lava, MiniGridEnv, Wall
 
 
 class GridWorldRandSmall(MiniGridEnv):

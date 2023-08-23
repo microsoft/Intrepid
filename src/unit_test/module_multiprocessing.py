@@ -1,10 +1,8 @@
-import random
 import torch
 import multiprocessing as mp
 import torch.nn as nn
 import numpy as np
 
-from torch.autograd import Variable
 
 from utils.cuda import cuda_var
 

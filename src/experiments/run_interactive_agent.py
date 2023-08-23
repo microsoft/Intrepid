@@ -1,4 +1,3 @@
-import pdb
 import torch
 import random
 import imageio
@@ -43,7 +42,7 @@ def main():
         env = make_env.make(exp_setup)
         exp_setup.logger.log("Environment Created")
 
-        actions = exp_setup.config["actions"]
+        exp_setup.config["actions"]
         total_return = 0.0
         obs, info = env.reset()
 

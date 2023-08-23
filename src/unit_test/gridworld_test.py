@@ -3,8 +3,6 @@ import random
 import numpy as np
 import torch.multiprocessing as mp
 
-from learning.core_learner.homer import Homer
-from experiments.experiment_save import terminate
 from experiments.experiment_header import get_header
 from environments.cerebral_env_meta.make_env import MakeEnvironment
 
@@ -12,7 +10,6 @@ from environments.cerebral_env_meta.make_env import MakeEnvironment
 def main():
     exp_setup = get_header()
 
-    performance = []
 
     if exp_setup.config["seed"] == -1:
         seeds = list(range(1234, 1234 + 10))

@@ -1,4 +1,5 @@
-from environments.rl_acid_env.noise_gen import *
+import numpy as np
+from environments.rl_acid_env.noise_gen import generated_hadamhard_matrix
 from environments.rl_acid_env.rl_acid_wrapper import RLAcidWrapper
 
 

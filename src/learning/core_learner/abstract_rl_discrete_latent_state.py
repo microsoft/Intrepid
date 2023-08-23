@@ -131,11 +131,8 @@ class AbstractRLDiscreteLatentState:
             )
 
             # Reward function incentivizes reaching the frontier and achieving the right output for the encoding fn.
-            reward_func = (
-                lambda obs, time: 1
-                if time == step and encoding_function.encode_observations(obs) == i
-                else 0
-            )
+            def reward_func(obs, time):
+                return 1 if time == step and encoding_function.encode_observations(obs) == i else 0
             homing_policy, mean_reward, _ = self.reward_free_planner.train(
                 filtered_dataset,
                 env,

@@ -2,6 +2,7 @@ import glob
 import imageio
 import numpy as np
 import matplotlib.pyplot as plt
+import pdb
 
 from skimage.transform import resize
 
@@ -77,7 +78,5 @@ img[
 
 imgplot = plt.imshow(img)
 plt.show()
-
-import pdb
 
 pdb.set_trace()

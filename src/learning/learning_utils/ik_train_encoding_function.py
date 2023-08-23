@@ -1,9 +1,9 @@
+import random
+import torch
 import torch.optim as optim
 
-from learning.learning_utils.clustering_algorithm import *
 from learning.state_abstraction.inverse_kinematics import InverseKinematics
 from model.inverse_dynamics.simple_feed_forward import SimpleFeedForwardIK
-from learning.learning_utils.homer_train_encoding_function_utils import *
 
 
 class IKTrainEncodingFunction:

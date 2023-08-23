@@ -132,7 +132,7 @@ class LinearDisagModel:
             LinearDisagModel.TOTAL_TIME += time.time() - time_start
             LinearDisagModel.TOTAL_CALL += 1
 
-        except:
+        except Exception:
             if method != self.fallback_method:
                 # Fall back to a more powerful but slower solver
                 LinearDisagModel.TOTAL_FALLBACK += 1

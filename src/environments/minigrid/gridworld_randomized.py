@@ -1,5 +1,7 @@
 import random
-from gym_minigrid.minigrid import *
+from enum import IntEnum
+from gym import spaces
+from gym_minigrid.minigrid import Goal, Grid, Lava, MiniGridEnv, Wall
 
 
 class GridWorldRandomized(MiniGridEnv):

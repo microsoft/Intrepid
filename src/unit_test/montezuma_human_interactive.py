@@ -85,6 +85,6 @@ while True:
                 seq.append(action)
                 ret += reward
                 process_obs_and_show(obs, seq, ret)
-            except:
+            except Exception:
                 print("Enter b, q or a number")
                 continue

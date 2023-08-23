@@ -45,12 +45,8 @@ class FQI(AbstractPolicySearch):
             reward_func = None
         else:
             encoding_function, reward_id = encoder_reward_args
-            reward_func = (
-                lambda obs, time: 1
-                if time == horizon
-                and encoding_function.encode_observations(obs) == reward_id
-                else 0
-            )
+            def reward_func(obs, time):
+                return 1 if time == horizon and encoding_function.encode_observations(obs) == reward_id else 0
 
         learned_policy, mean_reward, _ = fqi.train(
             homing_policy_dataset,

@@ -1,10 +1,7 @@
 import torch
-import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 
-from utils.cuda import cuda_var
-from utils.gumbel import gumbel_sample
 
 
 class IndependenceTestModel(nn.Module):

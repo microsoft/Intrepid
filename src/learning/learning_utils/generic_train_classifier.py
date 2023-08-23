@@ -1,5 +1,7 @@
-from learning.learning_utils.clustering_algorithm import *
+import numpy as np
+import torch
 from learning.learning_utils.generic_learner import GenericLearner
+from utils.cuda import cuda_var
 
 
 class GenericTrainClassifier(GenericLearner):
