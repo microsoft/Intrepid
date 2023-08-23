@@ -6,7 +6,7 @@ class CountBasedEstimation:
         raise NotImplementedError()
 
     def estimate_step(self, mdp, replay_memory, step, decoders):
-        if type(replay_memory) != list:
+        if not isinstance(replay_memory, list):
             raise AssertionError("Replay memory must be a list")
 
         transitions = [

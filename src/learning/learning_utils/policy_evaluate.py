@@ -60,7 +60,7 @@ def evaluate_for_policy_value(
         for step in range(1, horizon + 1):
             obs_var = cuda_var(torch.from_numpy(obs)).float().view(1, -1)
 
-            if type(policy) == dict:
+            if isinstance(policy, dict):
                 action = policy[step].sample_action(obs_var)
             else:
                 action = policy.sample_action(obs_var, step - 1)
@@ -106,7 +106,7 @@ def evaluate_for_half_regret(
 
         for step in range(1, horizon + 1):
             obs_var = cuda_var(torch.from_numpy(obs)).float().view(1, -1)
-            if type(policy) == dict:
+            if isinstance(policy, dict):
                 action = policy[step].sample_action(obs_var)
             else:
                 action = policy.sample_action(obs_var, step - 1)

@@ -55,7 +55,7 @@ class GridWorld(RLAcidWrapper):
         self.reachable_states = None
         self.vary_instance = vary_instance
 
-        if type(obs_dim) == list:
+        if isinstance(obs_dim, list):
             self.feature_type = GridWorld.IMAGE
 
             frame, image_height, image_width, channel = obs_dim
@@ -92,7 +92,7 @@ class GridWorld(RLAcidWrapper):
                             object_classes
                         )
 
-        elif type(obs_dim) == int:
+        elif isinstance(obs_dim, int):
             self.feature_type = GridWorld.FEATURE
             self.noise_feature = obs_dim - num_grid_row * num_grid_col
             self.obs_dim = obs_dim

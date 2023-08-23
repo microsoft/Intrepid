@@ -24,7 +24,7 @@ class NonStationaryComposedPolicy(nn.Module, ActionType):
         if self.encoder_fn is None:
             return random.choice(self.action_space)
 
-        if type(self.encoder_fn) == list or type(self.encoder_fn) == dict:
+        if isinstance(self.encoder_fn, list) or isinstance(self.encoder_fn, dict):
             latent_state = self.encoder_fn[time_step].encode_observations(observations)
         else:
             latent_state = self.encoder_fn.encode_observations(observations)

@@ -240,7 +240,7 @@ class ClusteringModel:
         :return: An integer denoting the cluster ID
         """
 
-        if type(observation) != dict or "vec" not in observation:
+        if not isinstance(observation, dict) or "vec" not in observation:
             vec = self.feature_fn.calc_feature(observation)
         else:
             vec = observation["vec"]

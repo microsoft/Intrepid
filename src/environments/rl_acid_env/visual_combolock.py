@@ -54,7 +54,7 @@ class VisualComboLock(RLAcidWrapper):
         self.blocked_states = self.create_random_setup(horizon)
         self.agent_pos = None
 
-        if type(obs_dim) == list:
+        if isinstance(obs_dim, list):
             # Image at a given time is a 4x4 grid with 20% of the top and bottom pixels
             # spent on background and 80% is spent on the grid.
 
@@ -89,7 +89,7 @@ class VisualComboLock(RLAcidWrapper):
             for i in range(0, self.horizon + 1):
                 self.blocked_state_object_map[i] = random.choice(object_classes)
 
-        elif type(obs_dim) == int:
+        elif isinstance(obs_dim, int):
             self.feature_type = VisualComboLock.FEATURE
             assert obs_dim >= 3 * self.horizon + 3
             self.obs_dim = obs_dim

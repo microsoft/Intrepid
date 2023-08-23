@@ -59,7 +59,7 @@ class LinearDisagModel:
         b = []
 
         for safety_ftr, safety_label, _ in safety_dataset:
-            if type(safety_label) == bool:
+            if isinstance(safety_label, bool):
                 safety_label = 1.0 if safety_label else -1.0
 
             A.append(-safety_label * np.append(safety_ftr, 1))
@@ -71,7 +71,7 @@ class LinearDisagModel:
         return A, b
 
     def update(self, safety_ftr, safety_label):
-        if type(safety_label) == bool:
+        if isinstance(safety_label, bool):
             safety_label = 1.0 if safety_label else -1.0
 
         new_row = -safety_label * np.append(safety_ftr, 1)

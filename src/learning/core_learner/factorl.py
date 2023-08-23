@@ -512,7 +512,7 @@ class FactoRL:
 
     @staticmethod
     def _generate_combinations(d, k):
-        if type(d) == int:
+        if isinstance(d, int):
             my_set = range(0, d)
         else:
             my_set = d
