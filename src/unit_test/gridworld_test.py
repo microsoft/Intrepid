@@ -10,7 +10,6 @@ from environments.cerebral_env_meta.make_env import MakeEnvironment
 def main():
     exp_setup = get_header()
 
-
     if exp_setup.config["seed"] == -1:
         seeds = list(range(1234, 1234 + 10))
         num_runs = len(seeds)

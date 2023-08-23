@@ -4,9 +4,18 @@ import time
 import torch
 import torch.optim as optim
 
-from learning.learning_utils.count_conditional_probability import CountConditionalProbability
-from learning.learning_utils.clustering_algorithm import ClusteringModel, CompositionalFeatureComputation, GreedyClustering
-from learning.learning_utils.homer_train_encoding_function_utils import log_dataset_stats, log_model_performance
+from learning.learning_utils.count_conditional_probability import (
+    CountConditionalProbability,
+)
+from learning.learning_utils.clustering_algorithm import (
+    ClusteringModel,
+    CompositionalFeatureComputation,
+    GreedyClustering,
+)
+from learning.learning_utils.homer_train_encoding_function_utils import (
+    log_dataset_stats,
+    log_model_performance,
+)
 from learning.state_abstraction.noise_contrastive_dataset import NoiseContrastiveDataset
 from learning.state_abstraction.noise_contrastive_global import NoiseContrastiveGlobal
 from model.transition_encoders.encoder_model_wrapper import EncoderModelWrapper

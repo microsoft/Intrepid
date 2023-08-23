@@ -5,7 +5,6 @@ from learning.learning_utils.encoder_sampler_ik import EncoderSamplerIK
 from learning.learning_utils.ik_train_encoding_function import IKTrainEncodingFunction
 
 
-
 class IDLearning(AbstractRLDiscreteLatentState):
     """
     An algorithm similar to Homer but that instead relies on inverse kinematics:

@@ -43,8 +43,14 @@ class PSDP(AbstractPolicySearch):
             reward_func = None
         else:
             encoding_function, reward_id = encoder_reward_args
+
             def reward_func(obs, h):
-                return 1 if h == horizon and encoding_function.encode_observations(obs) == reward_id else 0
+                return (
+                    1
+                    if h == horizon
+                    and encoding_function.encode_observations(obs) == reward_id
+                    else 0
+                )
 
         learned_policy, mean_reward, _ = psdp.train(
             homing_policy_dataset,

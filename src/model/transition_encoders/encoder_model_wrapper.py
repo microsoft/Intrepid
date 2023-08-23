@@ -1,4 +1,6 @@
-from model.transition_encoders.compositional_encoder_model import CompositionalEncoderModel
+from model.transition_encoders.compositional_encoder_model import (
+    CompositionalEncoderModel,
+)
 from model.transition_encoders.encoder_model import (
     BackwardEncoderModel,
     ForwardEncoderModel,
