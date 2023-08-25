@@ -50,7 +50,6 @@ class FQIOracleDecoder:
         return episode
 
     def q_value_iteration(self, q_values, model, counts, states_visited):
-
         for state in states_visited:
             if state not in q_values:
                 # We set Q-values of these states to 1.0 which is the maximum optimistic reward the agent can get
