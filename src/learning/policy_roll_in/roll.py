@@ -5,7 +5,6 @@ from environments.intrepid_env_meta.environment_keys import EnvKeys
 
 
 class Roll:
-
     def __init__(self, env, actions):
         self._env = env
         self.eps = None
@@ -20,22 +19,21 @@ class Roll:
         """
 
         obs, info = self._env.reset()
-        self.eps = Episode(state=info[EnvKeys.ENDO_STATE],
-                           observation=obs,
-                           gamma=1.0)
+        self.eps = Episode(state=info[EnvKeys.ENDO_STATE], observation=obs, gamma=1.0)
 
         for h in range(0, t):
             action = policy.sample_action(obs, h)
             obs, reward, done, info = self._env.step(action)
-            self.eps.add(action=action,
-                         reward=reward,
-                         new_obs=obs,
-                         new_state=info[EnvKeys.ENDO_STATE])
+            self.eps.add(
+                action=action,
+                reward=reward,
+                new_obs=obs,
+                new_state=info[EnvKeys.ENDO_STATE],
+            )
 
         return self
 
     def take_random(self, k):
-
         for t in range(0, k):
             action = random.choice(self.actions)
             self.take_action(action)
@@ -43,39 +41,28 @@ class Roll:
         return self
 
     def take_action(self, action):
-
         obs, reward, done, info = self._env.step(action)
 
-        self.eps.add(action=action,
-                     reward=reward,
-                     new_obs=obs,
-                     new_state=info[EnvKeys.ENDO_STATE])
+        self.eps.add(
+            action=action,
+            reward=reward,
+            new_obs=obs,
+            new_state=info[EnvKeys.ENDO_STATE],
+        )
 
         return self
 
     def roll_out(self, policy, t):
-
-        # TODO get last observation
-
-        for h in range(0, t):
-            action = policy.sample_action(obs, h)
-            obs, reward, done, info = self._env.step(action)
-
-            self.eps.add(action=action,
-                         reward=reward,
-                         new_obs=obs,
-                         new_state=info[EnvKeys.ENDO_STATE])
-
-        return self
+        raise NotImplementedError()
 
     def terminate(self):
-        """ Terminate the roll-out """
+        """Terminate the roll-out"""
 
         self.eps.terminate()
         return self
 
     def retrieve(self, pattern=None):
-        """ Retrieve the details """
+        """Retrieve the details"""
 
         if pattern is not None:
             raise NotImplementedError()

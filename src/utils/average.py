@@ -1,7 +1,5 @@
 class AverageUtil:
-
     def __init__(self, init_val=None):
-
         if init_val is None:
             self._sum_val = 0.0
             self._num_items = 0
@@ -17,7 +15,6 @@ class AverageUtil:
         self._num_items += 1
 
     def get_mean(self):
-
         return self._sum_val / float(max(1, self._num_items))
 
     def __str__(self):

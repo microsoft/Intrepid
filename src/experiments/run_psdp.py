@@ -14,27 +14,64 @@ from setup_validator.core_validator import validate
 
 
 def main():
-
     parser = argparse.ArgumentParser()
-    parser.add_argument("--env", default='stochcombolock', help="name of the environment e.g., montezuma")
+    parser.add_argument(
+        "--env",
+        default="stochcombolock",
+        help="name of the environment e.g., montezuma",
+    )
     parser.add_argument("--name", default="run-psdp", help="Name of the experiment")
-    parser.add_argument("--forwardmodel", default='forwardmodel', help="Model for training the forwad abstraction")
-    parser.add_argument("--backwardmodel", default='backwardmodel', help="Model for learning the backward abstraction")
-    parser.add_argument("--discretization", default="True", help="Train with discretized/undiscretized model")
-    parser.add_argument("--policy_type", default="linear", type=str, help="Type of policy (linear, non-linear)")
-    parser.add_argument("--load", help="Name of the result folder containing homing policies and environment")
-    parser.add_argument("--train_eps", type=int, help="Number of training episodes used for learning the policy set")
+    parser.add_argument(
+        "--forwardmodel",
+        default="forwardmodel",
+        help="Model for training the forwad abstraction",
+    )
+    parser.add_argument(
+        "--backwardmodel",
+        default="backwardmodel",
+        help="Model for learning the backward abstraction",
+    )
+    parser.add_argument(
+        "--discretization",
+        default="True",
+        help="Train with discretized/undiscretized model",
+    )
+    parser.add_argument(
+        "--policy_type",
+        default="linear",
+        type=str,
+        help="Type of policy (linear, non-linear)",
+    )
+    parser.add_argument(
+        "--load",
+        help="Name of the result folder containing homing policies and environment",
+    )
+    parser.add_argument(
+        "--train_eps",
+        type=int,
+        help="Number of training episodes used for learning the policy set",
+    )
     parser.add_argument("--noise", default=None, type=str, help="Noise")
     parser.add_argument("--save_trace", default="False", help="Save traces")
     parser.add_argument("--trace_sample_rate", default=500, type=int, help="How often to save traces")
-    parser.add_argument("--save_path", default="./results/", type=str, help="Folder where to save results")
+    parser.add_argument(
+        "--save_path",
+        default="./results/",
+        type=str,
+        help="Folder where to save results",
+    )
     args = parser.parse_args()
 
     env_name = args.env
     exp_name = args.name
     load_folder = args.load
 
-    experiment_name = "%s-%s-model-%s-noise-%s" % (exp_name, env_name, args.model, args.noise)
+    experiment_name = "%s-%s-model-%s-noise-%s" % (
+        exp_name,
+        env_name,
+        args.model,
+        args.noise,
+    )
     experiment = "./%s/%s" % (args.save_path, experiment_name)
     print("EXPERIMENT NAME: ", experiment_name)
 
@@ -43,9 +80,8 @@ def main():
         os.makedirs(experiment)
 
     # Define log settings
-    log_path = experiment + '/train_homer.log'
-    multiprocess_logging_manager = MultiprocessingLoggerManager(
-        file_path=log_path, logging_level=logging.INFO)
+    log_path = experiment + "/train_homer.log"
+    multiprocess_logging_manager = MultiprocessingLoggerManager(file_path=log_path, logging_level=logging.INFO)
     master_logger = multiprocess_logging_manager.get_logger("Master")
     master_logger.log("----------------------------------------------------------------")
     master_logger.log("                    STARING NEW EXPERIMENT                      ")
@@ -89,7 +125,6 @@ def main():
     performance = []
     num_runs = 5
     for trial in range(1, num_runs + 1):
-
         master_logger.log("========= STARTING EXPERIMENT %d ======== " % trial)
 
         # Create a new environment
@@ -113,32 +148,49 @@ def main():
 
         learning_alg = Homer(config, constants)
 
-        policy_result = learning_alg.train_from_learned_homing_policies(env=env,
-                                                                        load_folder=load_folder,
-                                                                        train_episodes=args.train_eps,
-                                                                        experiment_name=experiment_name,
-                                                                        logger=master_logger,
-                                                                        use_pushover=False,
-                                                                        trial=trial)
+        policy_result = learning_alg.train_from_learned_homing_policies(
+            env=env,
+            load_folder=load_folder,
+            train_episodes=args.train_eps,
+            experiment_name=experiment_name,
+            logger=master_logger,
+            use_pushover=False,
+            trial=trial,
+        )
 
         performance.append(policy_result)
 
     for key in performance[0]:  # Assumes the keys are same across all runes
         results = [result[key] for result in performance]
-        master_logger.log("%r: Mean %r, Median %r, Std %r, Num runs %r, All performance %r" %
-                          (key, statistics.mean(results), statistics.median(results), statistics.stdev(results),
-                           num_runs, results))
-        print("%r: Mean %r, Median %r, Std %r, Num runs %r, All performance %r" %
-                          (key, statistics.mean(results), statistics.median(results), statistics.stdev(results),
-                           num_runs, results))
+        master_logger.log(
+            "%r: Mean %r, Median %r, Std %r, Num runs %r, All performance %r"
+            % (
+                key,
+                statistics.mean(results),
+                statistics.median(results),
+                statistics.stdev(results),
+                num_runs,
+                results,
+            )
+        )
+        print(
+            "%r: Mean %r, Median %r, Std %r, Num runs %r, All performance %r"
+            % (
+                key,
+                statistics.mean(results),
+                statistics.median(results),
+                statistics.stdev(results),
+                num_runs,
+                results,
+            )
+        )
 
     # Cleanup
     multiprocess_logging_manager.cleanup()
 
 
 if __name__ == "__main__":
-
     print("SETTING THE START METHOD ")
     mp.freeze_support()
-    mp.set_start_method('spawn')
+    mp.set_start_method("spawn")
     main()

@@ -1,4 +1,3 @@
-import pdb
 import random
 
 from environments.rl_acid_env.slot_factored_mdp import SlotFactoredMDP

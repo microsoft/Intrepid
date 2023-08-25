@@ -1,7 +1,7 @@
 class EnvKeys:
     """
-        meta information returned can use the following keys to make the code more
-        generalizable across different environments
+    meta information returned can use the following keys to make the code more
+    generalizable across different environments
     """
 
     # Counter from which the time step in an episode

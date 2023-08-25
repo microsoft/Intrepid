@@ -5,7 +5,6 @@ import imageio
 import numpy as np
 
 from skimage.transform import resize
-
 from environments.intrepid_env_meta.action_type import ActionType
 from environments.intrepid_env_meta.intrepid_env_interface import IntrepidEnvInterface
 
@@ -15,7 +14,6 @@ class Matterport(IntrepidEnvInterface):
     env_name = "matterport"
 
     def __init__(self, config):
-
         import MatterSim
 
         self.sim = MatterSim.Simulator()
@@ -33,8 +31,8 @@ class Matterport(IntrepidEnvInterface):
 
         # house and room information
         self.obs_dim = tuple(config["obs_dim"])
-        self.house_id = '17DRP5sb8fy'
-        self.room_id = '0f37bd0737e349de9d536263a4bdd60d'
+        self.house_id = "17DRP5sb8fy"
+        self.room_id = "0f37bd0737e349de9d536263a4bdd60d"
 
         self.horizon = config["horizon"]
         self.timestep = 0
@@ -56,7 +54,6 @@ class Matterport(IntrepidEnvInterface):
         self.sim.initialize()
 
     def _read_distractors(self):
-
         fnames = glob.glob("./data/matterport/icon_figs/*png")
         distractors = []
 
@@ -65,24 +62,27 @@ class Matterport(IntrepidEnvInterface):
         for fname in fnames:
             distractor_img = imageio.imread(fname)
 
-            assert len(distractor_img.shape) == 3 and (3 <= distractor_img.shape[2] <= 4), \
-                "Can only read RGB and RGBA images"
+            assert len(distractor_img.shape) == 3 and (3 <= distractor_img.shape[2] <= 4), "Can only read RGB and RGBA images"
 
             if distractor_img.shape[2] == 4:
                 distractor_img = distractor_img[:, :, :3]
 
             # Resize based on original image so that width of the obstacle is 10% of the width and
             # height is at most 40% of the height
-            distractor_img = resize(distractor_img, (min(distractor_img.shape[0], int(0.2 * self.obs_dim[0])),
-                                                     min(distractor_img.shape[1], int(0.2 * self.obs_dim[1])),
-                                                     3))
+            distractor_img = resize(
+                distractor_img,
+                (
+                    min(distractor_img.shape[0], int(0.2 * self.obs_dim[0])),
+                    min(distractor_img.shape[1], int(0.2 * self.obs_dim[1])),
+                    3,
+                ),
+            )
             # distractor_img = (distractor_img * 255).astype(np.uint8)
             distractors.append(distractor_img)
 
         return distractors
 
     def distractor_move(self):
-
         # Add random motion to one of the neigbhoring position
         hor_s = [self.distractor_hor]
         left = self.distractor_hor - int(0.1 * self.obs_dim[1])
@@ -109,10 +109,8 @@ class Matterport(IntrepidEnvInterface):
         self.distractor_ver = random.choice(ver_s)
 
     def _process_image(self, img):
-
         height, width, channel = img.shape
-        assert height == 480 and width == 640 and channel == 3, \
-            "Wrong shape. Found %r. Expected 480 x 640 x 3" % img.shape
+        assert height == 480 and width == 640 and channel == 3, "Wrong shape. Found %r. Expected 480 x 640 x 3" % img.shape
         img = resize(img, self.obs_dim)
         img = np.ascontiguousarray(img)
 
@@ -121,26 +119,32 @@ class Matterport(IntrepidEnvInterface):
             distractor_img = self.distractors[self.distractor_id]
             distractor_shape = distractor_img.shape
 
-            img_slice = img[self.distractor_ver: self.distractor_ver + distractor_shape[0],
-                            self.distractor_hor: self.distractor_hor + distractor_shape[1], :]
+            img_slice = img[
+                self.distractor_ver : self.distractor_ver + distractor_shape[0],
+                self.distractor_hor : self.distractor_hor + distractor_shape[1],
+                :,
+            ]
 
             distractor_img = distractor_img.reshape((-1, 3))
             img_slice = img_slice.reshape((-1, 3))
             distractor_img_min = distractor_img.min(1)
             blue_pixel_ix = np.argwhere(
-                distractor_img_min < 220 / 255.0)  # flattened (x, y) position where pixels are blue in color
+                distractor_img_min < 220 / 255.0
+            )  # flattened (x, y) position where pixels are blue in color
             values = np.squeeze(distractor_img[blue_pixel_ix])
             np.put_along_axis(img_slice, blue_pixel_ix, values, axis=0)
 
-            img_slice = img_slice.reshape(distractor_shape)     # distractor and img_slice have the same shape
+            img_slice = img_slice.reshape(distractor_shape)  # distractor and img_slice have the same shape
 
-            img[self.distractor_ver: self.distractor_ver + distractor_shape[0],
-                self.distractor_hor: self.distractor_hor + distractor_shape[1], :] = img_slice
+            img[
+                self.distractor_ver : self.distractor_ver + distractor_shape[0],
+                self.distractor_hor : self.distractor_hor + distractor_shape[1],
+                :,
+            ] = img_slice
 
         return img
 
     def reset(self, generate_obs=True):
-
         self.sim.newEpisode([self.house_id], [self.room_id], [0], [0])
         self.num_eps += 1
 
@@ -163,9 +167,17 @@ class Matterport(IntrepidEnvInterface):
 
         # return img, 0, False, {"state": img, "location": state.location.viewpointId}
         return img, {
-            "state": (state.location.viewpointId, int(math.degrees(state.heading)), self.timestep),
-            "endogenous_state": (state.location.viewpointId, int(math.degrees(state.heading)), self.timestep),
-            "timestep": self.timestep
+            "state": (
+                state.location.viewpointId,
+                int(math.degrees(state.heading)),
+                self.timestep,
+            ),
+            "endogenous_state": (
+                state.location.viewpointId,
+                int(math.degrees(state.heading)),
+                self.timestep,
+            ),
+            "timestep": self.timestep,
         }
 
     def step(self, action, generate_obs=True):
@@ -214,9 +226,17 @@ class Matterport(IntrepidEnvInterface):
             img = None
 
         info = {
-            "state": (state.location.viewpointId, int(math.degrees(state.heading)), self.timestep),
-            "endogenous_state": (state.location.viewpointId, int(math.degrees(state.heading)), self.timestep),
-            "timestep": self.timestep
+            "state": (
+                state.location.viewpointId,
+                int(math.degrees(state.heading)),
+                self.timestep,
+            ),
+            "endogenous_state": (
+                state.location.viewpointId,
+                int(math.degrees(state.heading)),
+                self.timestep,
+            ),
+            "timestep": self.timestep,
         }
         self.timestep += 1
 
@@ -229,7 +249,6 @@ class Matterport(IntrepidEnvInterface):
         return True
 
     def act_to_str(self, act):
-
         if act == 0:
             return "no-op"
         elif act == 1:
@@ -247,34 +266,34 @@ class Matterport(IntrepidEnvInterface):
 
     def get_action_type(self):
         """
-            :return:
-                action_type:     Return type of action space the agent is using
+        :return:
+            action_type:     Return type of action space the agent is using
         """
         return ActionType.Discrete
 
     def save(self, save_path, fname=None):
         """
-            Save the environment
-            :param save_path:   Save directory
-            :param fname:       Additionally, a file name can be provided. If save is a single file, then this will be
-                                used else it can be ignored.
-            :return: None
+        Save the environment
+        :param save_path:   Save directory
+        :param fname:       Additionally, a file name can be provided. If save is a single file, then this will be
+                            used else it can be ignored.
+        :return: None
         """
         pass
 
     def load(self, load_path, fname=None):
         """
-            Save the environment
-            :param load_path:   Load directory
-            :param fname:       Additionally, a file name can be provided. If load is a single file, then only file
-                                with the given fname will be used.
-            :return: Environment
+        Save the environment
+        :param load_path:   Load directory
+        :param fname:       Additionally, a file name can be provided. If load is a single file, then only file
+                            with the given fname will be used.
+        :return: Environment
         """
         raise NotImplementedError()
 
     def generate_homing_policy_validation_fn(self):
         """
-            :return:                Returns a validation function to test for exploration success
+        :return:                Returns a validation function to test for exploration success
         """
         return None
 
@@ -288,14 +307,14 @@ class Matterport(IntrepidEnvInterface):
 
     def num_completed_episode(self):
         """
-            :return:    Number of completed episode
+        :return:    Number of completed episode
         """
 
         return max(0, self.num_eps - 1)
 
     def get_mean_return(self):
         """
-            :return:    Get mean return of the agent
+        :return:    Get mean return of the agent
         """
         return self.sum_return / float(max(1, self.num_completed_episode()))
 

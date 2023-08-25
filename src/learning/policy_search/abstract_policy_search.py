@@ -6,17 +6,14 @@ from utils.cuda import cuda_var
 
 
 class AbstractPolicySearch:
-
     def __init__(self):
         pass
 
     @staticmethod
     def _gather_sample(env, actions, horizon, step, homing_policies, learned_policy, reward_func):
-
         start_obs, meta = env.reset()
 
         if step > 1:
-
             # Randomly a select a homing policy for the previous time step
             policy_index = random.randint(0, len(homing_policies[step - 1]) - 1)
             # policy = random.choice(homing_policies[step - 1])
@@ -67,18 +64,32 @@ class AbstractPolicySearch:
                 reward = reward_func(obs, k)
                 total_reward += reward
 
-        datapoint = (current_obs, action_prob, deviation_action, total_reward, current_state, new_state, policy_index)
+        datapoint = (
+            current_obs,
+            action_prob,
+            deviation_action,
+            total_reward,
+            current_state,
+            new_state,
+            policy_index,
+        )
 
         return datapoint
 
     @staticmethod
-    def _evaluate_intermediate_policy(deviation_policy, env, actions, horizon, step, homing_policies, learned_policy,
-                                      reward_func):
-
+    def _evaluate_intermediate_policy(
+        deviation_policy,
+        env,
+        actions,
+        horizon,
+        step,
+        homing_policies,
+        learned_policy,
+        reward_func,
+    ):
         start_obs, meta = env.reset()
 
         if step > 1:
-
             # Randomly a select a homing policy for the previous time step
             policy = random.choice(homing_policies[step - 1])
             obs = start_obs
@@ -121,14 +132,12 @@ class AbstractPolicySearch:
 
     @staticmethod
     def _evaluate__learned_policy(env, horizon, reward_func, learned_policy, logger, num_rollouts, actions):
-
         mean_reward = 0.0
         action_distribution = {}
         for act in actions:
             action_distribution[act] = 0
 
         for _ in range(0, num_rollouts):
-
             total_reward = 0.0
             obs, meta = env.reset()
 
@@ -154,33 +163,46 @@ class AbstractPolicySearch:
         for act in action_distribution:
             action_distribution[act] = (action_distribution[act] / float(num_actions_taken)) * 100.0
 
-        logger.log("Evaluating Learned Policy with %d rollouts. Action distribution %r. Empirical Total Reward: %r" %
-                   (num_rollouts, action_distribution, mean_reward))
+        logger.log(
+            "Evaluating Learned Policy with %d rollouts. Action distribution %r. Empirical Total Reward: %r"
+            % (num_rollouts, action_distribution, mean_reward)
+        )
 
         return mean_reward
 
     @staticmethod
-    def log_intermediate_results(dataset, optimal_policy_step, env, actions, horizon,
-                                 step, homing_policies, learned_policy,
-                                 reward_func, logger, num_eval_samples, batch_size):
-
+    def log_intermediate_results(
+        dataset,
+        optimal_policy_step,
+        env,
+        actions,
+        horizon,
+        step,
+        homing_policies,
+        learned_policy,
+        reward_func,
+        logger,
+        num_eval_samples,
+        batch_size,
+    ):
         # Print prediction errors for each transition
         dataset_size = len(dataset)
-        batches = [dataset[i:i + batch_size] for i in range(0, dataset_size, batch_size)]
+        batches = [dataset[i : i + batch_size] for i in range(0, dataset_size, batch_size)]
 
         transition = dict()
         counts = dict()
         predicted_rewards_dict = dict()
-        predicted_max_rewards = dict()
 
         for batch in batches:
-
-            observation_batch = cuda_var(torch.cat([torch.from_numpy(np.array(point[0])).view(1, -1)
-                                                    for point in batch], dim=0)).float()
+            observation_batch = cuda_var(
+                torch.cat(
+                    [torch.from_numpy(np.array(point[0])).view(1, -1) for point in batch],
+                    dim=0,
+                )
+            ).float()
             predicted_rewards = optimal_policy_step.gen_q_val(observation_batch)
 
             for i, dp in enumerate(batch):
-
                 key = "%r -> %r -> %r" % (dp[4], dp[2], dp[5])
                 predicted_rewards_numpy = predicted_rewards[i].cpu().data.numpy()
 
@@ -197,22 +219,37 @@ class AbstractPolicySearch:
             mean_results = predicted_rewards_dict[key].mean(0).tolist()
             std_results = predicted_rewards_dict[key].std(0).tolist()
             mean_results_str = ", ".join(
-                ["%r (std: %r)" % (round(mean, 2), round(std, 2)) for (mean, std) in zip(mean_results, std_results)])
+                ["%r (std: %r)" % (round(mean, 2), round(std, 2)) for (mean, std) in zip(mean_results, std_results)]
+            )
 
-            logger.log("CB:: %r, Count %r, Mean Reward %r (Std %r), Predicted Reward %r" %
-                       (key, counts[key],
-                        round(transition[key].mean(), 4),
-                        round(transition[key].std(), 4),
-                        mean_results_str
-                        ))
+            logger.log(
+                "CB:: %r, Count %r, Mean Reward %r (Std %r), Predicted Reward %r"
+                % (
+                    key,
+                    counts[key],
+                    round(transition[key].mean(), 4),
+                    round(transition[key].std(), 4),
+                    mean_results_str,
+                )
+            )
 
         # Evaluate the deviation policy
         mean_total_reward = 0.0
         for _ in range(0, num_eval_samples):
             sampled_total_reward = AbstractPolicySearch._evaluate_intermediate_policy(
-                optimal_policy_step, env, actions, horizon, step, homing_policies, learned_policy, reward_func)
+                optimal_policy_step,
+                env,
+                actions,
+                horizon,
+                step,
+                homing_policies,
+                learned_policy,
+                reward_func,
+            )
             mean_total_reward += sampled_total_reward
-        mean_total_reward = mean_total_reward/float(num_eval_samples)
+        mean_total_reward = mean_total_reward / float(num_eval_samples)
 
-        logger.log("Intermediate Evaluation on Step %r of Horizon %r. With %d rollouts the mean total reward is %r " %
-                   (step, horizon, num_eval_samples, mean_total_reward))
+        logger.log(
+            "Intermediate Evaluation on Step %r of Horizon %r. With %d rollouts the mean total reward is %r "
+            % (step, horizon, num_eval_samples, mean_total_reward)
+        )

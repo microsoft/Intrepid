@@ -11,7 +11,6 @@ from utils.beautify_time import beautify
 
 
 def main():
-
     exp_setup = get_header()
 
     if exp_setup.config["seed"] == -1:
@@ -22,11 +21,9 @@ def main():
         num_runs = 1
 
     for exp_id in range(1, num_runs + 1):
-
         exp_setup.config["seed"] = seeds[exp_id - 1]
         exp_setup.config["env_seed"] = seeds[exp_id - 1] * 10
-        exp_setup.logger.log(
-            "========= STARTING EXPERIMENT %d (Seed = %d) ======== " % (exp_id, exp_setup.config["seed"]))
+        exp_setup.logger.log("========= STARTING EXPERIMENT %d (Seed = %d) ======== " % (exp_id, exp_setup.config["seed"]))
 
         # Set the random seed
         random.seed(exp_setup.config["seed"])
@@ -69,11 +66,10 @@ def main():
             hist[ix] += 1
 
         for i in range(0, buckets):
-            print("%f to %f => %d entries" % (min_val + i * grid_size, min_val + (i+1) * grid_size, hist[i]))
+            print("%f to %f => %d entries" % (min_val + i * grid_size, min_val + (i + 1) * grid_size, hist[i]))
         exit(0)
 
         for p in [0.2, 0.4, 0.6, 0.8]:
-
             exp_setup.logger.log("Starting experiment with p=%f" % p)
             train_size = int(p * dataset_size)
             test_size = dataset_size - train_size
@@ -105,15 +101,25 @@ def main():
             in_safe_rd_acc = (100.0 * safe_rd_ctr) / float(safe_ctr)
             in_unsafe_rd_acc = (100.0 * unsafe_rd_ctr) / float(unsafe_ctr)
 
-            exp_setup.logger.log("P=%f, Train size %d, Test size %d, Safe labels %d, Unsafe labels %d, "
-                                 "RD %f%%, Safe-RD %f%%, Unsafe-RD %f%%. Time taken %s" %
-                                 (p, train_size, test_size, safe_ctr, unsafe_ctr, in_rd_acc, in_safe_rd_acc,
-                                  in_unsafe_rd_acc, beautify(time.time() - time_s)))
+            exp_setup.logger.log(
+                "P=%f, Train size %d, Test size %d, Safe labels %d, Unsafe labels %d, "
+                "RD %f%%, Safe-RD %f%%, Unsafe-RD %f%%. Time taken %s"
+                % (
+                    p,
+                    train_size,
+                    test_size,
+                    safe_ctr,
+                    unsafe_ctr,
+                    in_rd_acc,
+                    in_safe_rd_acc,
+                    in_unsafe_rd_acc,
+                    beautify(time.time() - time_s),
+                )
+            )
 
 
 if __name__ == "__main__":
-
     print("SETTING THE START METHOD ")
     mp.freeze_support()
-    mp.set_start_method('spawn')
+    mp.set_start_method("spawn")
     main()

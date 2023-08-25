@@ -4,7 +4,6 @@ import numpy as np
 
 # Generate Hadamhard matrix of atleast a given size using Sylvester's method
 def generated_hadamhard_matrix(lower_bound):
-
     dim = 1
     h = np.array([[1.0]], dtype=float)
 

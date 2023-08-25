@@ -4,7 +4,7 @@ from model.inverse_dynamics.tensor_inverse_dynamics import TensorInverseDynamics
 
 
 class InverseDynamicsWrapper:
-    """ Wrapper for inverse dynamics models """
+    """Wrapper for inverse dynamics models"""
 
     @staticmethod
     def get_inv_dynamics_model(model_name, bootstrap_model=None, **kwargs):
@@ -20,5 +20,4 @@ class InverseDynamicsWrapper:
             return TensorInverseDynamics(**kwargs, bootstrap_model=bootstrap_model)
 
         else:
-            raise NotImplementedError("Model %s is not implemented. Implemented models are linear, %r" %
-                                      (model_name, models))
+            raise NotImplementedError("Model %s is not implemented. Implemented models are linear, %r" % (model_name, models))

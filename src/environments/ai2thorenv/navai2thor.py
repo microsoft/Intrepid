@@ -18,7 +18,6 @@ class NavAI2Thor(IntrepidEnvInterface):
     env_name = "ai2thornav"
 
     def __init__(self, config):
-
         from ai2thor.controller import Controller
 
         self.scene_name = config["scene_name"]
@@ -32,30 +31,25 @@ class NavAI2Thor(IntrepidEnvInterface):
             self.exo_util = AI2ThorExoUtil(config)
 
         if self.headless:
-
             from ai2thor.platform import CloudRendering
 
             self.controller = Controller(
                 platform=CloudRendering,
-
                 scene=self.scene_name,
                 agentMode="default",
                 visibilityDistance=1.5,
-
                 # step sizes
                 gridSize=0.25,
                 # snapToGrid=True,          # Default setting from AI2Thor
-                snapToGrid=False,           # Made false so that we can rotate by 45 degree
-                rotateStepDegrees=45,       # Default angle is 90
-
+                snapToGrid=False,  # Made false so that we can rotate by 45 degree
+                rotateStepDegrees=45,  # Default angle is 90
                 # image modalities
                 renderDepthImage=False,
                 renderInstanceSegmentation=False,
-
                 # camera properties
-                width=56,       # 120
-                height=56,      # 120
-                fieldOfView=90
+                width=56,  # 120
+                height=56,  # 120
+                fieldOfView=90,
             )
 
         else:
@@ -63,38 +57,35 @@ class NavAI2Thor(IntrepidEnvInterface):
                 scene=self.scene_name,
                 agentMode="default",
                 visibilityDistance=1.5,
-
                 # step sizes
                 gridSize=0.25,
                 # snapToGrid=True,          # Default setting from AI2Thor
-                snapToGrid=False,           # Made false so that we can rotate by 45 degree
-                rotateStepDegrees=45,       # Default angle is 90
-
+                snapToGrid=False,  # Made false so that we can rotate by 45 degree
+                rotateStepDegrees=45,  # Default angle is 90
                 # image modalities
                 renderDepthImage=False,
                 renderInstanceSegmentation=False,
-
                 # camera properties
-                width=56,       # 120
-                height=56,      # 120
-                fieldOfView=90
+                width=56,  # 120
+                height=56,  # 120
+                fieldOfView=90,
             )
 
         self.act_to_name = {
             0: NavAI2Thor.MOVE_AHEAD,
             1: NavAI2Thor.ROTATE_LEFT,
             2: NavAI2Thor.ROTATE_RIGHT,
-            3: NavAI2Thor.STOP
+            3: NavAI2Thor.STOP,
         }
 
         self.num_actions = len(self.act_to_name)
-        assert self.num_actions == config["num_actions"], "Number of actions in config do not match the number of" \
-                                                          "supported actions in AI2Thor Nav Bot."
+        assert self.num_actions == config["num_actions"], (
+            "Number of actions in config do not match the number of" "supported actions in AI2Thor Nav Bot."
+        )
 
         self.timestep = 0
 
     def reset(self):
-
         if self.enable_exo:
             self.exo_util.reset()
 
@@ -102,7 +93,7 @@ class NavAI2Thor(IntrepidEnvInterface):
         new_event = self.controller.reset(scene=self.scene_name)
         self.curr_event = new_event
 
-        obs = new_event.frame           # Height x Width x {RGB channel} as uint8
+        obs = new_event.frame  # Height x Width x {RGB channel} as uint8
         obs = self._process_image(obs)
 
         info = self._get_info_from_event(new_event)
@@ -110,14 +101,15 @@ class NavAI2Thor(IntrepidEnvInterface):
         return obs, info
 
     def step(self, action):
-
         if self.enable_exo:
             self.exo_util.update()
 
         if self.timestep >= self.horizon:
-            raise AssertionError("Cannot take more actions as H many actions have been already taken in this episode"
-                                 "where H is the horizon. Resetting the episode, or increasing the horizon may solve"
-                                 "this problem.")
+            raise AssertionError(
+                "Cannot take more actions as H many actions have been already taken in this episode"
+                "where H is the horizon. Resetting the episode, or increasing the horizon may solve"
+                "this problem."
+            )
 
         if action in self.act_to_name:
             new_event = self.controller.step(self.act_to_name[action])
@@ -125,19 +117,18 @@ class NavAI2Thor(IntrepidEnvInterface):
         else:
             raise AssertionError("Action can take values only in {0, ..., %d}" % (self.num_actions - 1))
 
-        obs = new_event.frame       # Height x Width x {RGB channel} as uint8
+        obs = new_event.frame  # Height x Width x {RGB channel} as uint8
         obs = self._process_image(obs)
 
         self.timestep += 1
         done = self.timestep == self.horizon
-        reward = 0                       # TODO: define reward somehow
+        reward = 0  # TODO: define reward somehow
         self.curr_event = new_event
         info = self._get_info_from_event(new_event)
 
         return obs, reward, done, info
 
     def _process_image(self, obs):
-
         if self.enable_exo:
             obs = self.exo_util.generate(obs)
             return obs.astype(np.float32)
@@ -146,7 +137,6 @@ class NavAI2Thor(IntrepidEnvInterface):
 
     @staticmethod
     def _get_info_from_event(event):
-
         agent_state = (
             event.metadata["agent"]["position"]["x"],  # x position of the agent
             event.metadata["agent"]["position"]["y"],  # y position of the agent
@@ -154,13 +144,10 @@ class NavAI2Thor(IntrepidEnvInterface):
             event.metadata["agent"]["rotation"]["x"],  # x rotation of the agent
             event.metadata["agent"]["rotation"]["y"],  # y rotation of the agent
             event.metadata["agent"]["rotation"]["z"],  # z rotation of the agent
-            event.metadata["agent"]["cameraHorizon"]   # The angle in degrees that the camera's pitch is rotated
+            event.metadata["agent"]["cameraHorizon"],  # The angle in degrees that the camera's pitch is rotated
         )
 
-        info = {
-            EnvKeys.STATE: agent_state,
-            EnvKeys.ENDO_STATE: agent_state
-        }
+        info = {EnvKeys.STATE: agent_state, EnvKeys.ENDO_STATE: agent_state}
 
         return info
 

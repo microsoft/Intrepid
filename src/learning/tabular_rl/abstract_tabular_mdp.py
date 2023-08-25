@@ -1,7 +1,5 @@
 class AbstractTabularMDP:
-
     def __init__(self, actions, horizon, gamma=1.0):
-
         self.actions = actions
         self.horizon = horizon
         self.gamma = gamma

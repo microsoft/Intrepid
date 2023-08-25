@@ -3,12 +3,14 @@ import random
 from learning.learning_utils.encoder_sampler_all_random import EncoderSamplerAllRandom
 from learning.learning_utils.encoder_sampler_bfs_reuse import EncoderSamplerBFSReUse
 from learning.learning_utils.encoder_sampler_reuse import EncoderSamplerReUse
-from learning.learning_utils.encoder_sampler_forward_reuse import EncoderSamplerForwardReUse
+from learning.learning_utils.encoder_sampler_forward_reuse import (
+    EncoderSamplerForwardReUse,
+)
 from learning.learning_utils.encoder_sampler_same_policy import EncoderSamplerSamePolicy
 
 
 class EncoderSamplerWrapper:
-    """ Class for generating samples. A single sample is of the form {(x, a, x', y, s, s')} where
+    """Class for generating samples. A single sample is of the form {(x, a, x', y, s, s')} where
     x and x' are observations, a is an action, s and s' are states and y is a {0, 1} indicator.
     When state information is computable, s and s' represent the state of x and x' respectively. However,
 
@@ -52,8 +54,16 @@ class EncoderSamplerWrapper:
         else:
             raise AssertionError("Unhandled sampling style %r" % self.sampling_style)
 
-    def gather_samples(self, env, actions, step, homing_policies, num_samples, dataset, selection_weights=None):
-
+    def gather_samples(
+        self,
+        env,
+        actions,
+        step,
+        homing_policies,
+        num_samples,
+        dataset,
+        selection_weights=None,
+    ):
         if self.data_aggregation:
             new_dataset = dataset
         else:
@@ -64,11 +74,11 @@ class EncoderSamplerWrapper:
             selection_weights = None
 
         if selection_weights is not None and step > 1:
-            assert len(selection_weights) == len(homing_policies[step - 1]), \
-                "Weights supplied should match the number of learned policies for the previous step"
+            assert len(selection_weights) == len(
+                homing_policies[step - 1]
+            ), "Weights supplied should match the number of learned policies for the previous step"
 
-        collected_dataset = self.sampler.gather_samples(num_samples, env, actions, step,
-                                                        homing_policies, selection_weights)
+        collected_dataset = self.sampler.gather_samples(num_samples, env, actions, step, homing_policies, selection_weights)
 
         new_dataset.extend(collected_dataset)
 

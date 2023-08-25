@@ -12,9 +12,8 @@ class RLAcidWrapper(IntrepidEnvInterface):
     BERNOULLI, GAUSSIAN, HADAMHARD, HADAMHARDG = range(4)
 
     def __init__(self, config):
-
-        self.curr_state = None      # Current state
-        self.timestep = -1          # Current time step
+        self.curr_state = None  # Current state
+        self.timestep = -1  # Current time step
 
         self.curr_eps = []
         self.traces = []
@@ -60,21 +59,22 @@ class RLAcidWrapper(IntrepidEnvInterface):
 
     def reset(self, generate_obs=True):
         """
-            :return:
-                obs:        Agent observation. No assumption made on the structure of observation.
-                info:       Dictionary containing relevant information such as latent state, etc.
+        :return:
+            obs:        Agent observation. No assumption made on the structure of observation.
+            info:       Dictionary containing relevant information such as latent state, etc.
         """
 
         self.curr_state = self.start()
         self.timestep = 0
         obs = self.make_obs(self.curr_state)
 
-        info = {"state": self.curr_state,
-                "time_step": self.timestep,
-                "endogenous_state": self.get_endogenous_state(self.curr_state)}
+        info = {
+            "state": self.curr_state,
+            "time_step": self.timestep,
+            "endogenous_state": self.get_endogenous_state(self.curr_state),
+        }
 
         if self.num_eps > 0:
-
             self.moving_avg.append(self._eps_return)
             self.sum_return += self._eps_return
 
@@ -89,7 +89,7 @@ class RLAcidWrapper(IntrepidEnvInterface):
                 self.traces.append(list(self.curr_eps))
 
         self._eps_return = 0.0
-        self.num_eps += 1       # Index of current episode starting from 0
+        self.num_eps += 1  # Index of current episode starting from 0
 
         self.curr_eps = []
         self.curr_eps.append(self.curr_state)
@@ -98,12 +98,12 @@ class RLAcidWrapper(IntrepidEnvInterface):
 
     def step(self, action, generate_obs=True):
         """
-            :param action:
-            :return:
-                obs:        Agent observation. No assumption made on the structure of observation.
-                reward:     Reward received by the agent. No Markov assumption is made.
-                done:       True if the episode has terminated and False otherwise.
-                info:       Dictionary containing relevant information such as latent state, etc.
+        :param action:
+        :return:
+            obs:        Agent observation. No assumption made on the structure of observation.
+            reward:     Reward received by the agent. No Markov assumption is made.
+            done:       True if the episode has terminated and False otherwise.
+            info:       Dictionary containing relevant information such as latent state, etc.
         """
 
         horizon = self.get_horizon()
@@ -129,22 +129,23 @@ class RLAcidWrapper(IntrepidEnvInterface):
 
         done = self.timestep == horizon
 
-        info = {"state": self.get_endogenous_state(new_state),  # new_state,
-                "time_step": self.timestep,
-                "endogenous_state": self.get_endogenous_state(new_state)}
+        info = {
+            "state": self.get_endogenous_state(new_state),  # new_state,
+            "time_step": self.timestep,
+            "endogenous_state": self.get_endogenous_state(new_state),
+        }
 
         return obs, recv_reward, done, info
 
     def get_action_type(self):
         """
-            :return:
-                action_type:     Return type of action space the agent is using
+        :return:
+            action_type:     Return type of action space the agent is using
         """
         return ActionType.Discrete
 
     @staticmethod
     def get_noise(noise_type_str):
-
         if noise_type_str == "bernoulli":
             return RLAcidWrapper.BERNOULLI
 
@@ -165,11 +166,11 @@ class RLAcidWrapper(IntrepidEnvInterface):
 
     def save(self, save_path, fname=None):
         """
-            Save the environment
-            :param save_path:   Save directory
-            :param fname:       Additionally, a file name can be provided. If save is a single file, then this will be
-                                used else it can be ignored.
-            :return: None
+        Save the environment
+        :param save_path:   Save directory
+        :param fname:       Additionally, a file name can be provided. If save is a single file, then this will be
+                            used else it can be ignored.
+        :return: None
         """
 
         fname = fname if fname is not None else self.get_env_name()
@@ -182,11 +183,11 @@ class RLAcidWrapper(IntrepidEnvInterface):
 
     def load(self, load_path, fname=None):
         """
-            Save the environment
-            :param load_path:   Load directory
-            :param fname:       Additionally, a file name can be provided. If load is a single file, then only file
-                                with the given fname will be used.
-            :return: Environment
+        Save the environment
+        :param load_path:   Load directory
+        :param fname:       Additionally, a file name can be provided. If load is a single file, then only file
+                            with the given fname will be used.
+        :return: Environment
         """
 
         fname = fname if fname is not None else self.get_env_name()
@@ -198,13 +199,13 @@ class RLAcidWrapper(IntrepidEnvInterface):
 
     def is_episodic(self):
         """
-            :return:                Return True or False, True if the environment is episodic and False otherwise.
+        :return:                Return True or False, True if the environment is episodic and False otherwise.
         """
         return True
 
     def generate_homing_policy_validation_fn(self):
         """
-            :return:                Returns a validation function to test for exploration success
+        :return:                Returns a validation function to test for exploration success
         """
         return None
 
@@ -218,14 +219,14 @@ class RLAcidWrapper(IntrepidEnvInterface):
 
     def num_completed_episode(self):
         """
-            :return:    Number of completed episode
+        :return:    Number of completed episode
         """
 
         return max(0, self.num_eps - 1)
 
     def get_mean_return(self):
         """
-            :return:    Get mean return of the agent
+        :return:    Get mean return of the agent
         """
         return self.sum_return / float(max(1, self.num_completed_episode()))
 

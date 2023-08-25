@@ -1,6 +1,16 @@
 class ExperimentalSetup:
-
-    def __init__(self, config, constants, experiment, exp_name, env_name, args, debug, logger, logger_manager):
+    def __init__(
+        self,
+        config,
+        constants,
+        experiment,
+        exp_name,
+        env_name,
+        args,
+        debug,
+        logger,
+        logger_manager,
+    ):
         """
         :param config: Dictionary containing values for the environment
         :param constants: Dictionary containing hyperparameters for the algorithm

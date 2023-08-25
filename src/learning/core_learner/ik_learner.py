@@ -1,16 +1,14 @@
-from learning.core_learner.abstract_rl_discrete_latent_state import AbstractRLDiscreteLatentState
+from learning.core_learner.abstract_rl_discrete_latent_state import (
+    AbstractRLDiscreteLatentState,
+)
 from learning.learning_utils.encoder_sampler_ik import EncoderSamplerIK
-from learning.learning_utils.evaluate_state_decoder import EvaluateStateDecoder
 from learning.learning_utils.ik_train_encoding_function import IKTrainEncodingFunction
-
-from learning.policy_search.policy_search_wrapper import PolicySearchWrapper
-from learning.learning_utils.rl_discrete_latent_state_util import RLDiscreteLatentStateUtil
 
 
 class IDLearning(AbstractRLDiscreteLatentState):
     """
-        An algorithm similar to Homer but that instead relies on inverse kinematics:
-                max_\theta p(a_h | x_h, \phi(x_{h+1}))
+    An algorithm similar to Homer but that instead relies on inverse kinematics:
+            max_\theta p(a_h | x_h, \phi(x_{h+1}))
     """
 
     def __init__(self, exp_setup):
@@ -39,8 +37,15 @@ class IDLearning(AbstractRLDiscreteLatentState):
         dataset = self.encoder_sampler.gather_samples(num_samples, env, self.actions, step, homing_policies)
         return dataset, dataset
 
-    def train_discrete_encoder(self, dataset, logger, tensorboard, debug, bootstrap_model,
-                               undiscretized_initialization=True):
+    def train_discrete_encoder(
+        self,
+        dataset,
+        logger,
+        tensorboard,
+        debug,
+        bootstrap_model,
+        undiscretized_initialization=True,
+    ):
         """
         Returns:
             - encoding_function: a function that maps an observation to one of the s values where s is a natural number
@@ -52,7 +57,7 @@ class IDLearning(AbstractRLDiscreteLatentState):
             logger=self.logger,
             tensorboard=tensorboard,
             discretized=True,
-            bootstrap_model=None
+            bootstrap_model=None,
         )
 
         return encoding_function, num_state_budget

@@ -4,7 +4,6 @@ from environments.intrepid_env_meta.action_type import ActionType
 
 
 class StationaryDictionaryPolicy(ActionType):
-
     def __init__(self, q_val_dictionary, actions):
         super(ActionType, self).__init__()
 
@@ -19,11 +18,10 @@ class StationaryDictionaryPolicy(ActionType):
 
     def sample_action(self, state):
         action = self.get_argmax_action(state)
-        assert type(action) == int, "Action should be of type int. Found %r of type %r" % (action, type(action))
+        assert isinstance(action, int), "Action should be of type int. Found %r of type %r" % (action, type(action))
         return action
 
     def get_argmax_action(self, state):
-
         state = tuple(state)
         if state in self.q_val_dictionary:
             return int(self.q_val_dictionary[state].argmax())

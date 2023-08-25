@@ -5,21 +5,17 @@ from utils.beautify_time import beautify
 
 
 class RicattiSolver:
-
     def __init__(self, logger, max_it=1000, min_change=0.000001):
-
         self.max_it = max_it
         self.logger = logger
         self.min_change = min_change
 
     def solve(self, A, B, Q, R):
-
         time_start = time.time()
         self.logger.debug("Performing Ricatti Iterations")
         P = np.eye(A.shape[0])
 
         for it in range(0, self.max_it):
-
             inv_term = np.linalg.inv(R + B.T @ P @ B)
             new_P = A.T @ P @ A + Q - A.T @ P @ B @ inv_term @ B.T @ P @ A
 
