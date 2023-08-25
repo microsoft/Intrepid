@@ -54,20 +54,6 @@ class Roll:
 
     def roll_out(self, policy, t):
         raise NotImplementedError()
-        # # TODO get last observation
-        #
-        # for h in range(0, t):
-        #     action = policy.sample_action(obs, h)
-        #     obs, reward, done, info = self._env.step(action)
-        #
-        #     self.eps.add(
-        #         action=action,
-        #         reward=reward,
-        #         new_obs=obs,
-        #         new_state=info[EnvKeys.ENDO_STATE],
-        #     )
-        #
-        # return self
 
     def terminate(self):
         """Terminate the roll-out"""
