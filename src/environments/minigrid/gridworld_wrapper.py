@@ -11,7 +11,6 @@ from model.policy.stationary_constant_policy import StationaryConstantPolicy
 
 
 class GridWorldWrapper(IntrepidEnvInterface):
-
     def __init__(self, env, config, logger):
         self.timestep = -1  # Current time step
         self.horizon = config["horizon"]

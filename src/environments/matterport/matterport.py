@@ -10,7 +10,6 @@ from environments.intrepid_env_meta.intrepid_env_interface import IntrepidEnvInt
 
 
 class Matterport(IntrepidEnvInterface):
-
     env_name = "matterport"
 
     def __init__(self, config):

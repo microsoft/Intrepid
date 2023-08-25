@@ -1,5 +1,5 @@
 class IntrepidEnvInterface:
-    """ Any environment using Intrepid Env Interface must support the following API """
+    """Any environment using Intrepid Env Interface must support the following API"""
 
     def reset(self):
         """

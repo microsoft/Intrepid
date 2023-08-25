@@ -6,7 +6,6 @@ from environments.intrepid_env_meta.environment_keys import EnvKeys
 
 
 class NavAI2Thor(IntrepidEnvInterface):
-
     MOVE_AHEAD = "MoveAhead"
     MOVE_BACK = "MoveBack"
     MOVE_LEFT = "MoveLeft"

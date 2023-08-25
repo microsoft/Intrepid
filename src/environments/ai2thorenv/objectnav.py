@@ -6,7 +6,6 @@ from environments.intrepid_env_meta.intrepid_env_interface import IntrepidEnvInt
 
 
 class ObjectNav(IntrepidEnvInterface):
-
     MOVE_AHEAD = "MoveAhead"
     MOVE_BACK = "MoveBack"
     MOVE_LEFT = "MoveLeft"

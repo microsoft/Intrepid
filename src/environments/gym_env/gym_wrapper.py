@@ -9,7 +9,6 @@ from environments.intrepid_env_meta.intrepid_env_interface import IntrepidEnvInt
 
 
 class GymWrapper(IntrepidEnvInterface):
-
     TARGET_SHAPE = (8, 11)
     MAX_PIX_VALUE = 8
 

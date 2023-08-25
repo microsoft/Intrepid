@@ -7,7 +7,7 @@ from environments.intrepid_env_meta.intrepid_env_interface import IntrepidEnvInt
 
 
 class RLAcidWrapper(IntrepidEnvInterface):
-    """ Any environment using Cerebral Env Interface must support the following API """
+    """Any environment using Cerebral Env Interface must support the following API"""
 
     BERNOULLI, GAUSSIAN, HADAMHARD, HADAMHARDG = range(4)
 
