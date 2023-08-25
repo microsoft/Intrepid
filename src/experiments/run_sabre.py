@@ -27,10 +27,7 @@ def main():
     for exp_id in range(1, num_runs + 1):
         exp_setup.config["seed"] = seeds[exp_id - 1]
         exp_setup.config["env_seed"] = seeds[exp_id - 1] * 10
-        exp_setup.logger.log(
-            "========= STARTING EXPERIMENT %d (Seed = %d) ======== "
-            % (exp_id, exp_setup.config["seed"])
-        )
+        exp_setup.logger.log("========= STARTING EXPERIMENT %d (Seed = %d) ======== " % (exp_id, exp_setup.config["seed"]))
 
         # Set the random seed
         random.seed(exp_setup.config["seed"])
@@ -52,9 +49,7 @@ def main():
         learning_alg = Sabre(exp_setup)
         exp_setup.logger.log("Running SABRE: Reward Only %r" % reward_only)
 
-        policy_result = learning_alg.train(
-            env=env, exp_id=exp_id, reward_only=reward_only
-        )
+        policy_result = learning_alg.train(env=env, exp_id=exp_id, reward_only=reward_only)
 
         # fname = "./pt/sabre-clean-1/" \
         #         "sabre_sabre-clean-1_hor_5_max_1000_sabreb_1_sabree_500_sabref_1_sabrem_100_sabren_5_see_1234/" \

@@ -29,11 +29,8 @@ class DiabolicalCombinationLock(RLAcidWrapper):
         self.anti_shaping_reward2 = config["anti_shaping_reward2"]
 
         assert (
-            self.anti_shaping_reward * 0.5
-            < self.optimal_reward * self.optimal_reward_prob
-        ), "Anti shaping reward shouldn't exceed optimal reward which is %r" % (
-            self.optimal_reward * self.optimal_reward_prob
-        )
+            self.anti_shaping_reward * 0.5 < self.optimal_reward * self.optimal_reward_prob
+        ), "Anti shaping reward shouldn't exceed optimal reward which is %r" % (self.optimal_reward * self.optimal_reward_prob)
 
         assert self.num_actions >= 2, "Atleast two actions are needed"
         self.actions = list(range(0, self.num_actions))
@@ -141,9 +138,7 @@ class DiabolicalCombinationLock(RLAcidWrapper):
 
     def reward(self, x, a, next_x):
         # If the agent reaches the final live states then give it the optimal reward.
-        if (x == (0, self.horizon - 1) and a == self.opt_a[x[1]]) or (
-            x == (1, self.horizon - 1) and a == self.opt_b[x[1]]
-        ):
+        if (x == (0, self.horizon - 1) and a == self.opt_a[x[1]]) or (x == (1, self.horizon - 1) and a == self.opt_b[x[1]]):
             return self.optimal_reward * self.rng.binomial(1, self.optimal_reward_prob)
 
         # If reaching the dead state for the first time then give it a small anti-shaping reward.
@@ -162,9 +157,7 @@ class DiabolicalCombinationLock(RLAcidWrapper):
         # return self.optimal_reward * self.optimal_reward_prob
 
     def adapt_config(self, config):
-        assert (
-            config["obs_dim"] == -1
-        ), "obs_dim key in config is automatically set. Please set it to -1"
+        assert config["obs_dim"] == -1, "obs_dim key in config is automatically set. Please set it to -1"
 
         if self.noise_type == RLAcidWrapper.BERNOULLI:
             config["obs_dim"] = 2 * config["horizon"] + 4
@@ -173,14 +166,10 @@ class DiabolicalCombinationLock(RLAcidWrapper):
             config["obs_dim"] = config["horizon"] + 4
 
         elif self.noise_type == RLAcidWrapper.HADAMHARD:
-            config["obs_dim"] = get_sylvester_hadamhard_matrix_dim(
-                config["horizon"] + 4
-            )
+            config["obs_dim"] = get_sylvester_hadamhard_matrix_dim(config["horizon"] + 4)
 
         elif self.noise_type == RLAcidWrapper.HADAMHARDG:
-            config["obs_dim"] = get_sylvester_hadamhard_matrix_dim(
-                config["horizon"] + 4
-            )
+            config["obs_dim"] = get_sylvester_hadamhard_matrix_dim(config["horizon"] + 4)
 
         else:
             raise AssertionError("Unhandled noise type %r" % config["noise_type"])

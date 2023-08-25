@@ -53,9 +53,7 @@ class GymWrapper(CerebralEnvInterface):
                 mean_result = self.sum_return / float(self.num_eps)
 
                 with open("%s/progress.csv" % self.save_path, "a") as f:
-                    f.write(
-                        "%d,     %f,    %f\n" % (self.num_eps, mov_avg, mean_result)
-                    )
+                    f.write("%d,     %f,    %f\n" % (self.num_eps, mov_avg, mean_result))
 
         self._eps_return = 0.0
         self.num_eps += 1  # Index of current episode starting from 0
@@ -64,9 +62,7 @@ class GymWrapper(CerebralEnvInterface):
 
     def step(self, action, generate_obs=True):
         if self.timestep > self.horizon:
-            raise AssertionError(
-                "Cannot take more actions than horizon %d" % self.horizon
-            )
+            raise AssertionError("Cannot take more actions than horizon %d" % self.horizon)
 
         self.timestep += 1
 

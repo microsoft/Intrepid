@@ -15,25 +15,19 @@ from environments.cerebral_env_meta.environment_wrapper import (
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--env", default="diabcombolock", help="name of the environment e.g., montezuma"
-    )
+    parser.add_argument("--env", default="diabcombolock", help="name of the environment e.g., montezuma")
     parser.add_argument(
         "--num_processes",
         default=6,
         type=int,
         help="number of policy search (PS) processes to be launched at a given time",
     )
-    parser.add_argument(
-        "--name", default="run-mbrl-decoder", help="Name of the experiment"
-    )
+    parser.add_argument("--name", default="run-mbrl-decoder", help="Name of the experiment")
     parser.add_argument("--horizon", default=-1, type=int, help="Horizon")
     parser.add_argument("--env_seed", default=None, type=int, help="Environment Seed")
     parser.add_argument("--noise", default=None, type=str, help="Noise")
     parser.add_argument("--save_trace", default="False", help="Save traces")
-    parser.add_argument(
-        "--trace_sample_rate", default=500, type=int, help="How often to save traces"
-    )
+    parser.add_argument("--trace_sample_rate", default=500, type=int, help="How often to save traces")
     parser.add_argument(
         "--save_path",
         default="./results/",
@@ -41,9 +35,7 @@ def main():
         help="Folder where to save results",
     )
     parser.add_argument("--debug", default="False", help="Debug the run")
-    parser.add_argument(
-        "--pushover", default="False", help="Use pushover to send results on phone"
-    )
+    parser.add_argument("--pushover", default="False", help="Use pushover to send results on phone")
     args = parser.parse_args()
 
     env_name = args.env
@@ -64,19 +56,11 @@ def main():
 
     # Define log settings
     log_path = experiment + "/train_mbrl_oracle_decoder.log"
-    multiprocess_logging_manager = MultiprocessingLoggerManager(
-        file_path=log_path, logging_level=logging.INFO
-    )
+    multiprocess_logging_manager = MultiprocessingLoggerManager(file_path=log_path, logging_level=logging.INFO)
     master_logger = multiprocess_logging_manager.get_logger("Master")
-    master_logger.log(
-        "----------------------------------------------------------------"
-    )
-    master_logger.log(
-        "                    STARING NEW EXPERIMENT                      "
-    )
-    master_logger.log(
-        "----------------------------------------------------------------"
-    )
+    master_logger.log("----------------------------------------------------------------")
+    master_logger.log("                    STARING NEW EXPERIMENT                      ")
+    master_logger.log("----------------------------------------------------------------")
     master_logger.log("Environment Name %r. Experiment Name %r" % (env_name, exp_name))
 
     # Read configuration and constant files. Configuration contain environment information and

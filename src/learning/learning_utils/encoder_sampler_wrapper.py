@@ -78,9 +78,7 @@ class EncoderSamplerWrapper:
                 homing_policies[step - 1]
             ), "Weights supplied should match the number of learned policies for the previous step"
 
-        collected_dataset = self.sampler.gather_samples(
-            num_samples, env, actions, step, homing_policies, selection_weights
-        )
+        collected_dataset = self.sampler.gather_samples(num_samples, env, actions, step, homing_policies, selection_weights)
 
         new_dataset.extend(collected_dataset)
 

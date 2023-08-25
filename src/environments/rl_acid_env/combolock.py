@@ -28,9 +28,7 @@ class CombinationLock(RLAcidWrapper):
 
         assert (
             self.anti_shaping_reward < self.optimal_reward * self.optimal_reward_prob
-        ), "Anti shaping reward shouldn't exceed optimal reward which is %r" % (
-            self.optimal_reward * self.optimal_reward_prob
-        )
+        ), "Anti shaping reward shouldn't exceed optimal reward which is %r" % (self.optimal_reward * self.optimal_reward_prob)
 
         assert self.num_actions >= 2, "Atleast two actions are needed"
         self.actions = list(range(0, self.num_actions))
@@ -137,9 +135,7 @@ class CombinationLock(RLAcidWrapper):
         raise NotImplementedError()
 
     def adapt_config(self, config):
-        assert (
-            config["obs_dim"] == -1
-        ), "obs_dim key in config is automatically set. Please set it to -1"
+        assert config["obs_dim"] == -1, "obs_dim key in config is automatically set. Please set it to -1"
 
         if self.noise_type == RLAcidWrapper.BERNOULLI:
             config["obs_dim"] = 2 * config["horizon"] + 3
@@ -148,14 +144,10 @@ class CombinationLock(RLAcidWrapper):
             config["obs_dim"] = config["horizon"] + 3
 
         elif self.noise_type == RLAcidWrapper.HADAMHARD:
-            config["obs_dim"] = get_sylvester_hadamhard_matrix_dim(
-                config["horizon"] + 3
-            )
+            config["obs_dim"] = get_sylvester_hadamhard_matrix_dim(config["horizon"] + 3)
 
         elif self.noise_type == RLAcidWrapper.HADAMHARDG:
-            config["obs_dim"] = get_sylvester_hadamhard_matrix_dim(
-                config["horizon"] + 3
-            )
+            config["obs_dim"] = get_sylvester_hadamhard_matrix_dim(config["horizon"] + 3)
 
         else:
             raise AssertionError("Unhandled noise type %r" % config["noise_type"])

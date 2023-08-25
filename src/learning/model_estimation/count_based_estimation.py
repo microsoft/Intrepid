@@ -9,9 +9,7 @@ class CountBasedEstimation:
         if not isinstance(replay_memory, list):
             raise AssertionError("Replay memory must be a list")
 
-        transitions = [
-            episode.get_transitions_at_step(step - 1) for episode in replay_memory
-        ]
+        transitions = [episode.get_transitions_at_step(step - 1) for episode in replay_memory]
 
         latent_transitions = [
             (

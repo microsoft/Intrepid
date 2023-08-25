@@ -16,9 +16,7 @@ def process_obs_and_show(obs, seq, ret):
     seq_str = ", ".join([str(action) for action in seq])
     plt.clf()
 
-    plt.title(
-        "\n".join(wrap("Trajectory [%s], return: %f" % (seq_str, ret), 90)), fontsize=8
-    )
+    plt.title("\n".join(wrap("Trajectory [%s], return: %f" % (seq_str, ret), 90)), fontsize=8)
     plt.imshow(obs)
     plt.show()
 
@@ -48,9 +46,7 @@ obs = env.reset()
 process_obs_and_show(obs, seq, ret)
 
 while True:
-    cmd_str = input(
-        "Enter a number between 0 and 18, and press b to go back, and press q to quit\n\n"
-    )
+    cmd_str = input("Enter a number between 0 and 18, and press b to go back, and press q to quit\n\n")
 
     cmd_seq = [tk.strip() for tk in cmd_str.split(",")]
     cmd_seq = [tk for tk in cmd_seq if len(tk) > 0]

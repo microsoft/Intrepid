@@ -43,9 +43,7 @@ class PPE:
         dataset = []
         num_samples_per_path = num_samples // len(path_map)
 
-        assert (
-            num_samples_per_path >= 1
-        ), "Too few samples to cover all %d many paths" % len(path_map)
+        assert num_samples_per_path >= 1, "Too few samples to cover all %d many paths" % len(path_map)
 
         for path_id, path in path_map.items():
             for _ in range(0, num_samples_per_path):
@@ -95,12 +93,7 @@ class PPE:
             num_paths = empirical_prob_.size(0)
             entries = set(state_prob.get_entries())
             learned_prob_str = "{%s" % (
-                "; ".join(
-                    [
-                        "%r: %f" % (entry_, empirical_prob_[entry_].item())
-                        for entry_ in sorted(entries)
-                    ]
-                )
+                "; ".join(["%r: %f" % (entry_, empirical_prob_[entry_].item()) for entry_ in sorted(entries)])
             )
             suffix = []
             for ix in range(0, num_paths):
@@ -145,9 +138,7 @@ class PPE:
             actions.append(action)
 
             next_states = model.get_transitions(state, action)
-            assert (
-                len(next_states) == 1
-            ), "Deterministic model cannot allow transition to more than one state."
+            assert len(next_states) == 1, "Deterministic model cannot allow transition to more than one state."
             state, _ = next_states[0]
 
         return OpenLoopPolicy(actions=actions)
@@ -166,13 +157,9 @@ class PPE:
         num_samples = self.constants["encoder_training_num_samples"]
         tensorboard = Tensorboard(log_dir=self.config["save_path"])
 
-        homing_policies = (
-            dict()
-        )  # Contains a set of homing policies for every time step
+        homing_policies = dict()  # Contains a set of homing policies for every time step
 
-        model = DetTabularMDPBuilder(
-            actions=actions, horizon=horizon, gamma=1.0
-        )  # Model for tabular MDP
+        model = DetTabularMDPBuilder(actions=actions, horizon=horizon, gamma=1.0)  # Model for tabular MDP
         model.add_state(state=(0, 0), timestep=0)
         max_reward = -float("inf")
 
@@ -181,16 +168,11 @@ class PPE:
         debugging_metrics = dict()
 
         for step in range(1, horizon + 1):
-            self.logger.log(
-                "Running Path Prediction Algorithm: Step %r out of %r "
-                % (step, horizon)
-            )
+            self.logger.log("Running Path Prediction Algorithm: Step %r out of %r " % (step, horizon))
 
             homing_policies[step] = []  # Homing policies for this time step
 
-            prev_paths = (
-                [OpenLoopPolicy(path_id=0)] if step == 1 else homing_policies[step - 1]
-            )
+            prev_paths = [OpenLoopPolicy(path_id=0)] if step == 1 else homing_policies[step - 1]
             path_map = dict()
             for prev_id, prev_path in enumerate(prev_paths):
                 for action_id, action in enumerate(actions):
@@ -213,13 +195,8 @@ class PPE:
             #         step and an action taken at the last time step. Other miscellaneous information such as identity
             #         of endogenous state are provided.
             time_start = time.time()
-            dataset, path_id_to_state_map = self._generate_dataset(
-                env, path_map, num_samples
-            )
-            self.logger.log(
-                "Encoder: %r samples collected in %r sec"
-                % (num_samples, time.time() - time_start)
-            )
+            dataset, path_id_to_state_map = self._generate_dataset(env, path_map, num_samples)
+            self.logger.log("Encoder: %r samples collected in %r sec" % (num_samples, time.time() - time_start))
 
             # Step 2: Train a classifier on the dataset to predict id of roll-in policy
             #         given an observation for this time step
@@ -233,26 +210,17 @@ class PPE:
                 tensorboard=tensorboard,
             )
             # self.util.save_encoder_model(classifier, experiment, trial, step, "backward")
-            self.logger.log(
-                "Encoder: Training time %r" % (time.time() - time_encoder_start)
-            )
+            self.logger.log("Encoder: Training time %r" % (time.time() - time_encoder_start))
 
-            prob = self.train_classifier.get_class_mean_prob(
-                classifier, dataset
-            )  # Dim x num_class
+            prob = self.train_classifier.get_class_mean_prob(classifier, dataset)  # Dim x num_class
 
-            state_stats = (
-                None if not self.debug else self.log_dataset(dataset, prob, self.logger)
-            )
+            state_stats = None if not self.debug else self.log_dataset(dataset, prob, self.logger)
 
             # Step 3: Remove redundant paths
             path_common = {path_id: {path_id} for path_id in range(0, len(path_map))}
 
             elim_param = 5.0 / (8 * len(actions) * len(prev_paths))
-            self.logger.log(
-                "Setting elim_param to %f as N=%d and K=%d"
-                % (elim_param, len(path_map), len(actions))
-            )
+            self.logger.log("Setting elim_param to %f as N=%d and K=%d" % (elim_param, len(path_map), len(actions)))
 
             for i in range(0, len(path_map)):
                 if i not in path_common:
@@ -277,17 +245,13 @@ class PPE:
                 model.add_state(state=(step, path_id), timestep=step)
                 homing_policies[step].append(path_map[path_id])
                 prev_state = (step - 1, path_map[path_id].parent_path_id)
-                model.add_transition(
-                    prev_state, path_map[path_id].action, (step, path_id)
-                )
+                model.add_transition(prev_state, path_map[path_id].action, (step, path_id))
 
                 for other_id in other_path_ids:
                     if other_id == path_id:
                         continue
                     other_state = (step - 1, path_map[other_id].parent_path_id)
-                    model.add_transition(
-                        other_state, path_map[other_id].action, (step, path_id)
-                    )
+                    model.add_transition(other_state, path_map[other_id].action, (step, path_id))
 
             # Add reward statistics to the MDP
             mean_reward_path, max_reward_ = self._get_reward_stats(dataset)
@@ -298,19 +262,10 @@ class PPE:
                 model.add_reward(state, path.action, reward.get_mean())
 
             num_states = len(set([dp[2] for dp in dataset]))
-            self.logger.log(
-                "PPE (Time step %d): Found %d many real states while exploring"
-                % (step, num_states)
-            )
-            self.logger.log(
-                "PPE (Time step %d): Added %d many paths to policy cover"
-                % (step, len(path_common))
-            )
+            self.logger.log("PPE (Time step %d): Found %d many real states while exploring" % (step, num_states))
+            self.logger.log("PPE (Time step %d): Added %d many paths to policy cover" % (step, len(path_common)))
             self.logger.log("PPE (Time step %d): Error %s" % (step, error_util))
-            self.logger.log(
-                "PPE (Time step %d): Total time taken %r"
-                % (step, time.time() - time_start)
-            )
+            self.logger.log("PPE (Time step %d): Total time taken %r" % (step, time.time() - time_start))
 
             # Step 5 (Optional): Debug the data and model. This can take a long time and so should be performed
             # ony when debugging the algorithm.
@@ -342,9 +297,7 @@ class PPE:
                 "debugging_metrics": debugging_metrics,
             }
         else:
-            self.logger.log(
-                "Reward Sensitive Learning: Computing the optimal policy for the environment reward."
-            )
+            self.logger.log("Reward Sensitive Learning: Computing the optimal policy for the environment reward.")
 
             # Compute the optimal policy
             plan_time = time.time()
@@ -357,13 +310,9 @@ class PPE:
                 "Value Iteration performed. Expected policy value is %f. V* is %r. "
                 "Max observed reward is %f" % (expected_ret, v_star, max_reward)
             )
-            self.logger.log(
-                "Reward Sensitive Learning: Time %r" % (time.time() - plan_time)
-            )
+            self.logger.log("Reward Sensitive Learning: Time %r" % (time.time() - plan_time))
 
-            learned_policy = self._extract_reward_policy(
-                model, q_val, init_state=(0, 0)
-            )
+            learned_policy = self._extract_reward_policy(model, q_val, init_state=(0, 0))
             self.logger.log(
                 "Actual: Total number of episodes used %d. Total return %f. Mean return %f"
                 % (env.num_eps, env.sum_return, env.get_mean_return())
@@ -402,12 +351,8 @@ class PPEDecoder:
         self.path_common = path_common
 
     def encode_observations(self, observations):
-        observations = (
-            cuda_var(torch.from_numpy(np.array(observations))).float().view(1, -1)
-        )
-        prob = self.classifier.gen_prob(observations)[0][
-            0
-        ]  # should be equal to number of classes
+        observations = cuda_var(torch.from_numpy(np.array(observations))).float().view(1, -1)
+        prob = self.classifier.gen_prob(observations)[0][0]  # should be equal to number of classes
 
         best_id = -1
         best_val = -1
@@ -427,12 +372,8 @@ class PPEDecoder2:
         self.epsilon = epsilon
 
     def encode_observations(self, observations):
-        observations = (
-            cuda_var(torch.from_numpy(np.array(observations))).float().view(1, -1)
-        )
-        prob = self.classifier.gen_prob(observations)[0][
-            0
-        ]  # should be equal to number of classes
+        observations = cuda_var(torch.from_numpy(np.array(observations))).float().view(1, -1)
+        prob = self.classifier.gen_prob(observations)[0][0]  # should be equal to number of classes
         ixs = (prob - (prob.max() - self.epsilon)) >= 0.0
 
         choices = set()

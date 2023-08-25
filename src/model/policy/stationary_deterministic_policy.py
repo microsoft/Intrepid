@@ -14,9 +14,7 @@ class StationaryDeterministicPolicy(nn.Module, ActionType):
 
         if config["feature_type"] == "feature":
             if self.constants["policy_type"] == "linear":
-                self.layer = nn.Sequential(
-                    nn.Linear(config["obs_dim"], config["num_actions"])
-                )
+                self.layer = nn.Sequential(nn.Linear(config["obs_dim"], config["num_actions"]))
             elif self.constants["policy_type"] == "non-linear":
                 # TODO currently not supporting more features (e.g., number of layers etc.)
                 self.layer = nn.Sequential(
@@ -25,9 +23,7 @@ class StationaryDeterministicPolicy(nn.Module, ActionType):
                     nn.Linear(48, config["num_actions"]),
                 )
             else:
-                raise AssertionError(
-                    "Unhandled policy_type %r" % self.constants["policy_type"]
-                )
+                raise AssertionError("Unhandled policy_type %r" % self.constants["policy_type"])
 
         elif config["feature_type"] == "image":
             # When the feature type is an image, the observation dimension stores the frame, height, width and channel.

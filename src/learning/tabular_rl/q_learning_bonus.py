@@ -75,14 +75,10 @@ class QLearningBonus:
                 bonus = self.c * horizon * math.sqrt(horizon * iota / float(count))
 
                 if new_x not in v_val[h + 1]:
-                    v_val[h + 1][new_x] = horizon * np.ones(num_actions).astype(
-                        np.float32
-                    )
+                    v_val[h + 1][new_x] = horizon * np.ones(num_actions).astype(np.float32)
 
                 # Update q_val and v_val
-                q_val[h][x][a] = (1 - alpha_t) * q_val[h][x][a] + alpha_t * (
-                    r + v_val[h + 1][new_x] + bonus
-                )
+                q_val[h][x][a] = (1 - alpha_t) * q_val[h][x][a] + alpha_t * (r + v_val[h + 1][new_x] + bonus)
                 v_val[h][x] = min(horizon, np.max(q_val[h][x]))
 
                 # Update current observation x

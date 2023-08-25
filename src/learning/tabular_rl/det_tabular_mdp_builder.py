@@ -26,9 +26,7 @@ class DetTabularMDPBuilder(AbstractTabularMDP):
         self._finalize = False
 
     def add_state(self, state, timestep):
-        assert (
-            not self._finalize
-        ), "This MDP has been finalized so new states cannot be added to it."
+        assert not self._finalize, "This MDP has been finalized so new states cannot be added to it."
 
         if timestep not in self._states:
             self._states[timestep] = []
@@ -36,9 +34,7 @@ class DetTabularMDPBuilder(AbstractTabularMDP):
         self._states[timestep].append(state)
 
     def add_transition(self, state, action, new_state):
-        assert (
-            not self._finalize
-        ), "This MDP has been finalized so new transitions cannot be added to it."
+        assert not self._finalize, "This MDP has been finalized so new transitions cannot be added to it."
 
         if (state, action) in self._transitions:
             return
@@ -46,9 +42,7 @@ class DetTabularMDPBuilder(AbstractTabularMDP):
         self._transitions[(state, action)] = [(new_state, 1.0)]
 
     def add_reward(self, state, action, reward):
-        assert (
-            not self._finalize
-        ), "This MDP has been finalized so new rewards cannot be added to it."
+        assert not self._finalize, "This MDP has been finalized so new rewards cannot be added to it."
 
         if (state, action) in self._rewards:
             return

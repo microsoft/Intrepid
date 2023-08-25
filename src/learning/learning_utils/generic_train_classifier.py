@@ -12,22 +12,14 @@ class GenericTrainClassifier(GenericLearner):
 
     @staticmethod
     def calc_prob(model, batch):
-        obs = cuda_var(
-            torch.cat(
-                [torch.from_numpy(np.array(pt[0])).view(1, -1) for pt in batch], dim=0
-            )
-        ).float()
+        obs = cuda_var(torch.cat([torch.from_numpy(np.array(pt[0])).view(1, -1) for pt in batch], dim=0)).float()
 
         prob, info_dict = model.gen_prob(obs)  # Batch x Num Classes
 
         return prob, info_dict
 
     def calc_loss(self, model, batch, test=False):
-        obs = cuda_var(
-            torch.cat(
-                [torch.from_numpy(np.array(pt[0])).view(1, -1) for pt in batch], dim=0
-            )
-        ).float()
+        obs = cuda_var(torch.cat([torch.from_numpy(np.array(pt[0])).view(1, -1) for pt in batch], dim=0)).float()
         y = cuda_var(torch.LongTensor([pt[1] for pt in batch]).view(-1))
 
         log_prob, info_dict = model.gen_log_prob(obs)  # Batch x Num Classes
@@ -48,10 +40,7 @@ class GenericTrainClassifier(GenericLearner):
         """
 
         dataset_size = len(dataset)
-        batches = [
-            dataset[i : i + self.batch_size]
-            for i in range(0, dataset_size, self.batch_size)
-        ]
+        batches = [dataset[i : i + self.batch_size] for i in range(0, dataset_size, self.batch_size)]
         all_prob = []
 
         for batch in batches:

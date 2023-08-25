@@ -15,16 +15,10 @@ class EncoderSamplerIK:
         pass
 
     @staticmethod
-    def gather_samples(
-        num_samples, env, actions, step, homing_policies, selection_weights=None
-    ):
+    def gather_samples(num_samples, env, actions, step, homing_policies, selection_weights=None):
         dataset = []
         for _ in range(num_samples):
-            dataset.append(
-                EncoderSamplerIK._gather_sample(
-                    env, actions, step, homing_policies, selection_weights
-                )
-            )
+            dataset.append(EncoderSamplerIK._gather_sample(env, actions, step, homing_policies, selection_weights))
 
         return dataset
 

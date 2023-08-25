@@ -19,16 +19,10 @@ class EncoderSamplerAllRandom(AbstractEncoderSampler):
         AbstractEncoderSampler.__init__(self)
 
     @staticmethod
-    def gather_samples(
-        num_samples, env, actions, step, homing_policies, selection_weights=None
-    ):
+    def gather_samples(num_samples, env, actions, step, homing_policies, selection_weights=None):
         dataset = []
         for _ in range(num_samples):
-            dataset.append(
-                EncoderSamplerAllRandom._gather_sample(
-                    env, actions, step, homing_policies, selection_weights
-                )
-            )
+            dataset.append(EncoderSamplerAllRandom._gather_sample(env, actions, step, homing_policies, selection_weights))
 
         return dataset
 
@@ -100,9 +94,7 @@ class EncoderSamplerAllRandom(AbstractEncoderSampler):
         return data_point
 
     @staticmethod
-    def _gather_last_observation(
-        env, actions, step, homing_policies, selection_weights
-    ):
+    def _gather_last_observation(env, actions, step, homing_policies, selection_weights):
         start_obs, meta = env.reset()
 
         if step > 1:

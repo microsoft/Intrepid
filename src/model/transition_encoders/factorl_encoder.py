@@ -23,16 +23,12 @@ class FactoRLEncoder(nn.Module):
 
             # Phi
             self.phi_embedding = nn.Embedding(self.budget, self.budget)
-            self.phi_embedding.weight.data.copy_(
-                torch.from_numpy(np.eye(self.budget)).float()
-            )
+            self.phi_embedding.weight.data.copy_(torch.from_numpy(np.eye(self.budget)).float())
             self.phi_embedding.weight.requires_grad = False
 
             # action embedding
             self.action_emb = nn.Embedding(config["num_actions"], config["num_actions"])
-            self.action_emb.weight.data.copy_(
-                torch.from_numpy(np.eye(config["num_actions"])).float()
-            )
+            self.action_emb.weight.data.copy_(torch.from_numpy(np.eye(config["num_actions"])).float())
             self.action_emb.weight.requires_grad = False
 
             self.abstract_state_emb = self.budget
@@ -41,9 +37,7 @@ class FactoRLEncoder(nn.Module):
 
             # Model head
             self.classifier = nn.Sequential(
-                nn.Linear(
-                    3 + config["num_actions"] + self.budget, constants["n_hidden"]
-                ),
+                nn.Linear(3 + config["num_actions"] + self.budget, constants["n_hidden"]),
                 nn.LeakyReLU(),
                 nn.Linear(constants["n_hidden"], 2),
             )
@@ -54,9 +48,7 @@ class FactoRLEncoder(nn.Module):
         if torch.cuda.is_available():
             self.cuda()
 
-    def gen_logits_(
-        self, prev_observations, actions, observations, discretized, type="logsoftmax"
-    ):
+    def gen_logits_(self, prev_observations, actions, observations, discretized, type="logsoftmax"):
         """
         :param prev_obs:    Pytorch float tensor of size batch x dim1
         :param action:      Pytorch long tensor of size batch
@@ -99,9 +91,7 @@ class FactoRLEncoder(nn.Module):
         }
 
     def gen_log_prob(self, prev_observations, actions, observations, discretized):
-        return self.gen_logits_(
-            prev_observations, actions, observations, discretized, type="logsoftmax"
-        )
+        return self.gen_logits_(prev_observations, actions, observations, discretized, type="logsoftmax")
 
     def encode_observations(self, observations):
         observations = cuda_var(torch.from_numpy(observations)).float()

@@ -93,8 +93,7 @@ class ObjectNav(CerebralEnvInterface):
 
         self.num_actions = len(self.act_to_name)
         assert self.num_actions == config["num_actions"], (
-            "Number of actions in config do not match the number of"
-            "supported actions in AI2Thor Nav Bot."
+            "Number of actions in config do not match the number of" "supported actions in AI2Thor Nav Bot."
         )
 
         self.timestep = 0
@@ -103,17 +102,10 @@ class ObjectNav(CerebralEnvInterface):
     def reset(self):
         if self.enable_exo:
             self.exo_brightness = (
-                random.random() * (self.exo_brightness_high - self.exo_brightness_low)
-                + self.exo_brightness_low
+                random.random() * (self.exo_brightness_high - self.exo_brightness_low) + self.exo_brightness_low
             )
-            self.exo_hue = (
-                random.random() * (self.exo_hue_high - self.exo_hue_low)
-                + self.exo_hue_low
-            )
-            self.exo_sat = (
-                random.random() * (self.exo_sat_high - self.exo_sat_low)
-                + self.exo_sat_low
-            )
+            self.exo_hue = random.random() * (self.exo_hue_high - self.exo_hue_low) + self.exo_hue_low
+            self.exo_sat = random.random() * (self.exo_sat_high - self.exo_sat_low) + self.exo_sat_low
 
         self.timestep = 0
         new_event = self.controller.reset(scene=self.scene_name)
@@ -141,9 +133,7 @@ class ObjectNav(CerebralEnvInterface):
             new_event = self.controller.step(self.act_to_name[action])
 
         else:
-            raise AssertionError(
-                "Action can take values only in {0, ..., %d}" % (self.num_actions - 1)
-            )
+            raise AssertionError("Action can take values only in {0, ..., %d}" % (self.num_actions - 1))
 
         if self.enable_exo:
             new_event = self.exo_update(new_event)
@@ -165,9 +155,7 @@ class ObjectNav(CerebralEnvInterface):
     def get_objects(self, event):
         obj_pos = dict()
         for obj in event.metadata["objects"]:
-            obj_pos[obj["name"]] = np.array(
-                [obj["position"]["x"], obj["position"]["y"], obj["position"]["z"]]
-            )
+            obj_pos[obj["name"]] = np.array([obj["position"]["x"], obj["position"]["y"], obj["position"]["z"]])
         return obj_pos
 
     def exo_update(self, old_event, respawn=False):
@@ -193,15 +181,9 @@ class ObjectNav(CerebralEnvInterface):
                 inRoomTypes=None,
             )
 
-        self.exo_brightness = self.update_val(
-            self.exo_brightness, 0.25, self.exo_brightness_high, self.exo_brightness_low
-        )
-        self.exo_hue = self.update_val(
-            self.exo_hue, 0.15, self.exo_hue_high, self.exo_hue_low
-        )
-        self.exo_sat = self.update_val(
-            self.exo_sat, 0.15, self.exo_sat_high, self.exo_sat_low
-        )
+        self.exo_brightness = self.update_val(self.exo_brightness, 0.25, self.exo_brightness_high, self.exo_brightness_low)
+        self.exo_hue = self.update_val(self.exo_hue, 0.15, self.exo_hue_high, self.exo_hue_low)
+        self.exo_sat = self.update_val(self.exo_sat, 0.15, self.exo_sat_high, self.exo_sat_low)
 
         # Randomize Lighting
         new_event = self.controller.step(
@@ -239,9 +221,7 @@ class ObjectNav(CerebralEnvInterface):
             event.metadata["agent"]["rotation"]["x"],  # x rotation of the agent
             event.metadata["agent"]["rotation"]["y"],  # y rotation of the agent
             event.metadata["agent"]["rotation"]["z"],  # z rotation of the agent
-            event.metadata["agent"][
-                "cameraHorizon"
-            ],  # The angle in degrees that the camera's pitch is rotated
+            event.metadata["agent"]["cameraHorizon"],  # The angle in degrees that the camera's pitch is rotated
         )
 
         info = {EnvKeys.STATE: agent_state, EnvKeys.ENDO_STATE: agent_state}

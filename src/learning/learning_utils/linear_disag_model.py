@@ -104,13 +104,9 @@ class LinearDisagModel:
 
         try:
             if self.A is None:
-                min_val_res = scipy.optimize.linprog(
-                    safety_ftr_bias, bounds=(-1, 1), method=method
-                )
+                min_val_res = scipy.optimize.linprog(safety_ftr_bias, bounds=(-1, 1), method=method)
 
-                max_val_res = scipy.optimize.linprog(
-                    -safety_ftr_bias, bounds=(-1, 1), method=method
-                )
+                max_val_res = scipy.optimize.linprog(-safety_ftr_bias, bounds=(-1, 1), method=method)
 
             else:
                 min_val_res = scipy.optimize.linprog(
@@ -136,9 +132,7 @@ class LinearDisagModel:
             if method != self.fallback_method:
                 # Fall back to a more powerful but slower solver
                 LinearDisagModel.TOTAL_FALLBACK += 1
-                return self._get_max_min_val(
-                    safety_ftr, action, method=self.fallback_method
-                )
+                return self._get_max_min_val(safety_ftr, action, method=self.fallback_method)
             else:
                 LinearDisagModel.TOTAL_OPT_FAILURE += 1
                 return None, None, LinearDisagModel.OPT_FAIL_FLAG
@@ -151,9 +145,7 @@ class LinearDisagModel:
             if method != self.fallback_method:
                 # Fall back to a more powerful but slower solver
                 LinearDisagModel.TOTAL_FALLBACK += 1
-                return self._get_max_min_val(
-                    safety_ftr, action, method=self.fallback_method
-                )
+                return self._get_max_min_val(safety_ftr, action, method=self.fallback_method)
             else:
                 LinearDisagModel.TOTAL_OPT_FAILURE += 1
                 return None, None, LinearDisagModel.OPT_FAIL_FLAG
@@ -212,9 +204,7 @@ class LinearDisagModel:
 
             if not in_rd and not safety_label:
                 pdb.set_trace()
-                raise AssertionError(
-                    "Model Predicts Unsafe Features to be outside Region of Disagreement (RD)"
-                )
+                raise AssertionError("Model Predicts Unsafe Features to be outside Region of Disagreement (RD)")
 
             if safety_label:
                 num_safe += 1

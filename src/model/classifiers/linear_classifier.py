@@ -16,9 +16,7 @@ class LinearClassifier(nn.Module):
         self.constants = constants
 
         if config["feature_type"] == "feature":
-            self.obs_encoder = nn.Sequential(
-                nn.Linear(config["obs_dim"], self.num_class)
-            )
+            self.obs_encoder = nn.Sequential(nn.Linear(config["obs_dim"], self.num_class))
 
         elif config["feature_type"] == "image":
             raise NotImplementedError()

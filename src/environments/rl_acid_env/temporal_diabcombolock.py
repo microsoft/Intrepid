@@ -27,17 +27,12 @@ class TemporalDiabCombinationLock(RLAcidWrapper):
         self.tolerance = 0.1
 
         self.exo_flip_prob = config["exo_flip_prob"]
-        self.exo_dim = (
-            self.horizon if config["exo_dim"] == -1 else config["exo_dim"]
-        )  # Dimension of exogenous noise
+        self.exo_dim = self.horizon if config["exo_dim"] == -1 else config["exo_dim"]  # Dimension of exogenous noise
 
-        minimum_good_state_return = (
-            min(self.optimal_reward_a, self.optimal_reward_b) * self.optimal_reward_prob
-        )
+        minimum_good_state_return = min(self.optimal_reward_a, self.optimal_reward_b) * self.optimal_reward_prob
 
         assert self.anti_shaping_reward * 0.5 < minimum_good_state_return, (
-            "Anti shaping reward shouldn't exceed return on reaching any good state %r"
-            % minimum_good_state_return
+            "Anti shaping reward shouldn't exceed return on reaching any good state %r" % minimum_good_state_return
         )
 
         assert self.num_actions >= 3, "At least three actions are needed"
@@ -58,9 +53,7 @@ class TemporalDiabCombinationLock(RLAcidWrapper):
         elif self.noise_type == RLAcidWrapper.BERNOULLI:
             # We encode the state type and time separately. The type is one of the 3 and the time could be any value
             # in 1 to horizon + 1. We further add noise of size horizon.
-            self.dim = (
-                self.horizon + 4 + self.exo_dim + self.horizon
-            )  # Add noise of length horizon
+            self.dim = self.horizon + 4 + self.exo_dim + self.horizon  # Add noise of length horizon
 
         elif self.noise_type == RLAcidWrapper.HADAMHARD:
             # We encode the state type and time separately. The type is one of the 3 and the time could be any value
@@ -144,9 +137,7 @@ class TemporalDiabCombinationLock(RLAcidWrapper):
             v[x[0]] = 1.0
             v[3 + x[1]] = 1.0
             v[self.horizon + 4 : self.horizon + 4 + self.exo_dim] = x[2]
-            v[self.horizon + 4 + self.exo_dim :] = self.rng.binomial(
-                1, 0.5, self.horizon
-            )
+            v[self.horizon + 4 + self.exo_dim :] = self.rng.binomial(1, 0.5, self.horizon)
 
         elif self.noise_type == RLAcidWrapper.GAUSSIAN:
             v = np.zeros(self.dim, dtype=float)
@@ -184,14 +175,10 @@ class TemporalDiabCombinationLock(RLAcidWrapper):
     def reward(self, x, a, next_x):
         # If the agent reaches the final good states then give it the optimal reward.
         if x[0] == 0 and x[1] == self.horizon - 1 and a == self.opt_a[x[1]]:
-            return self.optimal_reward_a * self.rng.binomial(
-                1, self.optimal_reward_prob
-            )
+            return self.optimal_reward_a * self.rng.binomial(1, self.optimal_reward_prob)
 
         if x[0] == 1 and x[1] == self.horizon - 1 and a == self.opt_b[x[1]]:
-            return self.optimal_reward_b * self.rng.binomial(
-                1, self.optimal_reward_prob
-            )
+            return self.optimal_reward_b * self.rng.binomial(1, self.optimal_reward_prob)
 
         # Give anti-shaped reward
         if x is not None and next_x is not None:
@@ -205,10 +192,7 @@ class TemporalDiabCombinationLock(RLAcidWrapper):
         return 0
 
     def get_optimal_value(self):
-        return (
-            max(self.optimal_reward_a, self.optimal_reward_b) * self.optimal_reward_prob
-            - self.anti_shaping_reward2
-        )
+        return max(self.optimal_reward_a, self.optimal_reward_b) * self.optimal_reward_prob - self.anti_shaping_reward2
 
     @staticmethod
     def calc_obs_dim(config):
@@ -242,9 +226,7 @@ class TemporalDiabCombinationLock(RLAcidWrapper):
             raise AssertionError("Unhandled noise type %r" % noise_type)
 
     def adapt_config(self, config):
-        assert (
-            config["obs_dim"] == -1
-        ), "obs_dim key in config is automatically set. Please set it to -1"
+        assert config["obs_dim"] == -1, "obs_dim key in config is automatically set. Please set it to -1"
 
         config["obs_dim"] = TemporalDiabCombinationLock.calc_obs_dim(config)
 
@@ -254,9 +236,9 @@ class TemporalDiabCombinationLock(RLAcidWrapper):
     @staticmethod
     def validate_config(config):
         calc_dim = TemporalDiabCombinationLock.calc_obs_dim(config)
-        assert config["obs_dim"] == calc_dim, (
-            "Observation dimension in dictionary %d does not match what is expected %d"
-            % (config["obs_dim"], calc_dim)
+        assert config["obs_dim"] == calc_dim, "Observation dimension in dictionary %d does not match what is expected %d" % (
+            config["obs_dim"],
+            calc_dim,
         )
 
     def generate_homing_policy_validation_fn(self):
@@ -280,14 +262,8 @@ class TemporalDiabCombinationLock(RLAcidWrapper):
             actions_copy.remove(self.opt_b[i])
             opt_c.append(actions_copy[0])
 
-        policy_a = {
-            i: StationaryConstantPolicy(self.opt_a[i - 1]) for i in range(1, step + 1)
-        }
-        policy_b = {
-            i: StationaryConstantPolicy(self.opt_b[i - 1]) for i in range(1, step + 1)
-        }
-        policy_c = {
-            i: StationaryConstantPolicy(opt_c[i - 1]) for i in range(1, step + 1)
-        }
+        policy_a = {i: StationaryConstantPolicy(self.opt_a[i - 1]) for i in range(1, step + 1)}
+        policy_b = {i: StationaryConstantPolicy(self.opt_b[i - 1]) for i in range(1, step + 1)}
+        policy_c = {i: StationaryConstantPolicy(opt_c[i - 1]) for i in range(1, step + 1)}
 
         return [policy_a, policy_b, policy_c]

@@ -138,9 +138,7 @@ class Episode:
             obs_n = self._observations[1:]
         else:
             obs_n = self._observations[1 : -(k - 1)]
-        return zip(
-            self._observations[:-k], self._actions, obs_n, self._observations[k:], klst
-        )
+        return zip(self._observations[:-k], self._actions, obs_n, self._observations[k:], klst)
 
     def get_len(self):
         """
@@ -174,8 +172,6 @@ class Episode:
         return "%r -> " % (self._states[0],) + "-> ".join(
             [
                 "%r -> %r, %r" % (action, reward, state)
-                for (action, reward, state) in zip(
-                    self._actions, self._rewards, self._states[1:]
-                )
+                for (action, reward, state) in zip(self._actions, self._rewards, self._states[1:])
             ]
         )

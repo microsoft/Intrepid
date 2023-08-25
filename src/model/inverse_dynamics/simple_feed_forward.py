@@ -25,9 +25,7 @@ class SimpleFeedForwardIK(nn.Module):
 
             # Phi
             self.phi_embedding = nn.Embedding(self.budget, self.budget)
-            self.phi_embedding.weight.data.copy_(
-                torch.from_numpy(np.eye(self.budget)).float()
-            )
+            self.phi_embedding.weight.data.copy_(torch.from_numpy(np.eye(self.budget)).float())
             self.phi_embedding.weight.requires_grad = False
 
             self.abstract_state_emb = self.budget
@@ -52,9 +50,7 @@ class SimpleFeedForwardIK(nn.Module):
         if bootstrap_model is not None:
             self.load_state_dict(bootstrap_model.state_dict())
 
-    def __gen_logits__(
-        self, prev_observations, observations, discretized, type="logsoftmax"
-    ):
+    def __gen_logits__(self, prev_observations, observations, discretized, type="logsoftmax"):
         if self.config["feature_type"] == "image":
             raise NotImplementedError()
 
@@ -89,14 +85,10 @@ class SimpleFeedForwardIK(nn.Module):
         }
 
     def gen_log_prob(self, prev_observations, observations, discretized):
-        return self.__gen_logits__(
-            prev_observations, observations, discretized, type="logsoftmax"
-        )
+        return self.__gen_logits__(prev_observations, observations, discretized, type="logsoftmax")
 
     def gen_prob(self, prev_observations, observations, discretized):
-        return self.__gen_logits__(
-            prev_observations, observations, discretized, type="softmax"
-        )
+        return self.__gen_logits__(prev_observations, observations, discretized, type="softmax")
 
     def encode_observations(self, observations):
         observations = cuda_var(torch.from_numpy(np.array(observations))).float()
@@ -121,9 +113,7 @@ class SimpleFeedForwardIK(nn.Module):
             param.requires_grad = False
 
     def load_from_another_instance(self, other_model, lock_params=False):
-        assert type(self) == type(
-            other_model
-        ), "Class must be the same. Found %r and %r" % (type(self), type(other_model))
+        assert type(self) == type(other_model), "Class must be the same. Found %r and %r" % (type(self), type(other_model))
 
         self.prev_encoder.load_state_dict(other_model.prev_encoder.state_dict())
         self.obs_encoder.load_state_dict(other_model.obs_encoder.state_dict())

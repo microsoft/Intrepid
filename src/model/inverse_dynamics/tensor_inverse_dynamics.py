@@ -13,9 +13,7 @@ class TensorInverseDynamics(nn.Module):
         self.action_dim = exp_setup.config["num_actions"]
         self.dim = exp_setup.constants["hidden_dim"]
 
-        self.tensor_W = nn.Parameter(
-            torch.randn(self.dim, self.action_dim, self.dim) * 0.01
-        )
+        self.tensor_W = nn.Parameter(torch.randn(self.dim, self.action_dim, self.dim) * 0.01)
 
         if torch.cuda.is_available():
             self.cuda()
@@ -29,9 +27,7 @@ class TensorInverseDynamics(nn.Module):
     def get_latent_action(self, prev_encoding, obs_encoding):
         batch_size = prev_encoding.size(0)
 
-        x = torch.matmul(
-            prev_encoding, self.tensor_W.view(self.dim, self.action_dim * self.dim)
-        )
+        x = torch.matmul(prev_encoding, self.tensor_W.view(self.dim, self.action_dim * self.dim))
         x = x.view(batch_size, self.action_dim, self.dim)
 
         x = (obs_encoding[:, None, :] * x).sum(2)  # batch x num_actions

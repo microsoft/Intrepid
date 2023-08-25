@@ -25,9 +25,7 @@ class FeatureComputation:
                 torch.cat(
                     [
                         torch.from_numpy(np.array(curr_obs_action_[0])).view(1, -1)
-                        for curr_obs_action_ in self.curr_obs_actions[
-                            i : i + this_batch_size
-                        ]
+                        for curr_obs_action_ in self.curr_obs_actions[i : i + this_batch_size]
                     ],
                     dim=0,
                 )
@@ -37,17 +35,13 @@ class FeatureComputation:
                 torch.cat(
                     [
                         torch.from_numpy(np.array(curr_obs_action_[1])).view(1, -1)
-                        for curr_obs_action_ in self.curr_obs_actions[
-                            i : i + this_batch_size
-                        ]
+                        for curr_obs_action_ in self.curr_obs_actions[i : i + this_batch_size]
                     ],
                     dim=0,
                 )
             ).long()
 
-            observations = cuda_var(
-                torch.cat([next_obs_np] * this_batch_size, dim=0)
-            ).float()
+            observations = cuda_var(torch.cat([next_obs_np] * this_batch_size, dim=0)).float()
 
             prob, _ = self.model.gen_prob(
                 prev_observations=prev_observations,
@@ -83,9 +77,7 @@ class CompositionalFeatureComputation:
                 torch.cat(
                     [
                         torch.from_numpy(np.array(curr_obs_action_[0])).view(1, -1)
-                        for curr_obs_action_ in self.curr_obs_actions[
-                            i : i + this_batch_size
-                        ]
+                        for curr_obs_action_ in self.curr_obs_actions[i : i + this_batch_size]
                     ],
                     dim=0,
                 )
@@ -95,9 +87,7 @@ class CompositionalFeatureComputation:
                 torch.cat(
                     [
                         torch.from_numpy(np.array(curr_obs_action_[1])).view(1, -1)
-                        for curr_obs_action_ in self.curr_obs_actions[
-                            i : i + this_batch_size
-                        ]
+                        for curr_obs_action_ in self.curr_obs_actions[i : i + this_batch_size]
                     ],
                     dim=0,
                 )
@@ -133,10 +123,7 @@ class CompositionalFeatureComputation:
 
             obs_batch = cuda_var(
                 torch.cat(
-                    [
-                        torch.from_numpy(np.array(obs_)).view(1, -1)
-                        for obs_ in observations[i : i + this_batch_size]
-                    ],
+                    [torch.from_numpy(np.array(obs_)).view(1, -1) for obs_ in observations[i : i + this_batch_size]],
                     dim=0,
                 )
             ).float()
@@ -161,10 +148,7 @@ class CompositionalFeatureComputation:
 
             obs_batch = cuda_var(
                 torch.cat(
-                    [
-                        torch.from_numpy(np.array(obs_)).view(1, -1)
-                        for obs_ in observations[i : i + this_batch_size]
-                    ],
+                    [torch.from_numpy(np.array(obs_)).view(1, -1) for obs_ in observations[i : i + this_batch_size]],
                     dim=0,
                 )
             ).float()
@@ -179,18 +163,14 @@ class CompositionalFeatureComputation:
 
             for prev_obs_act_encoded in self.prev_obs_act_encoded_list:
                 # Returns prob which is equal to number of obs and action
-                prob, _ = self.model.gen_batch_prob_from_encodings(
-                    prev_obs_act_encoded, obs_encoded
-                )
+                prob, _ = self.model.gen_batch_prob_from_encodings(prev_obs_act_encoded, obs_encoded)
 
                 prob = prob.cpu().data.numpy()
                 prob_batch.append(prob)
 
             batch_vector = np.concatenate(prob_batch, axis=1)
 
-            all_vectors.append(
-                batch_vector
-            )  # Would be a list of type batch x number of obs and action
+            all_vectors.append(batch_vector)  # Would be a list of type batch x number of obs and action
 
         all_vectors = np.concatenate(all_vectors, axis=0)
 
@@ -217,11 +197,7 @@ class GreedyClustering:
             cluster_centers.append(center)
 
             # Find points covered by this center and remove them from the set
-            new_vectors = [
-                point
-                for point in vectors
-                if np.mean(np.abs(point - center)) > self.threshold
-            ]
+            new_vectors = [point for point in vectors if np.mean(np.abs(point - center)) > self.threshold]
             vectors = new_vectors
 
         return cluster_centers

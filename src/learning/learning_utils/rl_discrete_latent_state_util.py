@@ -55,9 +55,7 @@ class RLDiscreteLatentStateUtil:
             )
 
         mixed_image = skimage.transform.resize(mixed_image, (600, 600))
-        imageio.imwrite(
-            "./%s_policy/step_%d/mixed_image.png" % (env_name, step), mixed_image
-        )
+        imageio.imwrite("./%s_policy/step_%d/mixed_image.png" % (env_name, step), mixed_image)
 
     @staticmethod
     def save_abstract_state_figures(env_name, observation_samples, step):
@@ -109,9 +107,7 @@ class RLDiscreteLatentStateUtil:
 
     def get_abstract_state_counts(self, encoding_function, dataset):
         count_stats = {}
-        observation_samples = (
-            {}
-        )  # A collection of 20 observations that map to this value
+        observation_samples = {}  # A collection of 20 observations that map to this value
 
         real_abstract_corr = dict()
 
@@ -157,8 +153,7 @@ class RLDiscreteLatentStateUtil:
             for abstract_state, count in real_abstract_corr[state].items():
                 pct = (count * 100.0) / float(max(1, total_count))
                 self.logger.log(
-                    "Real state %r -> Abstract state %d, with count %d and pct %f"
-                    % (state, abstract_state, count, pct)
+                    "Real state %r -> Abstract state %d, with count %d and pct %f" % (state, abstract_state, count, pct)
                 )
 
         random.shuffle(sampled_plotting_data)
@@ -183,16 +178,10 @@ class RLDiscreteLatentStateUtil:
 
             total_reward = total_reward / float(max(1, num_samples))
             all_total_reward = all_total_reward + total_reward
-            self.logger.log(
-                "After horizon %r. Policy Number %r receives mean reward %r"
-                % (step, ix + 1, total_reward)
-            )
+            self.logger.log("After horizon %r. Policy Number %r receives mean reward %r" % (step, ix + 1, total_reward))
 
         all_total_reward = all_total_reward / float(max(1, len(homing_policies[step])))
-        self.logger.log(
-            "After horizon %r. Random Policy receives reward %r"
-            % (step, all_total_reward)
-        )
+        self.logger.log("After horizon %r. Random Policy receives reward %r" % (step, all_total_reward))
 
     def evaluate_homing_policy(self, env, homing_policies, step):
         num_states = {}
@@ -228,24 +217,14 @@ class RLDiscreteLatentStateUtil:
             policies_final_observations.append(policy_final_observation)
 
             for state in policy_states:
-                policy_states[state] = (
-                    policy_states[state] / float(max(1, num_samples))
-                ) * 100
+                policy_states[state] = (policy_states[state] / float(max(1, num_samples))) * 100
 
-            self.logger.log(
-                "After horizon %r. Policy Number %r has distribution %r"
-                % (step, ix + 1, policy_states)
-            )
+            self.logger.log("After horizon %r. Policy Number %r has distribution %r" % (step, ix + 1, policy_states))
 
         for state in num_states:
-            num_states[state] = (
-                num_states[state]
-                / float(max(1, len(homing_policies[step]) * num_samples))
-            ) * 100
+            num_states[state] = (num_states[state] / float(max(1, len(homing_policies[step]) * num_samples))) * 100
 
-        self.logger.log(
-            "After horizon %r. Random Policy distribution is %r" % (step, num_states)
-        )
+        self.logger.log("After horizon %r. Random Policy distribution is %r" % (step, num_states))
 
         return num_states, policies_final_observations
 

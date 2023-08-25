@@ -55,9 +55,7 @@ def main():
     )
     parser.add_argument("--noise", default=None, type=str, help="Noise")
     parser.add_argument("--save_trace", default="False", help="Save traces")
-    parser.add_argument(
-        "--trace_sample_rate", default=500, type=int, help="How often to save traces"
-    )
+    parser.add_argument("--trace_sample_rate", default=500, type=int, help="How often to save traces")
     parser.add_argument(
         "--save_path",
         default="./results/",
@@ -85,19 +83,11 @@ def main():
 
     # Define log settings
     log_path = experiment + "/train_homer.log"
-    multiprocess_logging_manager = MultiprocessingLoggerManager(
-        file_path=log_path, logging_level=logging.INFO
-    )
+    multiprocess_logging_manager = MultiprocessingLoggerManager(file_path=log_path, logging_level=logging.INFO)
     master_logger = multiprocess_logging_manager.get_logger("Master")
-    master_logger.log(
-        "----------------------------------------------------------------"
-    )
-    master_logger.log(
-        "                    STARING NEW EXPERIMENT                      "
-    )
-    master_logger.log(
-        "----------------------------------------------------------------"
-    )
+    master_logger.log("----------------------------------------------------------------")
+    master_logger.log("                    STARING NEW EXPERIMENT                      ")
+    master_logger.log("----------------------------------------------------------------")
     master_logger.log("Environment Name %r. Experiment Name %r" % (env_name, exp_name))
 
     with open("data/%s/config.json" % env_name) as f:
@@ -146,14 +136,8 @@ def main():
 
         # Load the environment
         env_folder = load_folder + "/trial_%d_env" % trial
-        env_folders = [
-            join(env_folder, f)
-            for f in listdir(env_folder)
-            if isdir(join(env_folder, f))
-        ]
-        assert len(env_folders) == 1, (
-            "Found more than environment. Specify the folder manually %r" % env_folders
-        )
+        env_folders = [join(env_folder, f) for f in listdir(env_folder) if isdir(join(env_folder, f))]
+        assert len(env_folders) == 1, "Found more than environment. Specify the folder manually %r" % env_folders
         env.load_environment_from_folder(env_folders[0])
         master_logger.log("Loaded Environment from %r" % env_folders[0])
 
@@ -162,10 +146,7 @@ def main():
         config["horizon"] = env.env.horizon
         config["obs_dim"] = -1
         GenerateEnvironmentWrapper.adapt_config_to_domain(env_name, config)
-        master_logger.log(
-            "Environment horizon %r, Observation dimension %r"
-            % (config["horizon"], config["obs_dim"])
-        )
+        master_logger.log("Environment horizon %r, Observation dimension %r" % (config["horizon"], config["obs_dim"]))
 
         learning_alg = Homer(config, constants)
 

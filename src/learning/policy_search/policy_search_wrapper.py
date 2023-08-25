@@ -47,14 +47,10 @@ class PolicySearchWrapper:
 
         # GPS can reuse part of the collected dataset which represents real transition.
         if isinstance(policy_search_routine, GreedyPolicySearch):
-            filtered_dataset = policy_cover_dataset[
-                horizon
-            ]  # Only data for last time step
+            filtered_dataset = policy_cover_dataset[horizon]  # Only data for last time step
 
         elif isinstance(policy_search_routine, PathPolicySearch):
-            filtered_dataset = policy_cover_dataset[
-                horizon
-            ]  # Only data for last time step
+            filtered_dataset = policy_cover_dataset[horizon]  # Only data for last time step
 
         elif isinstance(policy_search_routine, FQI):
             filtered_dataset = policy_cover_dataset  # Utilizes data for each time step

@@ -116,9 +116,7 @@ class GridWorldRandSmall(MiniGridEnv):
                     selected_goals = [
                         goal
                         for goal, path in path_map.items()
-                        if GridWorldRandSmall.MIN_GOAL_DIST
-                        <= len(path)
-                        <= GridWorldRandSmall.MAX_GOAL_DIST
+                        if GridWorldRandSmall.MIN_GOAL_DIST <= len(path) <= GridWorldRandSmall.MAX_GOAL_DIST
                     ]
 
                     if len(selected_goals) > 0:
@@ -225,9 +223,7 @@ class GridWorldRandSmall(MiniGridEnv):
 
         agent_state = self.agent_pos[0], self.agent_pos[1], self.agent_dir
 
-        self.min_dist_to_goal = len(
-            GridWorldRandSmall.BFS_PATH[agent_state][self.goal_pos]
-        )
+        self.min_dist_to_goal = len(GridWorldRandSmall.BFS_PATH[agent_state][self.goal_pos])
 
         self.put_obj(Key("yellow"), *self.goal_pos)
 
@@ -294,17 +290,11 @@ class GridWorldRandSmall(MiniGridEnv):
         # Move forward
         if action == self.actions.left or action == self.actions.right:
             pass
-        elif (
-            action == self.actions.forward
-            or action == self.actions.left_forward
-            or action == self.actions.right_forward
-        ):
+        elif action == self.actions.forward or action == self.actions.left_forward or action == self.actions.right_forward:
             if fwd_cell is None or fwd_cell.can_overlap():
                 self.agent_pos = fwd_pos
 
-            if fwd_cell is not None and (
-                fwd_cell.type == "goal" or fwd_cell.type == "key"
-            ):
+            if fwd_cell is not None and (fwd_cell.type == "goal" or fwd_cell.type == "key"):
                 done = True
                 self.goal_reached = True
                 self.agent_pos = fwd_pos

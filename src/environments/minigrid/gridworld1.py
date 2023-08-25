@@ -127,11 +127,7 @@ class GridWorld1(MiniGridEnv):
         # Move forward
         if action == self.actions.left or action == self.actions.right:
             pass
-        elif (
-            action == self.actions.forward
-            or action == self.actions.left_forward
-            or action == self.actions.right_forward
-        ):
+        elif action == self.actions.forward or action == self.actions.left_forward or action == self.actions.right_forward:
             if fwd_cell is None or fwd_cell.can_overlap():
                 self.agent_pos = fwd_pos
 

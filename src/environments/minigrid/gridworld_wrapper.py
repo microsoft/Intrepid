@@ -44,9 +44,7 @@ class GridWorldWrapper(CerebralEnvInterface):
         self.use_exo_reward = config["exo_reward"] > 0
         self.color_map = config["color_map"] > 0
 
-        if (
-            self.enable_exo or self.use_exo_reward
-        ):  # works with both bool type and integers/floats
+        if self.enable_exo or self.use_exo_reward:  # works with both bool type and integers/floats
             self.exo_util = get_exo_util(self.exo_type, config)
             logger.log("Created exogenous noise of type %r" % self.exo_type)
         else:
@@ -82,9 +80,7 @@ class GridWorldWrapper(CerebralEnvInterface):
         self.gen.manual_seed(999)
 
         if self.color_map:
-            self.color_map_filter = torch.rand(
-                size=(1, 3, self.grid_width, self.grid_height), generator=self.gen
-            )
+            self.color_map_filter = torch.rand(size=(1, 3, self.grid_width, self.grid_height), generator=self.gen)
             self.color_map_filter = F.interpolate(
                 self.color_map_filter,
                 size=(
@@ -164,9 +160,7 @@ class GridWorldWrapper(CerebralEnvInterface):
                 mean_result = self.sum_return / float(self.num_eps)
 
                 with open("%s/progress.csv" % self.save_path, "a") as f:
-                    f.write(
-                        "%d,     %f,    %f\n" % (self.num_eps, mov_avg, mean_result)
-                    )
+                    f.write("%d,     %f,    %f\n" % (self.num_eps, mov_avg, mean_result))
 
         self._eps_return = 0.0
         self.num_eps += 1  # Index of current episode starting from 0
@@ -177,9 +171,7 @@ class GridWorldWrapper(CerebralEnvInterface):
 
         # Generate observation
         if generate_obs:
-            img = self.env.render(
-                "rgb_array", tile_size=self.tile_size, highlight=False
-            )
+            img = self.env.render("rgb_array", tile_size=self.tile_size, highlight=False)
             img, gen_info_dict = self.generate_image(img, state)
 
             for key, val in gen_info_dict.items():
@@ -222,16 +214,12 @@ class GridWorldWrapper(CerebralEnvInterface):
             pad_up = 0  # - val if val < 0 else 0
 
             # Cropping
-            img2 = img[
-                start_y:end_y, start_x:end_x, :
-            ]  # Height is first, and height is y
+            img2 = img[start_y:end_y, start_x:end_x, :]  # Height is first, and height is y
 
             new_image[pad_up : pad_up + img2.shape[0], 0 : img2.shape[1], :] = img2
 
         elif agent_dir == 1:  # Down
-            start_y = min(
-                agent_y * self.tile_height, self.grid_height * self.tile_height
-            )
+            start_y = min(agent_y * self.tile_height, self.grid_height * self.tile_height)
             end_y = min(
                 max((agent_y + self.agent_view_size) * self.tile_height, 0),
                 self.grid_height * self.tile_height,
@@ -248,9 +236,7 @@ class GridWorldWrapper(CerebralEnvInterface):
             pad_up = 0  # - val if val < 0 else 0
 
             # Cropping
-            img2 = img[
-                start_y:end_y, start_x:end_x, :
-            ]  # Height is first, and height is y
+            img2 = img[start_y:end_y, start_x:end_x, :]  # Height is first, and height is y
 
             img2 = np.rot90(img2, 1, (0, 1))
             new_image[pad_up : pad_up + img2.shape[0], 0 : img2.shape[1], :] = img2
@@ -260,9 +246,7 @@ class GridWorldWrapper(CerebralEnvInterface):
                 max((agent_x - self.agent_view_size + 1) * self.tile_width, 0),
                 self.grid_width * self.tile_width,
             )
-            end_x = min(
-                (agent_x + 1) * self.tile_width, self.grid_width * self.tile_width
-            )
+            end_x = min((agent_x + 1) * self.tile_width, self.grid_width * self.tile_width)
 
             val = (agent_y - math.floor(self.agent_view_size / 2.0)) * self.tile_height
             start_y = min(max(val, 0), self.grid_height * self.tile_height)
@@ -275,9 +259,7 @@ class GridWorldWrapper(CerebralEnvInterface):
             pad_up = 0  # - val if val < 0 else 0
 
             # Cropping
-            img2 = img[
-                start_y:end_y, start_x:end_x, :
-            ]  # Height is first, and height is y
+            img2 = img[start_y:end_y, start_x:end_x, :]  # Height is first, and height is y
 
             img2 = np.rot90(img2, 2, (0, 1))
             new_image[pad_up : pad_up + img2.shape[0], 0 : img2.shape[1], :] = img2
@@ -287,9 +269,7 @@ class GridWorldWrapper(CerebralEnvInterface):
                 max((agent_y - self.agent_view_size + 1) * self.tile_height, 0),
                 self.grid_height * self.tile_height,
             )
-            end_y = min(
-                (agent_y + 1) * self.tile_height, self.grid_height * self.tile_height
-            )
+            end_y = min((agent_y + 1) * self.tile_height, self.grid_height * self.tile_height)
 
             val = (agent_x - math.floor(self.agent_view_size / 2.0)) * self.tile_width
             start_x = min(max(val, 0), self.grid_height * self.tile_width)
@@ -302,22 +282,16 @@ class GridWorldWrapper(CerebralEnvInterface):
             pad_up = 0  # - val if val < 0 else 0
 
             # Cropping
-            img2 = img[
-                start_y:end_y, start_x:end_x, :
-            ]  # Height is first, and height is y
+            img2 = img[start_y:end_y, start_x:end_x, :]  # Height is first, and height is y
 
             img2 = np.rot90(img2, 3, (0, 1))
             # pdb.set_trace()
             new_image[pad_up : pad_up + img2.shape[0], 0 : img2.shape[1], :] = img2
 
         else:
-            raise AssertionError(
-                "Agent direction must be in {0, 1, 2, 3}. Found %r" % agent_dir
-            )
+            raise AssertionError("Agent direction must be in {0, 1, 2, 3}. Found %r" % agent_dir)
 
-        new_image = torch.nn.functional.interpolate(
-            torch.Tensor(new_image).unsqueeze(0).permute(0, 3, 1, 2), size=(56, 56)
-        )
+        new_image = torch.nn.functional.interpolate(torch.Tensor(new_image).unsqueeze(0).permute(0, 3, 1, 2), size=(56, 56))
         new_image = new_image.squeeze(0).permute(1, 2, 0)
         new_image = new_image.numpy()
 
@@ -401,9 +375,7 @@ class GridWorldWrapper(CerebralEnvInterface):
         """
 
         if self.timestep > self.horizon:
-            raise AssertionError(
-                "Cannot take more actions than horizon %d" % self.horizon
-            )
+            raise AssertionError("Cannot take more actions than horizon %d" % self.horizon)
 
         obs, reward, done, info = self.env.step(action)
         self.timestep += 1
@@ -426,9 +398,7 @@ class GridWorldWrapper(CerebralEnvInterface):
             self.exo_util.update()
 
         if generate_obs:
-            img = self.env.render(
-                "rgb_array", tile_size=self.tile_size, highlight=False
-            )
+            img = self.env.render("rgb_array", tile_size=self.tile_size, highlight=False)
 
             img, gen_info_dict = self.generate_image(img, state)
 
@@ -447,11 +417,7 @@ class GridWorldWrapper(CerebralEnvInterface):
         self._eps_return += reward
 
         ######
-        if (
-            img is not None
-            and self.env.env_name == "gridworld-randomized-small"
-            and self.env.goal_reached
-        ):
+        if img is not None and self.env.env_name == "gridworld-randomized-small" and self.env.goal_reached:
             img = img * 0.0
         ######
 
@@ -566,10 +532,7 @@ class GridWorldWrapper(CerebralEnvInterface):
             self._homing_policies[i] = []
 
             for path in path_cover[i]:
-                policy = {
-                    i + 1: StationaryConstantPolicy(action)
-                    for i, action in enumerate(path)
-                }
+                policy = {i + 1: StationaryConstantPolicy(action) for i, action in enumerate(path)}
                 self._homing_policies[i].append(policy)
 
         return self._homing_policies[step]
@@ -584,9 +547,7 @@ class GridWorldWrapper(CerebralEnvInterface):
                 agent_dir += 4
 
         # Rotate right
-        elif (
-            action == self.env.actions.right or action == self.env.actions.right_forward
-        ):
+        elif action == self.env.actions.right or action == self.env.actions.right_forward:
             agent_dir = (agent_dir + 1) % 4
 
         # Get the position in front of the agent
@@ -654,9 +615,7 @@ class GridWorldWrapper(CerebralEnvInterface):
             )
 
             if ignore_timestep:
-                if (
-                    next_state == state2[:3]
-                ):  # [:3] is done to remove timestep information
+                if next_state == state2[:3]:  # [:3] is done to remove timestep information
                     action_set.add(action)
             elif next_state_with_timestep == state2:
                 action_set.add(action)

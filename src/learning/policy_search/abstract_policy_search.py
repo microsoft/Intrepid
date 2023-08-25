@@ -10,9 +10,7 @@ class AbstractPolicySearch:
         pass
 
     @staticmethod
-    def _gather_sample(
-        env, actions, horizon, step, homing_policies, learned_policy, reward_func
-    ):
+    def _gather_sample(env, actions, horizon, step, homing_policies, learned_policy, reward_func):
         start_obs, meta = env.reset()
 
         if step > 1:
@@ -133,9 +131,7 @@ class AbstractPolicySearch:
         return total_reward
 
     @staticmethod
-    def _evaluate__learned_policy(
-        env, horizon, reward_func, learned_policy, logger, num_rollouts, actions
-    ):
+    def _evaluate__learned_policy(env, horizon, reward_func, learned_policy, logger, num_rollouts, actions):
         mean_reward = 0.0
         action_distribution = {}
         for act in actions:
@@ -163,13 +159,9 @@ class AbstractPolicySearch:
             mean_reward += total_reward
 
         mean_reward /= float(max(1, num_rollouts))
-        num_actions_taken = sum(
-            [action_distribution[key] for key in action_distribution]
-        )
+        num_actions_taken = sum([action_distribution[key] for key in action_distribution])
         for act in action_distribution:
-            action_distribution[act] = (
-                action_distribution[act] / float(num_actions_taken)
-            ) * 100.0
+            action_distribution[act] = (action_distribution[act] / float(num_actions_taken)) * 100.0
 
         logger.log(
             "Evaluating Learned Policy with %d rollouts. Action distribution %r. Empirical Total Reward: %r"
@@ -195,9 +187,7 @@ class AbstractPolicySearch:
     ):
         # Print prediction errors for each transition
         dataset_size = len(dataset)
-        batches = [
-            dataset[i : i + batch_size] for i in range(0, dataset_size, batch_size)
-        ]
+        batches = [dataset[i : i + batch_size] for i in range(0, dataset_size, batch_size)]
 
         transition = dict()
         counts = dict()
@@ -206,10 +196,7 @@ class AbstractPolicySearch:
         for batch in batches:
             observation_batch = cuda_var(
                 torch.cat(
-                    [
-                        torch.from_numpy(np.array(point[0])).view(1, -1)
-                        for point in batch
-                    ],
+                    [torch.from_numpy(np.array(point[0])).view(1, -1) for point in batch],
                     dim=0,
                 )
             ).float()
@@ -222,9 +209,7 @@ class AbstractPolicySearch:
                 if key in transition:
                     counts[key] += 1.0
                     transition[key] = np.append(transition[key], dp[3])
-                    predicted_rewards_dict[key] = np.vstack(
-                        [predicted_rewards_dict[key], predicted_rewards_numpy]
-                    )
+                    predicted_rewards_dict[key] = np.vstack([predicted_rewards_dict[key], predicted_rewards_numpy])
                 else:
                     counts[key] = 1.0
                     transition[key] = np.array([dp[3]])
@@ -234,10 +219,7 @@ class AbstractPolicySearch:
             mean_results = predicted_rewards_dict[key].mean(0).tolist()
             std_results = predicted_rewards_dict[key].std(0).tolist()
             mean_results_str = ", ".join(
-                [
-                    "%r (std: %r)" % (round(mean, 2), round(std, 2))
-                    for (mean, std) in zip(mean_results, std_results)
-                ]
+                ["%r (std: %r)" % (round(mean, 2), round(std, 2)) for (mean, std) in zip(mean_results, std_results)]
             )
 
             logger.log(

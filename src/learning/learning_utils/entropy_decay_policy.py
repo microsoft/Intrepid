@@ -19,9 +19,7 @@ class EntropyDecayPolicy:
             self.current = dict()
             self.current[1] = 1.0
         else:
-            raise AssertionError(
-                "Unhandled entropy policy %r " % constants["entropy_policy"]
-            )
+            raise AssertionError("Unhandled entropy policy %r " % constants["entropy_policy"])
 
     def get_entropy_coeff(self, epoch, test_set_errors, past_entropy):
         return self.decay_fn(epoch, test_set_errors, past_entropy)
@@ -39,11 +37,7 @@ class EntropyDecayPolicy:
         return 0.0
 
     def _step_decayed_entropy_coeff(self, epoch, test_set_errors, past_entropy):
-        return (
-            1
-            if epoch <= self.epoch // 2 + 1
-            else (1 - (2 * epoch - self.epoch) / float(max(1.0, self.epoch)))
-        )
+        return 1 if epoch <= self.epoch // 2 + 1 else (1 - (2 * epoch - self.epoch) / float(max(1.0, self.epoch)))
 
     def _decay_entropy_coeff(self, epoch, test_set_errors, past_entropy):
         return 1 - epoch / float(max(1.0, self.epoch))

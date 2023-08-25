@@ -28,9 +28,7 @@ class SharedReplayMemory:
         self.memory_full = mp.Value("i", 0)
 
     def append(self, rollout):
-        assert (
-            len(rollout) <= self.max_rollout_length
-        ), "Got a rollout which is longer than expected."
+        assert len(rollout) <= self.max_rollout_length, "Got a rollout which is longer than expected."
 
         self.rollouts[self.index.value][0] = len(rollout)
         pad = 1
@@ -41,9 +39,7 @@ class SharedReplayMemory:
 
             for j in range(0, self.state_dim):
                 self.rollouts[self.index.value][pad + j] = state.view(-1)[j]
-            self.rollouts[self.index.value][pad + self.state_dim] = float(
-                action[-1]
-            )  # TODO
+            self.rollouts[self.index.value][pad + self.state_dim] = float(action[-1])  # TODO
             self.rollouts[self.index.value][pad + self.state_dim + 1] = reward[-1]
 
             pad = pad + self.state_dim + 2
@@ -75,9 +71,7 @@ class SharedReplayMemory:
 
             pad = pad + self.state_dim + 2
 
-            experience = Experience(
-                state=state, action=action, reward=reward, next_state=None
-            )
+            experience = Experience(state=state, action=action, reward=reward, next_state=None)
             rollout.append(experience)
 
         return rollout

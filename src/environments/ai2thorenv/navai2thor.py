@@ -79,8 +79,7 @@ class NavAI2Thor(CerebralEnvInterface):
 
         self.num_actions = len(self.act_to_name)
         assert self.num_actions == config["num_actions"], (
-            "Number of actions in config do not match the number of"
-            "supported actions in AI2Thor Nav Bot."
+            "Number of actions in config do not match the number of" "supported actions in AI2Thor Nav Bot."
         )
 
         self.timestep = 0
@@ -115,9 +114,7 @@ class NavAI2Thor(CerebralEnvInterface):
             new_event = self.controller.step(self.act_to_name[action])
 
         else:
-            raise AssertionError(
-                "Action can take values only in {0, ..., %d}" % (self.num_actions - 1)
-            )
+            raise AssertionError("Action can take values only in {0, ..., %d}" % (self.num_actions - 1))
 
         obs = new_event.frame  # Height x Width x {RGB channel} as uint8
         obs = self._process_image(obs)
@@ -146,9 +143,7 @@ class NavAI2Thor(CerebralEnvInterface):
             event.metadata["agent"]["rotation"]["x"],  # x rotation of the agent
             event.metadata["agent"]["rotation"]["y"],  # y rotation of the agent
             event.metadata["agent"]["rotation"]["z"],  # z rotation of the agent
-            event.metadata["agent"][
-                "cameraHorizon"
-            ],  # The angle in degrees that the camera's pitch is rotated
+            event.metadata["agent"]["cameraHorizon"],  # The angle in degrees that the camera's pitch is rotated
         )
 
         info = {EnvKeys.STATE: agent_state, EnvKeys.ENDO_STATE: agent_state}

@@ -13,9 +13,7 @@ class ConvForwardModel(nn.Module):
         self.height, self.width, self.channel = exp_setup.config["obs_dim"]
         self.encoder_dim = exp_setup.constants["hidden_dim"]
         # self.reshape_layer = nn.Linear(self.encoder_dim + self.num_actions, 32 * 2 * 2)
-        self.reshape_layer = nn.Linear(
-            self.encoder_dim + self.latent_action_vec_dim, 256 * 2 * 2
-        )
+        self.reshape_layer = nn.Linear(self.encoder_dim + self.latent_action_vec_dim, 256 * 2 * 2)
 
         self.model = nn.Sequential(
             nn.LeakyReLU(),

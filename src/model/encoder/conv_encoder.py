@@ -27,9 +27,7 @@ class ConvEncoder(nn.Module):
         kernel_size3 = (4, 4)
         stride3 = (1, 1)
 
-        dynamic_size_h1, dynamic_size_w1 = get_conv_out_size(
-            self.height, self.width, kernel_size=kernel_size1, stride=stride1
-        )
+        dynamic_size_h1, dynamic_size_w1 = get_conv_out_size(self.height, self.width, kernel_size=kernel_size1, stride=stride1)
 
         dynamic_size_h2, dynamic_size_w2 = get_conv_out_size(
             dynamic_size_h1, dynamic_size_w1, kernel_size=kernel_size2, stride=stride2
@@ -49,9 +47,7 @@ class ConvEncoder(nn.Module):
             nn.Conv2d(16, 32, kernel_size=kernel_size2, stride=stride2),
             nn.BatchNorm2d(32),
             nn.LeakyReLU(),
-            nn.Conv2d(
-                32, self.n_channels_out, kernel_size=kernel_size3, stride=stride3
-            ),
+            nn.Conv2d(32, self.n_channels_out, kernel_size=kernel_size3, stride=stride3),
             nn.BatchNorm2d(self.n_channels_out),
             nn.Flatten(),
             nn.Linear(self.dynamic_size, out_dim),

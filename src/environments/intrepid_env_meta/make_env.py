@@ -64,11 +64,7 @@ class MakeEnvironment:
             module = importlib.import_module(fname)
 
             for name, obj in inspect.getmembers(module):
-                if (
-                    inspect.isclass(obj)
-                    and str(obj).startswith("<class '%s" % fname)
-                    and issubclass(obj, RLAcidWrapper)
-                ):
+                if inspect.isclass(obj) and str(obj).startswith("<class '%s" % fname) and issubclass(obj, RLAcidWrapper):
                     if hasattr(obj, "env_name"):
                         env_names[obj.env_name] = obj
 
@@ -84,9 +80,7 @@ class MakeEnvironment:
             module = importlib.import_module(fname)
 
             for name, obj in inspect.getmembers(module):
-                if inspect.isclass(obj) and str(obj).startswith(
-                    "<class '%s" % fname
-                ):  # TODO add MatterportWrapper
+                if inspect.isclass(obj) and str(obj).startswith("<class '%s" % fname):  # TODO add MatterportWrapper
                     if hasattr(obj, "env_name"):
                         env_names[obj.env_name] = obj
 
@@ -107,9 +101,7 @@ class MakeEnvironment:
             module = importlib.import_module(fname)
 
             for name, obj in inspect.getmembers(module):
-                if inspect.isclass(obj) and str(obj).startswith(
-                    "<class '%s" % fname
-                ):  # TODO add control wrapper
+                if inspect.isclass(obj) and str(obj).startswith("<class '%s" % fname):  # TODO add control wrapper
                     if hasattr(obj, "env_name"):
                         env_names[obj.env_name] = obj
 
@@ -125,9 +117,7 @@ class MakeEnvironment:
             module = importlib.import_module(fname)
 
             for name, obj in inspect.getmembers(module):
-                if inspect.isclass(obj) and str(obj).startswith(
-                    "<class '%s" % fname
-                ):  # TODO add Minigrid wrapper
+                if inspect.isclass(obj) and str(obj).startswith("<class '%s" % fname):  # TODO add Minigrid wrapper
                     if hasattr(obj, "env_name"):
                         env_names[obj.env_name] = obj
 
@@ -143,9 +133,7 @@ class MakeEnvironment:
             module = importlib.import_module(fname)
 
             for name, obj in inspect.getmembers(module):
-                if inspect.isclass(obj) and str(obj).startswith(
-                    "<class '%s" % fname
-                ):  # TODO add Minigrid wrapper
+                if inspect.isclass(obj) and str(obj).startswith("<class '%s" % fname):  # TODO add Minigrid wrapper
                     if hasattr(obj, "env_name"):
                         env_names[obj.env_name] = obj
 
@@ -157,24 +145,16 @@ class MakeEnvironment:
         # raise Exception
         base_env_name = exp_setup.base_env_name
 
-        if (
-            env_name.startswith("rlacid/") and base_env_name in self.rl_acid_names
-        ) or env_name in self.rl_acid_names:
+        if (env_name.startswith("rlacid/") and base_env_name in self.rl_acid_names) or env_name in self.rl_acid_names:
             return self.rl_acid_names[base_env_name](exp_setup.config)
 
-        elif (
-            env_name.startswith("openai/") and base_env_name in self.openai_names
-        ) or env_name in self.openai_names:
+        elif (env_name.startswith("openai/") and base_env_name in self.openai_names) or env_name in self.openai_names:
             return GymWrapper(base_env_name, exp_setup.config)
 
-        elif (
-            env_name.startswith("control/") and base_env_name in self.control_names
-        ) or env_name in self.control_names:
+        elif (env_name.startswith("control/") and base_env_name in self.control_names) or env_name in self.control_names:
             return self.control_names[base_env_name](exp_setup.config)
 
-        elif (
-            env_name.startswith("minigrid/") and base_env_name in self.minigrid_names
-        ) or env_name in self.minigrid_names:
+        elif (env_name.startswith("minigrid/") and base_env_name in self.minigrid_names) or env_name in self.minigrid_names:
             base_env = self.minigrid_names[base_env_name](exp_setup.config)
             if base_env_name == "gridworld_iclr":
                 return GridWorldWrapperICLR(base_env, exp_setup.config)
@@ -182,14 +162,11 @@ class MakeEnvironment:
                 return GridWorldWrapper(base_env, exp_setup.config, exp_setup.logger)
 
         elif (
-            env_name.startswith("matterport/")
-            and base_env_name in self.matterport_names
+            env_name.startswith("matterport/") and base_env_name in self.matterport_names
         ) or env_name in self.matterport_names:
             return self.matterport_names[base_env_name](exp_setup.config)
 
-        elif (
-            env_name.startswith("ai2thor/") and base_env_name in self.ai2thor_names
-        ) or env_name in self.ai2thor_names:
+        elif (env_name.startswith("ai2thor/") and base_env_name in self.ai2thor_names) or env_name in self.ai2thor_names:
             return self.ai2thor_names[base_env_name](exp_setup.config)
 
         else:

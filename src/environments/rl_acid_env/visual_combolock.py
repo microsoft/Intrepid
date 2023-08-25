@@ -40,9 +40,7 @@ class VisualComboLock(RLAcidWrapper):
 
         assert (
             anti_shaping_reward < self.optimal_reward * self.optimal_reward_prob
-        ), "Anti shaping reward shouldn't exceed optimal reward which is %r" % (
-            self.optimal_reward * self.optimal_reward_prob
-        )
+        ), "Anti shaping reward shouldn't exceed optimal reward which is %r" % (self.optimal_reward * self.optimal_reward_prob)
         self.anti_shaping_reward = anti_shaping_reward
 
         assert num_actions >= 2, "Atleast two actions are needed"
@@ -147,13 +145,9 @@ class VisualComboLock(RLAcidWrapper):
 
         water_images = []
         for k in range(1, 3):
-            water_image = Image.open(
-                "./data/visualcombolock/grid_objects/water%d.png" % k
-            )
+            water_image = Image.open("./data/visualcombolock/grid_objects/water%d.png" % k)
             water_image = water_image.convert("RGBA")
-            water_image = water_image.resize(
-                (4 * self.pixel_per_grid[1], self.border_space)
-            )
+            water_image = water_image.resize((4 * self.pixel_per_grid[1], self.border_space))
             pixdata = water_image.load()
 
             for j in range(0, self.border_space):
@@ -196,9 +190,7 @@ class VisualComboLock(RLAcidWrapper):
         self.current_background = self.background.copy()
 
         water_id_1, water_id_2 = random.randint(0, 1), random.randint(0, 1)
-        self.current_background.paste(
-            self.water_images[water_id_1], (0, 0), self.water_images[water_id_1]
-        )
+        self.current_background.paste(self.water_images[water_id_1], (0, 0), self.water_images[water_id_1])
         self.current_background.paste(
             self.water_images[water_id_2],
             (0, self.border_space + 3 * self.pixel_per_grid[0]),
@@ -219,9 +211,7 @@ class VisualComboLock(RLAcidWrapper):
                     # Randomly pick an instance of selected class
                     object_class = self.blocked_state_object_map[time_step]
                     if self.vary_instance:
-                        object_ix = random.randint(
-                            0, len(self.object_images[object_class]) - 1
-                        )
+                        object_ix = random.randint(0, len(self.object_images[object_class]) - 1)
                     else:
                         object_ix = 0
                     chosen_object = self.object_images[object_class][object_ix]
@@ -273,12 +263,8 @@ class VisualComboLock(RLAcidWrapper):
         # If the agent reaches the final live states then give it the optimal reward.
         if (
             (old_pos == (0, self.horizon - 1) and act == self.opt_a[self.horizon - 1])
-            or (
-                old_pos == (1, self.horizon - 1) and act == self.opt_b[self.horizon - 1]
-            )
-            or (
-                old_pos == (2, self.horizon - 1) and act == self.opt_c[self.horizon - 1]
-            )
+            or (old_pos == (1, self.horizon - 1) and act == self.opt_b[self.horizon - 1])
+            or (old_pos == (2, self.horizon - 1) and act == self.opt_c[self.horizon - 1])
         ):
             return self.optimal_reward * np.random.binomial(1, self.optimal_reward_prob)
 
@@ -286,10 +272,7 @@ class VisualComboLock(RLAcidWrapper):
         # This anti-shaping reward is anti-correlated with the optimal reward.
         if old_pos is not None and new_pos is not None:
             # Moving from a blocked state to non-block state gives an anti-shaped reward
-            if (
-                old_pos[0] != self.blocked_states[old_pos[1]]
-                and new_pos[0] == self.blocked_states[new_pos[1]]
-            ):
+            if old_pos[0] != self.blocked_states[old_pos[1]] and new_pos[0] == self.blocked_states[new_pos[1]]:
                 return self.anti_shaping_reward * np.random.binomial(1, 0.5)
 
         return 0.0
@@ -382,9 +365,6 @@ if __name__ == "__main__":
         else:
             raise AssertionError("should be in {0, 1, 2}. Found %r" % agent_pos[0])
         img, reward, done, meta = env.step(action)
-        print(
-            "Step %d, Action: %d, Reward: %r, Done: %r, Meta: %r"
-            % (step_ + 1, action, reward, done, meta)
-        )
+        print("Step %d, Action: %d, Reward: %r, Done: %r, Meta: %r" % (step_ + 1, action, reward, done, meta))
         # imageio.imwrite("./img%state_dim.png" % (step_ + 1), img)
         env.render()

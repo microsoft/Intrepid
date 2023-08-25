@@ -4,9 +4,7 @@ from learning.learning_utils.independence_test import IndependenceTest
 class FactoRLGraphIdentification:
     def __init__(self, config, constants):
         self.num_atoms = config["obs_dim"]
-        assert self.num_atoms > 0, (
-            "observation dimension should be positive but found %d" % self.num_atoms
-        )
+        assert self.num_atoms > 0, "observation dimension should be positive but found %d" % self.num_atoms
         self.ind_test = IndependenceTest(config, constants)
 
     def get_factors(self, dataset, logger, tensorboard):
@@ -25,9 +23,7 @@ class FactoRLGraphIdentification:
             for v in queue:
                 pair_dataset = [(dp.next_obs[u], dp.next_obs[v]) for dp in dataset]
 
-                ind_test_ = self.ind_test.is_independent(
-                    pair_dataset, logger, tensorboard
-                )
+                ind_test_ = self.ind_test.is_independent(pair_dataset, logger, tensorboard)
                 if ind_test_:
                     # If u and v are independent then keep v separate
                     new_queue.append(v)

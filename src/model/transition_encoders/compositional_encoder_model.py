@@ -20,26 +20,18 @@ class CompositionalEncoderModel(nn.Module):
         self.temperature = 1.0
 
         if config["feature_type"] == "feature":
-            self.obs_encoder = nn.Sequential(
-                nn.Linear(config["obs_dim"], constants["n_hidden"])
-            )
+            self.obs_encoder = nn.Sequential(nn.Linear(config["obs_dim"], constants["n_hidden"]))
 
-            self.prev_encoder = nn.Sequential(
-                nn.Linear(config["obs_dim"], constants["n_hidden"])
-            )
+            self.prev_encoder = nn.Sequential(nn.Linear(config["obs_dim"], constants["n_hidden"]))
 
             # Phi
             self.phi_embedding = nn.Embedding(self.budget, self.budget)
-            self.phi_embedding.weight.data.copy_(
-                torch.from_numpy(np.eye(self.budget)).float()
-            )
+            self.phi_embedding.weight.data.copy_(torch.from_numpy(np.eye(self.budget)).float())
             self.phi_embedding.weight.requires_grad = False
 
             # action embedding
             self.action_emb = nn.Embedding(config["num_actions"], config["num_actions"])
-            self.action_emb.weight.data.copy_(
-                torch.from_numpy(np.eye(config["num_actions"])).float()
-            )
+            self.action_emb.weight.data.copy_(torch.from_numpy(np.eye(config["num_actions"])).float())
             self.action_emb.weight.requires_grad = False
 
             self.abstract_state_emb = self.budget
@@ -48,9 +40,7 @@ class CompositionalEncoderModel(nn.Module):
 
             # Model head
             self.obs_action = nn.Sequential(
-                nn.Linear(
-                    constants["n_hidden"] + config["num_actions"], constants["n_hidden"]
-                ),
+                nn.Linear(constants["n_hidden"] + config["num_actions"], constants["n_hidden"]),
                 nn.LeakyReLU(),
                 nn.Linear(constants["n_hidden"], constants["n_hidden"]),
             )
@@ -71,20 +61,14 @@ class CompositionalEncoderModel(nn.Module):
             num_hidden = 384
 
             # Encoder for previous image
-            self.prev_encoder = nn.Sequential(
-                nn.Linear(num_hidden, constants["n_hidden"])
-            )
+            self.prev_encoder = nn.Sequential(nn.Linear(num_hidden, constants["n_hidden"]))
 
             # Encoder for current image
-            self.obs_encoder = nn.Sequential(
-                nn.Linear(num_hidden, constants["n_hidden"])
-            )
+            self.obs_encoder = nn.Sequential(nn.Linear(num_hidden, constants["n_hidden"]))
 
             # action embedding
             self.action_emb = nn.Embedding(config["num_actions"], config["num_actions"])
-            self.action_emb.weight.data.copy_(
-                torch.from_numpy(np.eye(config["num_actions"])).float()
-            )
+            self.action_emb.weight.data.copy_(torch.from_numpy(np.eye(config["num_actions"])).float())
             self.action_emb.weight.requires_grad = False
 
             self.abstract_state_emb = self.budget
@@ -93,9 +77,7 @@ class CompositionalEncoderModel(nn.Module):
 
             # Model head
             self.obs_action = nn.Sequential(
-                nn.Linear(
-                    constants["n_hidden"] + config["num_actions"], constants["n_hidden"]
-                ),
+                nn.Linear(constants["n_hidden"] + config["num_actions"], constants["n_hidden"]),
                 nn.LeakyReLU(),
                 nn.Linear(constants["n_hidden"], constants["n_hidden"]),
             )
@@ -112,14 +94,10 @@ class CompositionalEncoderModel(nn.Module):
             else:
                 self.load_state_dict(bootstrap_model.state_dict())
 
-    def __gen_logits__(
-        self, prev_observations, actions, observations, discretized, type="logsoftmax"
-    ):
+    def __gen_logits__(self, prev_observations, actions, observations, discretized, type="logsoftmax"):
         if self.config["feature_type"] == "image":
             observations = observations.view(-1, self.channels, self.height, self.width)
-            prev_observations = prev_observations.view(
-                -1, self.channels, self.height, self.width
-            )
+            prev_observations = prev_observations.view(-1, self.channels, self.height, self.width)
             batch_size = prev_observations.size(0)
             x = torch.cat([prev_observations, observations], dim=0)
             x = self.img_encoder_conv(x)
@@ -136,9 +114,7 @@ class CompositionalEncoderModel(nn.Module):
         if discretized:
             raise NotImplementedError()
         else:
-            logits = torch.sum(obs_encoding * prev_obs_act_encoding, dim=1).view(
-                -1
-            )  # Batch
+            logits = torch.sum(obs_encoding * prev_obs_act_encoding, dim=1).view(-1)  # Batch
             batch_size = logits.size(0)
 
             # Probability of 0 is given by sigmoid(logits) and Probability of 1 is given by sigmoid(-logits)
@@ -160,9 +136,7 @@ class CompositionalEncoderModel(nn.Module):
     def __gen_scores__(self, prev_observations, actions, observations):
         if self.config["feature_type"] == "image":
             observations = observations.view(-1, self.channels, self.height, self.width)
-            prev_observations = prev_observations.view(
-                -1, self.channels, self.height, self.width
-            )
+            prev_observations = prev_observations.view(-1, self.channels, self.height, self.width)
             batch_size = prev_observations.size(0)
             x = torch.cat([prev_observations, observations], dim=0)
             x = self.img_encoder_conv(x)
@@ -176,25 +150,19 @@ class CompositionalEncoderModel(nn.Module):
 
         obs_encoding = self.obs_encoder(observations)  # Batch x Hidden Dim
 
-        scores = torch.matmul(
-            prev_obs_act_encoding, torch.transpose(obs_encoding, 0, 1)
-        )
+        scores = torch.matmul(prev_obs_act_encoding, torch.transpose(obs_encoding, 0, 1))
 
         return scores
 
     @staticmethod
-    def __gen_batch_logits_from_encodings__(
-        prev_obs_act_encoding, obs_encoding, type="logsigmoid"
-    ):
+    def __gen_batch_logits_from_encodings__(prev_obs_act_encoding, obs_encoding, type="logsigmoid"):
         """
         :param prev_obs_act_encoding: a pytorch variable of size Batch_1 x Hidden_dim
         :param obs_encoding: a pytorch variable of size Batch_2 x Hidden num_factors
         :return: Computed logits of size Batch_2 x Batch_1 representing probability of y=1
         """
 
-        logits = torch.matmul(
-            obs_encoding, prev_obs_act_encoding.transpose(0, 1)
-        )  # Batch_2 x Batch_1
+        logits = torch.matmul(obs_encoding, prev_obs_act_encoding.transpose(0, 1))  # Batch_2 x Batch_1
 
         # Probability of 0 is given by sigmoid(logits) and Probability of 1 is given by sigmoid(-logits)
         if type == "logsigmoid":
@@ -208,13 +176,9 @@ class CompositionalEncoderModel(nn.Module):
 
     def encode_prev_obs_action(self, prev_observations, actions):
         if self.config["feature_type"] == "image":
-            prev_observations = prev_observations.view(
-                -1, self.channels, self.height, self.width
-            )
+            prev_observations = prev_observations.view(-1, self.channels, self.height, self.width)
             batch_size = prev_observations.size(0)
-            prev_observations = self.img_encoder_conv(prev_observations).view(
-                batch_size, -1
-            )
+            prev_observations = self.img_encoder_conv(prev_observations).view(batch_size, -1)
 
         prev_encoding = self.prev_encoder(prev_observations)
         action_x = self.action_emb(actions).squeeze()
@@ -238,27 +202,19 @@ class CompositionalEncoderModel(nn.Module):
         return obs_encoding
 
     def gen_log_prob(self, prev_observations, actions, observations, discretized):
-        return self.__gen_logits__(
-            prev_observations, actions, observations, discretized, type="logsoftmax"
-        )
+        return self.__gen_logits__(prev_observations, actions, observations, discretized, type="logsoftmax")
 
     def gen_scores(self, prev_observations, actions, observations):
         return self.__gen_scores__(prev_observations, actions, observations)
 
     def gen_batch_log_prob_from_encodings(self, prev_obs_act_encoding, obs_encoding):
-        return self.__gen_batch_logits_from_encodings__(
-            prev_obs_act_encoding, obs_encoding, type="logsigmoid"
-        )
+        return self.__gen_batch_logits_from_encodings__(prev_obs_act_encoding, obs_encoding, type="logsigmoid")
 
     def gen_prob(self, prev_observations, actions, observations, discretized):
-        return self.__gen_logits__(
-            prev_observations, actions, observations, discretized, type="softmax"
-        )
+        return self.__gen_logits__(prev_observations, actions, observations, discretized, type="softmax")
 
     def gen_batch_prob_from_encodings(self, prev_obs_act_encoding, obs_encoding):
-        return self.__gen_batch_logits_from_encodings__(
-            prev_obs_act_encoding, obs_encoding, type="sigmoid"
-        )
+        return self.__gen_batch_logits_from_encodings__(prev_obs_act_encoding, obs_encoding, type="sigmoid")
 
     def encode_observations(self, observations):
         raise NotImplementedError()
@@ -269,18 +225,14 @@ class CompositionalEncoderModel(nn.Module):
             param.requires_grad = False
 
     def load_from_another_instance(self, other_model, lock_params=False):
-        assert type(self) == type(
-            other_model
-        ), "Class must be the same. Found %r and %r" % (type(self), type(other_model))
+        assert type(self) == type(other_model), "Class must be the same. Found %r and %r" % (type(self), type(other_model))
 
         self.prev_encoder.load_state_dict(other_model.prev_encoder.state_dict())
         self.obs_encoder.load_state_dict(other_model.obs_encoder.state_dict())
         self.classifier.load_state_dict(other_model.classifier.state_dict())
 
         if self.config["feature_type"] == "image":
-            self.img_encoder_conv.load_state_dict(
-                other_model.img_encoder_conv.state_dict()
-            )
+            self.img_encoder_conv.load_state_dict(other_model.img_encoder_conv.state_dict())
 
         if lock_params:
             self._freeze_param(self.prev_encoder.parameters())

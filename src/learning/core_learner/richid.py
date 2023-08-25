@@ -57,9 +57,7 @@ class RichId:
         episode = Episode(observation=obs, state=info["state"])
 
         for t_ in range(0, t + 1):
-            obs_seq_var = (
-                torch.cat(obs_seq, dim=0).unsqueeze(0).float()
-            )  # 1 x (t_ + 1) x obs_shape
+            obs_seq_var = torch.cat(obs_seq, dim=0).unsqueeze(0).float()  # 1 x (t_ + 1) x obs_shape
 
             action = policy[t_](obs_seq_var)
             noise = np.random.normal(0, self.sigma, self.action_dim)
@@ -80,18 +78,14 @@ class RichId:
             noisy_action = np.random.normal(0, self.sigma, self.action_dim)
 
             obs, reward, done, info = env.step(noisy_action)
-            episode.add(
-                action=noisy_action, reward=reward, new_obs=obs, new_state=info["state"]
-            )
+            episode.add(action=noisy_action, reward=reward, new_obs=obs, new_state=info["state"])
 
         episode.terminate()
 
         return episode
 
     def _update_phi_model(self, t, k, phi_model, dataset):
-        optimizer = torch.optim.Adam(
-            params=phi_model.parameters(), lr=self.constants["learning_rate"]
-        )
+        optimizer = torch.optim.Adam(params=phi_model.parameters(), lr=self.constants["learning_rate"])
 
         phi_dataset = []
 
@@ -101,22 +95,15 @@ class RichId:
 
             curr_obs_seq = (
                 torch.cat(
-                    [
-                        torch.from_numpy(observations[t_]).unsqueeze(0)
-                        for t_ in range(0, t + 1)
-                    ],
+                    [torch.from_numpy(observations[t_]).unsqueeze(0) for t_ in range(0, t + 1)],
                     dim=0,
                 )
                 .unsqueeze(0)
                 .float()
             )  # y{0:t}
-            k_step_obs = (
-                torch.from_numpy(observations[t + k]).unsqueeze(0).float()
-            )  # y_{t+k}
+            k_step_obs = torch.from_numpy(observations[t + k]).unsqueeze(0).float()  # y_{t+k}
 
-            noisy_actions = [actions[t][1]] + actions[
-                t + 1 : t + k
-            ]  # Actions from time t to t + k - 1
+            noisy_actions = [actions[t][1]] + actions[t + 1 : t + k]  # Actions from time t to t + k - 1
             noisy_actions = torch.cat(
                 [torch.from_numpy(action_).view(1, -1) for action_ in noisy_actions],
                 dim=1,
@@ -131,22 +118,12 @@ class RichId:
             num_examples = 0
 
             for i in range(0, dataset_size, self.batch_size):
-                curr_obs_seq = cuda_var(
-                    torch.cat(
-                        [dp[0] for dp in phi_dataset[i : i + self.batch_size]], dim=0
-                    ).float()
-                )
+                curr_obs_seq = cuda_var(torch.cat([dp[0] for dp in phi_dataset[i : i + self.batch_size]], dim=0).float())
 
-                k_step_obs = cuda_var(
-                    torch.cat(
-                        [dp[1] for dp in phi_dataset[i : i + self.batch_size]], dim=0
-                    ).float()
-                )
+                k_step_obs = cuda_var(torch.cat([dp[1] for dp in phi_dataset[i : i + self.batch_size]], dim=0).float())
 
                 noisy_actions = cuda_var(
-                    torch.cat(
-                        [dp[2] for dp in phi_dataset[i : i + self.batch_size]], dim=0
-                    ).float()
+                    torch.cat([dp[2] for dp in phi_dataset[i : i + self.batch_size]], dim=0).float()
                 ).detach()
 
                 phi_prediction = phi_model(curr_obs_seq, k_step_obs)
@@ -162,18 +139,13 @@ class RichId:
 
             avg_loss = sum_loss / float(max(1, num_examples))
 
-            self.logger.log(
-                "Phi-Model Training (t=%d, k=%d): Epoch %d, Loss %f"
-                % (t, k, epoch, avg_loss)
-            )
+            self.logger.log("Phi-Model Training (t=%d, k=%d): Epoch %d, Loss %f" % (t, k, epoch, avg_loss))
 
             if avg_loss < self.universal_early_stop_error:
                 break
 
     def _update_psi_model(self, t, psi_model, phi_models, dataset):
-        optimizer = torch.optim.Adam(
-            params=psi_model.parameters(), lr=self.constants["learning_rate"]
-        )
+        optimizer = torch.optim.Adam(params=psi_model.parameters(), lr=self.constants["learning_rate"])
 
         psi_dataset = []
 
@@ -181,10 +153,7 @@ class RichId:
             observations = dp.get_observations()
             curr_obs_seq = (
                 torch.cat(
-                    [
-                        torch.from_numpy(observations[t_]).unsqueeze(0)
-                        for t_ in range(0, t + 1)
-                    ],
+                    [torch.from_numpy(observations[t_]).unsqueeze(0) for t_ in range(0, t + 1)],
                     dim=0,
                 )
                 .unsqueeze(0)
@@ -193,9 +162,7 @@ class RichId:
 
             next_obs = dict()
             for k in range(1, self.kappa + 1):
-                next_obs[k] = (
-                    torch.from_numpy(observations[t + k]).unsqueeze(0).float()
-                )  # y_{t+k}
+                next_obs[k] = torch.from_numpy(observations[t + k]).unsqueeze(0).float()  # y_{t+k}
 
             psi_dataset.append((curr_obs_seq, next_obs))
 
@@ -206,11 +173,7 @@ class RichId:
             num_examples = 0
 
             for i in range(0, dataset_size, self.batch_size):
-                curr_obs_seq = cuda_var(
-                    torch.cat(
-                        [dp[0] for dp in psi_dataset[i : i + self.batch_size]], dim=0
-                    ).float()
-                )
+                curr_obs_seq = cuda_var(torch.cat([dp[0] for dp in psi_dataset[i : i + self.batch_size]], dim=0).float())
 
                 next_obs = dict()
                 for k in range(1, self.kappa + 1):
@@ -241,9 +204,7 @@ class RichId:
 
             avg_loss = sum_loss / float(max(1, num_examples))
 
-            self.logger.log(
-                "Psi-Model Training (t=%d): Epoch %d, Loss %f" % (t, epoch, avg_loss)
-            )
+            self.logger.log("Psi-Model Training (t=%d): Epoch %d, Loss %f" % (t, epoch, avg_loss))
 
             if avg_loss < self.universal_early_stop_error:
                 break
@@ -256,10 +217,7 @@ class RichId:
             states = dp.get_states()
             curr_obs_seq = (
                 torch.cat(
-                    [
-                        torch.from_numpy(observations[t_]).unsqueeze(0)
-                        for t_ in range(0, t + 1)
-                    ],
+                    [torch.from_numpy(observations[t_]).unsqueeze(0) for t_ in range(0, t + 1)],
                     dim=0,
                 )
                 .unsqueeze(0)
@@ -276,16 +234,8 @@ class RichId:
         num_examples = 0
 
         for i in range(0, dataset_size, self.batch_size):
-            curr_obs_seq = cuda_var(
-                torch.cat(
-                    [dp[0] for dp in state_pred_dataset[i : i + self.batch_size]], dim=0
-                ).float()
-            )
-            gold_state = cuda_var(
-                torch.cat(
-                    [dp[1] for dp in state_pred_dataset[i : i + self.batch_size]], dim=0
-                ).float()
-            )
+            curr_obs_seq = cuda_var(torch.cat([dp[0] for dp in state_pred_dataset[i : i + self.batch_size]], dim=0).float())
+            gold_state = cuda_var(torch.cat([dp[1] for dp in state_pred_dataset[i : i + self.batch_size]], dim=0).float())
 
             predicted_state = f_models[t](curr_obs_seq)
             loss = ((gold_state - predicted_state) ** 2).sum(1).mean()
@@ -295,10 +245,7 @@ class RichId:
 
         avg_loss = sum_loss / float(max(1, num_examples))
 
-        self.logger.log(
-            "Time step %d: State Abstraction Mean Squared Loss on %d examples is %f"
-            % (t, num_examples, avg_loss)
-        )
+        self.logger.log("Time step %d: State Abstraction Mean Squared Loss on %d examples is %f" % (t, num_examples, avg_loss))
 
     def train(self, env, latent_lqr):
         A = latent_lqr.A
@@ -318,25 +265,16 @@ class RichId:
             if k == 1:
                 c_matrices[k] = B
             else:
-                c_matrices[k] = np.concatenate(
-                    [powers_of_A[k - 1] @ B, c_matrices[k - 1]], axis=1
-                )
+                c_matrices[k] = np.concatenate([powers_of_A[k - 1] @ B, c_matrices[k - 1]], axis=1)
 
             sigma_term += powers_of_A[k - 1] @ Sigma_w @ powers_of_A[k - 1].T
-            inner_term = (
-                c_matrices[k] @ c_matrices[k].T + (1.0 / self.sigma2) * sigma_term
-            )
-            inv_matrix = np.linalg.inv(
-                inner_term
-            )  # TODO fix for non-invertible matrices
+            inner_term = c_matrices[k] @ c_matrices[k].T + (1.0 / self.sigma2) * sigma_term
+            inv_matrix = np.linalg.inv(inner_term)  # TODO fix for non-invertible matrices
             m_matrices[k] = c_matrices[k].T @ inv_matrix
             powers_of_A[k] = powers_of_A[k - 1] @ A
 
         m_matrix = np.concatenate(
-            [
-                np.matmul(m_matrices[k], powers_of_A[k - 1]).transpose(1, 0)
-                for k in range(1, self.kappa + 1)
-            ],
+            [np.matmul(m_matrices[k], powers_of_A[k - 1]).transpose(1, 0) for k in range(1, self.kappa + 1)],
             axis=1,
         ).transpose(1, 0)
 
@@ -354,9 +292,7 @@ class RichId:
 
         h_t_k_models = dict()
         h_t_models = dict()
-        f_models = {
-            0: RichIDFModel(0, self.state_dim, A=A, prev_f_model=None, h_t_model=None)
-        }
+        f_models = {0: RichIDFModel(0, self.state_dim, A=A, prev_f_model=None, h_t_model=None)}
         policy = {0: RichIDPolicy(K=K, f_model=f_models[0])}
 
         for t in range(0, self.horizon):
@@ -365,9 +301,7 @@ class RichId:
             # Collect 2 * n_{op} trajectories by taking perturbed actions taken by the policy upto time step t
             # and then taking random actions for next kappa steps
 
-            dataset = [
-                self._gather_datapoint(env, policy, t) for _ in range(0, 3 * self.n)
-            ]
+            dataset = [self._gather_datapoint(env, policy, t) for _ in range(0, 3 * self.n)]
 
             for k in range(1, self.kappa + 1):
                 h_t_k_model = RichIDHTKModel(
@@ -399,9 +333,7 @@ class RichId:
                 hat_M=m_matrix,
             )
 
-            self._update_psi_model(
-                t, h_t_model_, h_t_k_models, dataset[self.n : 2 * self.n]
-            )
+            self._update_psi_model(t, h_t_model_, h_t_k_models, dataset[self.n : 2 * self.n])
 
             h_t_models[t] = h_t_model_
 
@@ -442,9 +374,7 @@ class MyRichIDHModel(nn.Module):
         elif isinstance(obs_dim, list):
             _, _, channel = obs_dim
 
-            self.network = nn.Sequential(
-                nn.Conv2d(channel, 16, 8, 4), nn.LeakyReLU(), nn.Conv2d(16, 16, 8, 2)
-            )
+            self.network = nn.Sequential(nn.Conv2d(channel, 16, 8, 4), nn.LeakyReLU(), nn.Conv2d(16, 16, 8, 2))
 
             self.hidden_dim = 16
             self.layer = nn.Linear(self.hidden_dim, self.output_dim)
@@ -517,28 +447,19 @@ class SysID:
 
         for dp in dataset:
             obs = dp.get_observations()[k1]
-            action = np.concatenate(
-                dp.get_actions()[k0:k1]
-            )  # Ensure edge cases are handled
+            action = np.concatenate(dp.get_actions()[k0:k1])  # Ensure edge cases are handled
             fmodel_dataset.append((obs, action))
 
         random.shuffle(fmodel_dataset)
         dataset_size = len(dataset)
-        batches = [
-            fmodel_dataset[i : i + self.batch_size]
-            for i in range(0, dataset_size, self.batch_size)
-        ]
+        batches = [fmodel_dataset[i : i + self.batch_size] for i in range(0, dataset_size, self.batch_size)]
 
         optimizer = optim.Adam(params=h_model.parameters(), lr=self.learning_rate)
 
         for epoch in range(1, self.max_epoch + 1):
             for it, batch in enumerate(batches):
-                obs_batch = cuda_var(
-                    torch.cat([torch.from_numpy(pt[0]).view(1, -1) for pt in batch])
-                ).float()
-                gold_act_seq = cuda_var(
-                    torch.cat([torch.from_numpy(pt[1]).view(1, -1) for pt in batch])
-                ).float()
+                obs_batch = cuda_var(torch.cat([torch.from_numpy(pt[0]).view(1, -1) for pt in batch])).float()
+                gold_act_seq = cuda_var(torch.cat([torch.from_numpy(pt[1]).view(1, -1) for pt in batch])).float()
 
                 pred_act_seq = h_model(obs_batch)
                 loss = torch.mean((gold_act_seq - pred_act_seq) ** 2)
@@ -549,9 +470,7 @@ class SysID:
                 optimizer.step()
 
                 loss = float(loss)
-                self.logger.log(
-                    "H-Model: Epoch %d, Iteration %d, Loss %r" % (epoch, it + 1, loss)
-                )
+                self.logger.log("H-Model: Epoch %d, Iteration %d, Loss %r" % (epoch, it + 1, loss))
 
         return h_model
 
@@ -578,12 +497,8 @@ class SysID:
         pca.fit(matrix)
 
         # print("PCA explained variance: ", pca.explained_variance_ratio_)
-        orthogonal_basis = cuda_var(
-            torch.from_numpy(pca.components_)
-        ).float()  # (self.state_dim) x (k self.act_dim)
-        orthogonal_basis = torch.transpose(
-            orthogonal_basis, 0, 1
-        )  # (k self.act_dim) x (self.state_dim)
+        orthogonal_basis = cuda_var(torch.from_numpy(pca.components_)).float()  # (self.state_dim) x (k self.act_dim)
+        orthogonal_basis = torch.transpose(orthogonal_basis, 0, 1)  # (k self.act_dim) x (self.state_dim)
 
         return orthogonal_basis
 
@@ -642,9 +557,7 @@ class SysID:
         curr_state_batch = np.vstack(curr_state_batch)
         learned_curr_obs_batch = np.vstack(learned_curr_obs_batch)
 
-        model_obs = LinearRegression(fit_intercept=False).fit(
-            learned_curr_obs_batch, curr_state_batch
-        )
+        model_obs = LinearRegression(fit_intercept=False).fit(learned_curr_obs_batch, curr_state_batch)
         model_obs_loss = model_obs.score(learned_curr_obs_batch, curr_state_batch)
         weight_obs = model_obs.coef_
 
@@ -657,9 +570,7 @@ class SysID:
         k = 5 * self.state_dim
         k1 = self.k0 + k
 
-        self.logger.log(
-            "Using K0=%d, K=%d, which gives K1 (K0+K1) = %d" % (self.k0, k, k1)
-        )
+        self.logger.log("Using K0=%d, K=%d, which gives K1 (K0+K1) = %d" % (self.k0, k, k1))
 
         # Collect dataset
         dataset = []
@@ -678,9 +589,7 @@ class SysID:
                 # The next line can be removed when memory is not a concern
                 obs = None if self.k0 + 2 < j < k1 - 2 else obs
 
-                eps.add(
-                    action=action, reward=reward, new_obs=obs, new_state=info["state"]
-                )
+                eps.add(action=action, reward=reward, new_obs=obs, new_state=info["state"])
 
                 assert not done, "Cannot be done"
 
@@ -691,9 +600,7 @@ class SysID:
         h_model = self._train_hmodel(dataset[: self.num_samples], self.k0, k)
 
         # Perform PCA
-        v_matrix = self._train_v_matrix(
-            dataset[self.num_samples : 2 * self.num_samples], h_model, k1
-        )
+        v_matrix = self._train_v_matrix(dataset[self.num_samples : 2 * self.num_samples], h_model, k1)
         f_model = RichIDFModel(h_model=h_model, v_matrix=v_matrix)
 
         s1 = self._calc_s1_matrix(dataset, f_model, k1)

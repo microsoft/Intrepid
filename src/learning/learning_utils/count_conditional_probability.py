@@ -38,10 +38,5 @@ class CountConditionalProbability:
 
     def __str__(self):
         return "{%s}" % (
-            "; ".join(
-                [
-                    "%r -> %s" % (condition, str(prob))
-                    for (condition, prob) in sorted(self._conditions.items())
-                ]
-            )
+            "; ".join(["%r -> %s" % (condition, str(prob)) for (condition, prob) in sorted(self._conditions.items())])
         )

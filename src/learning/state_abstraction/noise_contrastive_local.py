@@ -51,10 +51,7 @@ class NoiseContrastiveLocal:
 
         classification_loss = -torch.sum(
             log_probs
-            * (
-                torch.eye(batch_size).cuda() / batch_size
-                + (1 - torch.eye(batch_size).cuda()) / batch_size / (batch_size - 1)
-            )
+            * (torch.eye(batch_size).cuda() / batch_size + (1 - torch.eye(batch_size).cuda()) / batch_size / (batch_size - 1))
         )
 
         info_dict = dict()

@@ -59,6 +59,4 @@ class CountProbability:
     def __str__(self):
         prob = self.get_probability()
 
-        return "{%s}" % (
-            "; ".join(["%r: %f" % (entry_, prob_) for entry_, prob_ in prob])
-        )
+        return "{%s}" % ("; ".join(["%r: %f" % (entry_, prob_) for entry_, prob_ in prob]))

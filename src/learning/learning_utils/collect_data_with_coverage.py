@@ -33,9 +33,7 @@ class CollectDatawithCoverage:
             self.data_type = CollectDatawithCoverage.MIXIN2
 
         else:
-            raise AssertionError(
-                "Unhandled data type %s" % exp_setup.constants["data_type"]
-            )
+            raise AssertionError("Unhandled data type %s" % exp_setup.constants["data_type"])
 
     def _collect_random_episode(self, env):
         obs, info = env.reset()
@@ -114,15 +112,11 @@ class CollectDatawithCoverage:
         # Goal is sampled immediately after resetting as the goal is within a certain distance from the agent
         if p < 0.5:
             goal_pos = env.env.get_current_goal()
-            deviation_step = (
-                self.horizon
-            )  # This implies we never deviate from the optimal policy
+            deviation_step = self.horizon  # This implies we never deviate from the optimal policy
         elif 0.5 <= p < 0.75:
             # Sample goal
             goal_pos = env.env.sample_goal()
-            deviation_step = (
-                self.horizon
-            )  # This implies we never deviate from the optimal policy
+            deviation_step = self.horizon  # This implies we never deviate from the optimal policy
         elif 0.75 <= p < 0.875:
             goal_pos = env.env.get_current_goal()
             deviation_step = random.randint(0, self.horizon - 1)
@@ -178,9 +172,7 @@ class CollectDatawithCoverage:
 
             elif data_type == CollectDatawithCoverage.MIXIN:
                 if random.random() < 0.5:
-                    deviation_step = (
-                        self.horizon
-                    )  # This implies we never deviate from the optimal policy
+                    deviation_step = self.horizon  # This implies we never deviate from the optimal policy
                 else:
                     deviation_step = random.randint(0, self.horizon - 1)
                 eps = self._collect_opt_random_episode(env, deviation_step)
@@ -189,9 +181,7 @@ class CollectDatawithCoverage:
                 eps = self._collect_random_goal_with_deviation(env)
 
             else:
-                raise AssertionError(
-                    "Unhandled data collection strategy %r" % self.data_type
-                )
+                raise AssertionError("Unhandled data collection strategy %r" % self.data_type)
 
             episodes.append(eps)
 

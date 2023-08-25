@@ -35,9 +35,7 @@ class GridWorld(RLAcidWrapper):
 
     IMAGE, FEATURE = range(2)
 
-    def __init__(
-        self, num_grid_row, num_grid_col, horizon, obs_dim, vary_instance=True
-    ):
+    def __init__(self, num_grid_row, num_grid_col, horizon, obs_dim, vary_instance=True):
         """
         :param num_grid_row: Number of rows in the grid
         :param num_grid_col: Number of columns in the grid
@@ -88,9 +86,7 @@ class GridWorld(RLAcidWrapper):
             for i in range(0, self.num_grid_row):
                 for j in range(0, self.num_grid_col):
                     if self.blocked_states[i][j]:
-                        self.blocked_state_object_map[(i, j)] = random.choice(
-                            object_classes
-                        )
+                        self.blocked_state_object_map[(i, j)] = random.choice(object_classes)
 
         elif isinstance(obs_dim, int):
             self.feature_type = GridWorld.FEATURE
@@ -211,9 +207,7 @@ class GridWorld(RLAcidWrapper):
                     # Randomly pick an instance of selected class
                     object_class = self.blocked_state_object_map[(i, j)]
                     if self.vary_instance:
-                        object_ix = random.randint(
-                            0, len(self.object_images[object_class]) - 1
-                        )
+                        object_ix = random.randint(0, len(self.object_images[object_class]) - 1)
                     else:
                         object_ix = 0
                     chosen_object = self.object_images[object_class][object_ix]
@@ -251,9 +245,7 @@ class GridWorld(RLAcidWrapper):
         # Compute the reward
         goal_pos = self.setup.get_goal_pos()
         # reward = reward_func(self.agent_pos)
-        reward = (self.agent_pos[0] == goal_pos[0]) and (
-            self.agent_pos[1] == goal_pos[1]
-        )
+        reward = (self.agent_pos[0] == goal_pos[0]) and (self.agent_pos[1] == goal_pos[1])
 
         # Compute if the task is done
         if self.time_step >= self.setup.get_horizon():
@@ -304,10 +296,7 @@ if __name__ == "__main__":
 
     for step_, action in enumerate(actions):
         img, reward, done, meta = env.step(action)
-        print(
-            "Step %d, Action: %d, Reward: %r, Done: %r, Meta: %r"
-            % (step_ + 1, action, reward, done, meta)
-        )
+        print("Step %d, Action: %d, Reward: %r, Done: %r, Meta: %r" % (step_ + 1, action, reward, done, meta))
         imageio.imwrite("./img%d.png" % (step_ + 1), img)
 
     env.render()

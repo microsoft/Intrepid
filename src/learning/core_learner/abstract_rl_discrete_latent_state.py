@@ -120,23 +120,15 @@ class AbstractRLDiscreteLatentState:
         """Learn a homing policy using the main process"""
 
         # Fetch part of replay memory that can be used by the reward_free_planner.
-        filtered_dataset = PolicySearchWrapper.get_filtered_data(
-            replay_memory, step, self.reward_free_planner
-        )
+        filtered_dataset = PolicySearchWrapper.get_filtered_data(replay_memory, step, self.reward_free_planner)
 
         # Learn homing policies using the trained classifier
         for i in useful_abstract_states:
-            self.logger.log(
-                "Learning homing policy to reach abstraction number %d " % i
-            )
+            self.logger.log("Learning homing policy to reach abstraction number %d " % i)
 
             # Reward function incentivizes reaching the frontier and achieving the right output for the encoding fn.
             def reward_func(obs, time):
-                return (
-                    1
-                    if time == step and encoding_function.encode_observations(obs) == i
-                    else 0
-                )
+                return 1 if time == step and encoding_function.encode_observations(obs) == i else 0
 
             homing_policy, mean_reward, _ = self.reward_free_planner.train(
                 filtered_dataset,
@@ -169,14 +161,11 @@ class AbstractRLDiscreteLatentState:
         """Learn a homing policy using the multiple processes"""
 
         # Fetch part of replay memory that can be used by the reward_free_planner.
-        filtered_dataset = PolicySearchWrapper.get_filtered_data(
-            replay_memory, step, self.reward_free_planner
-        )
+        filtered_dataset = PolicySearchWrapper.get_filtered_data(replay_memory, step, self.reward_free_planner)
 
         # Learn homing policies using the trained classifier in parallel
         reward_batches = [
-            useful_abstract_states[i : i + num_processes]
-            for i in range(0, len(useful_abstract_states), num_processes)
+            useful_abstract_states[i : i + num_processes] for i in range(0, len(useful_abstract_states), num_processes)
         ]
 
         assert env.is_thread_safe(), "To bootstrap it must be thread safe"
@@ -185,18 +174,12 @@ class AbstractRLDiscreteLatentState:
         for reward_batch in reward_batches:
             processes = []
             for reward_id in reward_batch:
-                self.logger.log(
-                    "Learning homing policy to reach abstraction number %d " % reward_id
-                )
+                self.logger.log("Learning homing policy to reach abstraction number %d " % reward_id)
 
                 # Reward args contain the arguments for homing policy reward function
                 reward_args = (encoding_function, reward_id)
 
-                policy_folder_name = (
-                    experiment
-                    + "/trial_%d_horizon_%d_homing_policy_%d/"
-                    % (trial, step, reward_id)
-                )
+                policy_folder_name = experiment + "/trial_%d_horizon_%d_homing_policy_%d/" % (trial, step, reward_id)
                 p = mp.Process(
                     target=self.reward_free_planner.do_train,
                     args=(
@@ -223,21 +206,13 @@ class AbstractRLDiscreteLatentState:
 
         # Read all the learned policies from disk
         for i in useful_abstract_states:
-            policy_folder_name = (
-                experiment + "/trial_%d_horizon_%d_homing_policy_%d/" % (trial, step, i)
-            )
-            previous_step_homing_policy = (
-                None if step == 1 else homing_policies[step - 1]
-            )
-            policy = self.reward_free_planner.read_policy(
-                policy_folder_name, step, previous_step_homing_policy, delete=False
-            )
+            policy_folder_name = experiment + "/trial_%d_horizon_%d_homing_policy_%d/" % (trial, step, i)
+            previous_step_homing_policy = None if step == 1 else homing_policies[step - 1]
+            policy = self.reward_free_planner.read_policy(policy_folder_name, step, previous_step_homing_policy, delete=False)
             # TODO add step for filtering failed policies
             homing_policies[step].append(policy)
 
-    def evaluate_timestep(
-        self, env, step, homing_policies, homing_policy_validation_fn, encoding_function
-    ):
+    def evaluate_timestep(self, env, step, homing_policies, homing_policy_validation_fn, encoding_function):
         # Step 5 (Optional): Automatic evaluation of homing policies if possible. A validation function can
         # check if homing policy has good coverage over the underline state.
 
@@ -248,36 +223,22 @@ class AbstractRLDiscreteLatentState:
             exploration_succ = homing_policy_validation_fn(state_dist, step)
 
             if exploration_succ:
-                self.logger.log(
-                    "[Evaluation H=%d] Found a useful policy cover for step %d"
-                    % (step, step)
-                )
+                self.logger.log("[Evaluation H=%d] Found a useful policy cover for step %d" % (step, step))
             else:
-                self.logger.log(
-                    "[Evaluation H=%d] Did not find a useful policy cover for step %d "
-                    % (step, step)
-                )
+                self.logger.log("[Evaluation H=%d] Did not find a useful policy cover for step %d " % (step, step))
 
             metrics["exploration_succ_step_%d" % step] = exploration_succ
 
         # We compute accuracy of state decoding. For this accuracy to be comparable we use perfect data coverage policy
-        if hasattr(env, "get_perfect_homing_policy") and callable(
-            getattr(env, "get_perfect_homing_policy")
-        ):
+        if hasattr(env, "get_perfect_homing_policy") and callable(getattr(env, "get_perfect_homing_policy")):
             perfect_policy_cover = {step: env.get_perfect_homing_policy(step)}
-            decoder_acc = self.evaluate_state_decoder.evaluate(
-                env, step, perfect_policy_cover, encoding_function
-            )
-            self.logger.log(
-                "[Evaluation H=%d] State Decoder Accuracy is %f%%" % (step, decoder_acc)
-            )
+            decoder_acc = self.evaluate_state_decoder.evaluate(env, step, perfect_policy_cover, encoding_function)
+            self.logger.log("[Evaluation H=%d] State Decoder Accuracy is %f%%" % (step, decoder_acc))
             metrics["state_decoding_acc_step_%d" % step] = decoder_acc
 
         return metrics
 
-    def debug_timestep(
-        self, env, step, homing_policies, env_name, observation_samples, dataset
-    ):
+    def debug_timestep(self, env, step, homing_policies, env_name, observation_samples, dataset):
         # Log the environment reward received by the policy
         self.util.log_homing_policy_reward(env, homing_policies, step)
 
@@ -289,18 +250,14 @@ class AbstractRLDiscreteLatentState:
 
             # Save the abstract state and an image
             if observation_samples is not None:
-                self.util.save_abstract_state_figures(
-                    env_name, observation_samples, step
-                )
+                self.util.save_abstract_state_figures(env_name, observation_samples, step)
 
             # Save newly explored states
             self.util.save_newly_explored_states(env_name, dataset, step)
 
     def save(self, step, encoding_function, homing_policies_step, exp_id):
         # TODO save homing policies if not already saved
-        self.util.save_encoder_model(
-            encoding_function, self.experiment, exp_id, step, "backward"
-        )
+        self.util.save_encoder_model(encoding_function, self.experiment, exp_id, step, "backward")
 
     def train(
         self,
@@ -330,16 +287,11 @@ class AbstractRLDiscreteLatentState:
         policy_cover = dict()  # Contains a set of homing policies for every time step
         encoder = None  # Learned encoding function for the current time step
         dataset = []  # Dataset of samples collected for training the encoder
-        replay_memory = (
-            dict()
-        )  # Replay memory of *all* deviation transitions indexed by time step
+        replay_memory = dict()  # Replay memory of *all* deviation transitions indexed by time step
         results = dict()  # Result dictionary to return
 
         for step in range(1, self.horizon + 1):
-            self.logger.log(
-                "[RL with Discrete Latent State]: Step %d out of %d "
-                % (step, self.horizon)
-            )
+            self.logger.log("[RL with Discrete Latent State]: Step %d out of %d " % (step, self.horizon))
 
             policy_cover[step] = []  # Policy cover for this time step
 
@@ -349,14 +301,9 @@ class AbstractRLDiscreteLatentState:
             # Step 1: Collect dataset for learning the encoding function
             ts_dataset_collect = time.time()
             self.logger.log("[Dataset Collection]: Collecting %d samples" % num_samples)
-            dataset, transitions = self.gather_dataset(
-                env, step, policy_cover, num_samples, dataset
-            )
+            dataset, transitions = self.gather_dataset(env, step, policy_cover, num_samples, dataset)
             replay_memory[step] = transitions
-            self.logger.log(
-                "[Dataset Collection]: Samples collected in %s"
-                % (elapsed_from_str(ts_dataset_collect))
-            )
+            self.logger.log("[Dataset Collection]: Samples collected in %s" % (elapsed_from_str(ts_dataset_collect)))
 
             # Step 2: Train the encoder on the collected dataset
             self.logger.log("[Training Encoder]: Starting training.")
@@ -369,10 +316,7 @@ class AbstractRLDiscreteLatentState:
                 bootstrap_model=encoder,
                 undiscretized_initialization=True,
             )
-            self.logger.log(
-                "[Training Encoder]: Training completed in %s"
-                % (elapsed_from_str(ts_encoder))
-            )
+            self.logger.log("[Training Encoder]: Training completed in %s" % (elapsed_from_str(ts_encoder)))
 
             # Step 3: Find which abstract states should be explored. This is basically done based on which
             # abstract states have a non-zero count. Example, one can specify a really high budget for abstract
@@ -382,19 +326,13 @@ class AbstractRLDiscreteLatentState:
                 observation_samples,
                 plot_data,
             ) = self.util.get_abstract_state_counts(encoder, dataset)
-            abstract_states_to_explore = self.find_abstract_states_to_explore(
-                count_stats, num_state_budget, step
-            )
+            abstract_states_to_explore = self.find_abstract_states_to_explore(count_stats, num_state_budget, step)
             self.logger.debug("Abstract State by Counts: %r" % count_stats)
-            self.logger.debug(
-                "Abstract States to explore %r" % abstract_states_to_explore
-            )
+            self.logger.debug("Abstract States to explore %r" % abstract_states_to_explore)
 
             # Step 4: Learn homing policy by planning to reach different abstract states
             time_planning_start = time.time()
-            if (
-                num_processes == 1
-            ):  # Single process needed. Run it on the current process.
+            if num_processes == 1:  # Single process needed. Run it on the current process.
                 self.single_process_ps(
                     env,
                     step,
@@ -417,30 +355,20 @@ class AbstractRLDiscreteLatentState:
                     encoder,
                     exp_id,
                 )
-            self.logger.log(
-                "[Learning Policy Cover] Time taken %s"
-                % elapsed_from_str(time_planning_start)
-            )
+            self.logger.log("[Learning Policy Cover] Time taken %s" % elapsed_from_str(time_planning_start))
 
             # Step 5 (Optional): Evaluate the coverage of the policy
-            metrics = self.evaluate_timestep(
-                env, step, policy_cover, homing_policy_validator, encoder
-            )
+            metrics = self.evaluate_timestep(env, step, policy_cover, homing_policy_validator, encoder)
             results.update(metrics)
 
             # Step 6 (Optional): Performing additional debugging for this time step
             if self.debug:
-                self.debug_timestep(
-                    env, step, policy_cover, env_name, observation_samples, dataset
-                )
+                self.debug_timestep(env, step, policy_cover, env_name, observation_samples, dataset)
 
             self.save(step, encoder, policy_cover[step], exp_id)
 
         if opt_reward:
-            self.logger.log(
-                "[Reward Sensitive Learning]: "
-                "Computing the optimal policy for the environment reward function"
-            )
+            self.logger.log("[Reward Sensitive Learning]: " "Computing the optimal policy for the environment reward function")
 
             # Compute the optimal policy
             time_reward_sens_plan = time.time()
@@ -455,14 +383,8 @@ class AbstractRLDiscreteLatentState:
                 tensorboard=tensorboard,
                 debug=False,
             )
-            self.logger.log(
-                "Total number of episodes used %d. Total return %f."
-                % (env.num_eps, env.sum_return)
-            )
-            self.logger.log(
-                "[Reward Sensitive Learning]: Completed in %s"
-                % elapsed_from_str(time_reward_sens_plan)
-            )
+            self.logger.log("Total number of episodes used %d. Total return %f." % (env.num_eps, env.sum_return))
+            self.logger.log("[Reward Sensitive Learning]: Completed in %s" % elapsed_from_str(time_reward_sens_plan))
 
             # Evaluate the optimal policy
             policy_dict = policy_evaluate.evaluate(

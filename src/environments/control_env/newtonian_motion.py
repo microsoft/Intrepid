@@ -13,9 +13,7 @@ class NewtonianMotion:
         self.noise = config["noise"]
 
         if self.obs_type == "feature":
-            assert (
-                self.obs_dim >= self.world_dim
-            ), "Cannot handle observation dimension smaller than world dimension"
+            assert self.obs_dim >= self.world_dim, "Cannot handle observation dimension smaller than world dimension"
         elif self.obs_type == "image":
             assert self.world_dim == 2, "Can only generate images for 2D LQR problem"
             assert self.obs_dim[2] == 6, "Can only generate RGB images"
@@ -42,9 +40,7 @@ class NewtonianMotion:
         self.A = np.block(
             [[0.9 * identity, identity], [zero, 0.3 * identity]]
         )  # Matrix of size self.state_dim x self.state_dim
-        self.B = np.block(
-            [[0.5 * identity], [identity]]
-        )  # Matrix of size self.state_dim x self.world_dim
+        self.B = np.block([[0.5 * identity], [identity]])  # Matrix of size self.state_dim x self.world_dim
 
         self.Q = np.eye(self.d, dtype=np.float32)
         self.R = config["acc_penalty"] * identity
@@ -93,8 +89,7 @@ class NewtonianMotion:
                 return np.concatenate([state, noise], axis=0)
             else:
                 raise AssertionError(
-                    "Cannot handle observation dimension=%d smaller than state dimension=%d"
-                    % (self.obs_dim, self.d)
+                    "Cannot handle observation dimension=%d smaller than state dimension=%d" % (self.obs_dim, self.d)
                 )
 
         elif self.obs_type == "image":
@@ -162,9 +157,7 @@ class NewtonianMotion:
 
         if self.timestep > 100 * self.horizon:
             # Cannot take any more actions
-            raise AssertionError(
-                "Cannot take any more actions this episode. Horizon completed"
-            )
+            raise AssertionError("Cannot take any more actions this episode. Horizon completed")
 
         else:
             new_state = np.matmul(self.A, self.curr_state) + np.matmul(self.B, action)

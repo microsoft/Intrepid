@@ -45,12 +45,7 @@ class PSDP(AbstractPolicySearch):
             encoding_function, reward_id = encoder_reward_args
 
             def reward_func(obs, h):
-                return (
-                    1
-                    if h == horizon
-                    and encoding_function.encode_observations(obs) == reward_id
-                    else 0
-                )
+                return 1 if h == horizon and encoding_function.encode_observations(obs) == reward_id else 0
 
         learned_policy, mean_reward, _ = psdp.train(
             homing_policy_dataset,
@@ -74,13 +69,9 @@ class PSDP(AbstractPolicySearch):
         for i in range(1, horizon + 1):
             if not os.path.exists(policy_folder_name):
                 os.makedirs(policy_folder_name)
-            learned_policy[i].save(
-                folder_name=policy_folder_name, model_name="step_%d" % i
-            )
+            learned_policy[i].save(folder_name=policy_folder_name, model_name="step_%d" % i)
 
-    def read_policy(
-        self, policy_folder_name, horizon, previous_step_homing_policy, delete=False
-    ):
+    def read_policy(self, policy_folder_name, horizon, previous_step_homing_policy, delete=False):
         """Read the policy from the disk"""
 
         homing_policy = dict()
@@ -150,9 +141,7 @@ class PSDP(AbstractPolicySearch):
             (
                 optimal_policy_step,
                 info,
-            ) = self.contextual_bandit_oracle.learn_optimal_policy(
-                contextual_bandit_dataset, logger, tensorboard, debug
-            )
+            ) = self.contextual_bandit_oracle.learn_optimal_policy(contextual_bandit_dataset, logger, tensorboard, debug)
             oracle_time += time.time() - oracle_start
 
             learned_policy[step] = optimal_policy_step

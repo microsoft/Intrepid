@@ -35,21 +35,11 @@ class DebugTrainEncodingFunction:
 
     def generate_gold_homing_policies(self, env, env_name, horizon):
         if env_name == "combolock":
-            return DebugTrainEncodingFunction.generate_combolock_gold_homing_policies(
-                env, horizon
-            )
+            return DebugTrainEncodingFunction.generate_combolock_gold_homing_policies(env, horizon)
         elif env_name == "stochcombolock":
-            return (
-                DebugTrainEncodingFunction.generate_stochcombolock_gold_homing_policies(
-                    env, horizon
-                )
-            )
+            return DebugTrainEncodingFunction.generate_stochcombolock_gold_homing_policies(env, horizon)
         elif env_name == "diabcombolock":
-            return (
-                DebugTrainEncodingFunction.generate_diabcombolock_gold_homing_policies(
-                    env, horizon
-                )
-            )
+            return DebugTrainEncodingFunction.generate_diabcombolock_gold_homing_policies(env, horizon)
         else:
             raise AssertionError("Unhandled environment name %r" % env_name)
 
@@ -63,19 +53,12 @@ class DebugTrainEncodingFunction:
             for step_ in range(1, step + 1):
 
                 def act_to_live(obs, mystep, myenv):
-                    if (
-                        obs[0][2 * (mystep - 1) + 0] == 1.0
-                    ):  # In State (0, step - 1) which is dead
+                    if obs[0][2 * (mystep - 1) + 0] == 1.0:  # In State (0, step - 1) which is dead
                         return 0
-                    elif (
-                        obs[0][2 * (mystep - 1) + 1] == 1.0
-                    ):  # In State (1, step - 1) which is live
+                    elif obs[0][2 * (mystep - 1) + 1] == 1.0:  # In State (1, step - 1) which is live
                         return myenv.env.opt[mystep - 1]
                     else:
-                        raise AssertionError(
-                            "Cannot be in any other state. Obs: %r, step: %r"
-                            % (obs, mystep)
-                        )
+                        raise AssertionError("Cannot be in any other state. Obs: %r, step: %r" % (obs, mystep))
 
                 action_condition = partial(act_to_live, mystep=step_, myenv=env)
                 policy_ = StationaryActionConditionPolicy(action_condition)
@@ -86,19 +69,12 @@ class DebugTrainEncodingFunction:
             for step_ in range(1, step + 1):
 
                 def act_to_die(obs, mystep, myenv):
-                    if (
-                        obs[0][2 * (mystep - 1) + 0] == 1.0
-                    ):  # In State (0, step - 1) which is dead
+                    if obs[0][2 * (mystep - 1) + 0] == 1.0:  # In State (0, step - 1) which is dead
                         return 0
-                    elif (
-                        obs[0][2 * (mystep - 1) + 1] == 1.0
-                    ):  # In State (1, step - 1) which is live
+                    elif obs[0][2 * (mystep - 1) + 1] == 1.0:  # In State (1, step - 1) which is live
                         return 1 - myenv.env.opt[mystep - 1]
                     else:
-                        raise AssertionError(
-                            "Cannot be in any other state. Obs: %r, step: %r"
-                            % (obs, mystep)
-                        )
+                        raise AssertionError("Cannot be in any other state. Obs: %r, step: %r" % (obs, mystep))
 
                 action_condition = partial(act_to_die, mystep=step_, myenv=env)
                 policy_ = StationaryActionConditionPolicy(action_condition)
@@ -118,23 +94,14 @@ class DebugTrainEncodingFunction:
             for step_ in range(1, step + 1):
 
                 def act_to_live(obs, mystep, myenv):
-                    if (
-                        obs[0][3 * (mystep - 1) + 0] == 1.0
-                    ):  # In State (0, step - 1) which is live
+                    if obs[0][3 * (mystep - 1) + 0] == 1.0:  # In State (0, step - 1) which is live
                         return myenv.env.opt_a[mystep - 1]
-                    elif (
-                        obs[0][3 * (mystep - 1) + 1] == 1.0
-                    ):  # In State (1, step - 1) which is live
+                    elif obs[0][3 * (mystep - 1) + 1] == 1.0:  # In State (1, step - 1) which is live
                         return myenv.env.opt_b[mystep - 1]
-                    elif (
-                        obs[0][3 * (mystep - 1) + 2] == 1.0
-                    ):  # In State (2, step - 1) which is dead
+                    elif obs[0][3 * (mystep - 1) + 2] == 1.0:  # In State (2, step - 1) which is dead
                         return 0
                     else:
-                        raise AssertionError(
-                            "Cannot be in any other state. Obs: %r, step: %r"
-                            % (obs, mystep)
-                        )
+                        raise AssertionError("Cannot be in any other state. Obs: %r, step: %r" % (obs, mystep))
 
                 action_condition = partial(act_to_live, mystep=step_, myenv=env)
                 policy_ = StationaryActionConditionPolicy(action_condition)
@@ -145,23 +112,14 @@ class DebugTrainEncodingFunction:
             for step_ in range(1, step + 1):
 
                 def act_to_die(obs, mystep, myenv):
-                    if (
-                        obs[0][3 * (mystep - 1) + 0] == 1.0
-                    ):  # In State (0, step - 1) which is live
+                    if obs[0][3 * (mystep - 1) + 0] == 1.0:  # In State (0, step - 1) which is live
                         return 1 - myenv.env.opt_a[mystep - 1]
-                    elif (
-                        obs[0][3 * (mystep - 1) + 1] == 1.0
-                    ):  # In State (1, step - 1) which is live
+                    elif obs[0][3 * (mystep - 1) + 1] == 1.0:  # In State (1, step - 1) which is live
                         return 1 - myenv.env.opt_b[mystep - 1]
-                    elif (
-                        obs[0][3 * (mystep - 1) + 2] == 1.0
-                    ):  # In State (2, step - 1) which is dead
+                    elif obs[0][3 * (mystep - 1) + 2] == 1.0:  # In State (2, step - 1) which is dead
                         return 0
                     else:
-                        raise AssertionError(
-                            "Cannot be in any other state. Obs: %r, step: %r"
-                            % (obs, mystep)
-                        )
+                        raise AssertionError("Cannot be in any other state. Obs: %r, step: %r" % (obs, mystep))
 
                 action_condition = partial(act_to_die, mystep=step_, myenv=env)
                 policy_ = StationaryActionConditionPolicy(action_condition)
@@ -181,23 +139,14 @@ class DebugTrainEncodingFunction:
             for step_ in range(1, step + 1):
 
                 def act_to_live(obs, mystep, myenv):
-                    if (
-                        obs[0][3 * (mystep - 1) + 0] == 1.0
-                    ):  # In State (0, step - 1) which is live
+                    if obs[0][3 * (mystep - 1) + 0] == 1.0:  # In State (0, step - 1) which is live
                         return myenv.env.opt_a[mystep - 1]
-                    elif (
-                        obs[0][3 * (mystep - 1) + 1] == 1.0
-                    ):  # In State (1, step - 1) which is live
+                    elif obs[0][3 * (mystep - 1) + 1] == 1.0:  # In State (1, step - 1) which is live
                         return myenv.env.opt_b[mystep - 1]
-                    elif (
-                        obs[0][3 * (mystep - 1) + 2] == 1.0
-                    ):  # In State (2, step - 1) which is dead
+                    elif obs[0][3 * (mystep - 1) + 2] == 1.0:  # In State (2, step - 1) which is dead
                         return 0
                     else:
-                        raise AssertionError(
-                            "Cannot be in any other state. Obs: %r, step: %r"
-                            % (obs, mystep)
-                        )
+                        raise AssertionError("Cannot be in any other state. Obs: %r, step: %r" % (obs, mystep))
 
                 action_condition = partial(act_to_live, mystep=step_, myenv=env)
                 policy_ = StationaryActionConditionPolicy(action_condition)
@@ -208,23 +157,14 @@ class DebugTrainEncodingFunction:
             for step_ in range(1, step + 1):
 
                 def act_to_die(obs, mystep, myenv):
-                    if (
-                        obs[0][3 * (mystep - 1) + 0] == 1.0
-                    ):  # In State (0, step - 1) which is live
+                    if obs[0][3 * (mystep - 1) + 0] == 1.0:  # In State (0, step - 1) which is live
                         return (myenv.env.opt_a[mystep - 1] + 1) % myenv.env.num_actions
-                    elif (
-                        obs[0][3 * (mystep - 1) + 1] == 1.0
-                    ):  # In State (1, step - 1) which is live
+                    elif obs[0][3 * (mystep - 1) + 1] == 1.0:  # In State (1, step - 1) which is live
                         return (myenv.env.opt_b[mystep - 1] + 1) % myenv.env.num_actions
-                    elif (
-                        obs[0][3 * (mystep - 1) + 2] == 1.0
-                    ):  # In State (2, step - 1) which is dead
+                    elif obs[0][3 * (mystep - 1) + 2] == 1.0:  # In State (2, step - 1) which is dead
                         return 0
                     else:
-                        raise AssertionError(
-                            "Cannot be in any other state. Obs: %r, step: %r"
-                            % (obs, mystep)
-                        )
+                        raise AssertionError("Cannot be in any other state. Obs: %r, step: %r" % (obs, mystep))
 
                 action_condition = partial(act_to_die, mystep=step_, myenv=env)
                 policy_ = StationaryActionConditionPolicy(action_condition)
@@ -260,49 +200,31 @@ class DebugTrainEncodingFunction:
         """
 
         assert (
-            env_name == "combolock"
-            or env_name == "stochcombolock"
-            or env_name == "diabcombolock"
+            env_name == "combolock" or env_name == "stochcombolock" or env_name == "diabcombolock"
         ), "Only combolocks are supported"
-        assert (
-            purge_type == "curr" or purge_type == "next" or purge_type == "both"
-        ), "Only supported types"
+        assert purge_type == "curr" or purge_type == "next" or purge_type == "both", "Only supported types"
 
         for datapoint in dataset:
-            assert isinstance(
-                datapoint, TransitionDatapoint
-            ), "Must be of type Transition Datapoint"
+            assert isinstance(datapoint, TransitionDatapoint), "Must be of type Transition Datapoint"
 
             if purge_type == "curr" or purge_type == "both":
-                datapoint.curr_obs = self._purge_observation(
-                    env_name, datapoint.curr_obs
-                )
+                datapoint.curr_obs = self._purge_observation(env_name, datapoint.curr_obs)
 
             if purge_type == "next" or purge_type == "both":
-                datapoint.next_obs = self._purge_observation(
-                    env_name, datapoint.next_obs
-                )
+                datapoint.next_obs = self._purge_observation(env_name, datapoint.next_obs)
 
         if logger is not None:
             logger.log("Purged the dataset with type %r" % purge_type)
 
     @staticmethod
-    def do_train(
-        config, constants, env_name, experiment_name, logger, use_pushover, debug
-    ):
+    def do_train(config, constants, env_name, experiment_name, logger, use_pushover, debug):
         # Create the environment
         env = GenerateEnvironmentWrapper(env_name, config)
         logger.log("Environment Created")
 
         if env_name == "stochcombolock" or env_name == "diabcombolock":
-            logger.log(
-                "Created Environment. First 5 actions Opt-A %r and Opt-B %r"
-                % (env.env.opt_a[0:5], env.env.opt_b[0:5])
-            )
-            print(
-                "Created Environment. First 5 actions Opt-A %r and Opt-B %r"
-                % (env.env.opt_a[0:5], env.env.opt_b[0:5])
-            )
+            logger.log("Created Environment. First 5 actions Opt-A %r and Opt-B %r" % (env.env.opt_a[0:5], env.env.opt_b[0:5]))
+            print("Created Environment. First 5 actions Opt-A %r and Opt-B %r" % (env.env.opt_a[0:5], env.env.opt_b[0:5]))
         elif env_name == "combolock":
             logger.log("Created Environment. First 5 actions %r" % env.env.opt[0:5])
             print("Created Environment. First 5 actions %r" % env.env.opt[0:5])
@@ -321,9 +243,7 @@ class DebugTrainEncodingFunction:
 
         tensorboard = Tensorboard(log_dir=self.config["save_path"])
 
-        gold_homing_policies = self.generate_gold_homing_policies(
-            env, env_name, horizon
-        )
+        gold_homing_policies = self.generate_gold_homing_policies(env, env_name, horizon)
         encoding_function = None  # Learned encoding function for the current time step
         dataset = []  # Dataset of samples collected for training the encoder
         selection_weights = None  # A distribution over homing policies from the previous time step (can be None)
@@ -354,10 +274,7 @@ class DebugTrainEncodingFunction:
                 dataset,
                 selection_weights,
             )
-            logger.log(
-                "Encoder: %r sample collected in %r sec"
-                % (num_samples, time.time() - time_collection_start)
-            )
+            logger.log("Encoder: %r sample collected in %r sec" % (num_samples, time.time() - time_collection_start))
 
             # Optionally purge the dataset for ablation.
             # self._purge_noise(env_name, dataset, "curr", logger)
@@ -381,9 +298,7 @@ class DebugTrainEncodingFunction:
                     bootstrap_model=encoding_function,
                 )
             else:
-                raise AssertionError(
-                    "Unhandled training %r" % self.config["encoder_training_type"]
-                )
+                raise AssertionError("Unhandled training %r" % self.config["encoder_training_type"])
 
             logger.log("Encoder: Training time %r" % (time.time() - time_encoder_start))
 

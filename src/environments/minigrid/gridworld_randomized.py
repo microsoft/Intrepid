@@ -137,9 +137,7 @@ class GridWorldRandomized(MiniGridEnv):
 
         # Find a goal at least 5 distance way
         available_pos = [
-            potential_goal
-            for potential_goal in available_squares
-            if 10 >= self._l1dist(potential_goal, agent_pos) >= 5
+            potential_goal for potential_goal in available_squares if 10 >= self._l1dist(potential_goal, agent_pos) >= 5
         ]
 
         if len(available_pos) > 0:
@@ -188,11 +186,7 @@ class GridWorldRandomized(MiniGridEnv):
         # Move forward
         if action == self.actions.left or action == self.actions.right:
             pass
-        elif (
-            action == self.actions.forward
-            or action == self.actions.left_forward
-            or action == self.actions.right_forward
-        ):
+        elif action == self.actions.forward or action == self.actions.left_forward or action == self.actions.right_forward:
             if fwd_cell is None or fwd_cell.can_overlap():
                 self.agent_pos = fwd_pos
 

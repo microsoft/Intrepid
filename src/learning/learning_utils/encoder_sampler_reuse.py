@@ -19,16 +19,10 @@ class EncoderSamplerReUse(AbstractEncoderSampler):
         AbstractEncoderSampler.__init__(self)
 
     @staticmethod
-    def gather_samples(
-        num_samples, env, actions, step, homing_policies, selection_weights=None, k=1
-    ):
+    def gather_samples(num_samples, env, actions, step, homing_policies, selection_weights=None, k=1):
         pos_dataset = []
         for _ in range(num_samples):
-            pos_dataset.append(
-                EncoderSamplerReUse._gather_sample(
-                    env, actions, step, homing_policies, selection_weights
-                )
-            )
+            pos_dataset.append(EncoderSamplerReUse._gather_sample(env, actions, step, homing_policies, selection_weights))
 
         num_pos = len(pos_dataset)
 
@@ -78,9 +72,7 @@ class EncoderSamplerReUse(AbstractEncoderSampler):
             for step_ in range(1, step):
                 obs_var = cuda_var(torch.from_numpy(obs)).float().view(1, -1)
                 action = policy[step_].sample_action(obs_var)
-                obs, reward, done, meta = env.step(
-                    action, generate_obs=step_ == step - 1
-                )
+                obs, reward, done, meta = env.step(action, generate_obs=step_ == step - 1)
 
             current_obs = obs
         else:

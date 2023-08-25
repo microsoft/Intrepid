@@ -22,9 +22,7 @@ class RicattiSolver:
             change = np.linalg.norm(P - new_P)
 
             if it % 10 == 0:
-                self.logger.debug(
-                    "Ricatti Solver: Iteration=%d, Change in P %f" % (it, change)
-                )
+                self.logger.debug("Ricatti Solver: Iteration=%d, Change in P %f" % (it, change))
 
             P = new_P
 
@@ -32,9 +30,6 @@ class RicattiSolver:
                 break
 
         K = np.linalg.inv(R + B.T @ P @ B) @ B.T @ P @ A
-        self.logger.debug(
-            "Ricatti Iterations Performed. Time taken %s"
-            % beautify(time.time() - time_start)
-        )
+        self.logger.debug("Ricatti Iterations Performed. Time taken %s" % beautify(time.time() - time_start))
 
         return P, K

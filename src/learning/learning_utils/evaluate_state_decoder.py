@@ -29,9 +29,7 @@ class EvaluateStateDecoder:
 
         return (
             obs,
-            meta["state"]
-            if "endogenous_state" not in meta
-            else meta["endogenous_state"],
+            meta["state"] if "endogenous_state" not in meta else meta["endogenous_state"],
         )
 
     def evaluate(self, env, step, policy_cover, encoding_function):
@@ -65,23 +63,12 @@ class EvaluateStateDecoder:
 
             if it % 100 == 99:
                 acc = (succ * 100.0) / float(it + 1)
-                self.logger.log(
-                    "Evaluate State Decoder: After %d many samples. The accuracy is %f%%"
-                    % (it, acc)
-                )
+                self.logger.log("Evaluate State Decoder: After %d many samples. The accuracy is %f%%" % (it, acc))
 
-        state_dist = {
-            k: (v * 100.0) / float(2 * self.num_eval_samples)
-            for k, v in state_dist.items()
-        }
-        self.logger.log(
-            "Evaluate State Decoder: State distribution %r" % sorted(state_dist.items())
-        )
+        state_dist = {k: (v * 100.0) / float(2 * self.num_eval_samples) for k, v in state_dist.items()}
+        self.logger.log("Evaluate State Decoder: State distribution %r" % sorted(state_dist.items()))
 
         acc = (succ * 100.0) / float(self.num_eval_samples)
-        self.logger.log(
-            "Evaluate State Decoder: After %d many samples. The accuracy is %f%%"
-            % (self.num_eval_samples, acc)
-        )
+        self.logger.log("Evaluate State Decoder: After %d many samples. The accuracy is %f%%" % (self.num_eval_samples, acc))
 
         return acc

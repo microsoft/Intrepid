@@ -25,10 +25,7 @@ def main():
     for exp_id in range(1, num_runs + 1):
         exp_setup.config["seed"] = seeds[exp_id - 1]
         exp_setup.config["env_seed"] = seeds[exp_id - 1] * 10
-        exp_setup.logger.log(
-            "========= STARTING EXPERIMENT %d (Seed = %d) ======== "
-            % (exp_id, exp_setup.config["seed"])
-        )
+        exp_setup.logger.log("========= STARTING EXPERIMENT %d (Seed = %d) ======== " % (exp_id, exp_setup.config["seed"]))
 
         # Set the random seed
         random.seed(exp_setup.config["seed"])
@@ -56,9 +53,7 @@ def main():
 
         for h in range(exp_setup.config["horizon"]):
             while True:
-                action_str = input(
-                    "[Time Step %d] Enter action (or q to quit):" % (h + 1)
-                )
+                action_str = input("[Time Step %d] Enter action (or q to quit):" % (h + 1))
                 # action_str = str(random.choice(actions))
                 # action_str = str(env.get_optimal_action())
                 try:
@@ -68,9 +63,7 @@ def main():
                         action = int(action_str)
 
                 except ValueError:
-                    print(
-                        "Entered value has to be an action (integer) or q to denote quit"
-                    )
+                    print("Entered value has to be an action (integer) or q to denote quit")
                     continue
 
                 else:

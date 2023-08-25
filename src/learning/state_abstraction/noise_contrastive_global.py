@@ -15,9 +15,7 @@ class NoiseContrastiveGlobal:
         self.entropy_coeff = constants["entropy_reg_coeff"]
 
     @staticmethod
-    def calc_loss(
-        model, batch, epoch, discretized, test_set_errors=None, past_entropy=None
-    ):
+    def calc_loss(model, batch, epoch, discretized, test_set_errors=None, past_entropy=None):
         prev_observations = cuda_var(
             torch.cat(
                 [torch.from_numpy(np.array(point[0])).view(1, -1) for point in batch],
@@ -45,9 +43,7 @@ class NoiseContrastiveGlobal:
             observations=observations,
         )
 
-        classification_loss = (
-            torch.diagonal(scores, 0) - torch.logsumexp(scores, 1)
-        ).mean()
+        classification_loss = (torch.diagonal(scores, 0) - torch.logsumexp(scores, 1)).mean()
 
         info_dict = dict()
         info_dict["classification_loss"] = classification_loss

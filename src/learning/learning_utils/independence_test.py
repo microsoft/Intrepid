@@ -35,9 +35,7 @@ class IndependenceTest:
         ).long()
 
         # Compute loss
-        log_probs = model.gen_log_prob(
-            model_input=model_input
-        )  # outputs a matrix of size batch x 2
+        log_probs = model.gen_log_prob(model_input=model_input)  # outputs a matrix of size batch x 2
         loss = -torch.mean(log_probs.gather(1, gold_labels.view(-1, 1)))
 
         return loss
@@ -47,24 +45,17 @@ class IndependenceTest:
         print("Solving dataset with stats %r" % (len(dataset)))
 
         # Current model
-        model = IndependenceTestModel(
-            self.config, model_input_dim=2 * self.config["atom_dim"], hidden_dim=10
-        )
+        model = IndependenceTestModel(self.config, model_input_dim=2 * self.config["atom_dim"], hidden_dim=10)
 
         # Model for storing the best model as measured by performance on the test set
-        best_model = IndependenceTestModel(
-            self.config, model_input_dim=2 * self.config["atom_dim"], hidden_dim=10
-        )
+        best_model = IndependenceTestModel(self.config, model_input_dim=2 * self.config["atom_dim"], hidden_dim=10)
 
         param_with_grad = filter(lambda p: p.requires_grad, model.parameters())
         optimizer = optim.Adam(params=param_with_grad, lr=self.learning_rate)
 
         random.shuffle(dataset)
         dataset_size = len(dataset)
-        batches = [
-            dataset[i : i + self.batch_size]
-            for i in range(0, dataset_size, self.batch_size)
-        ]
+        batches = [dataset[i : i + self.batch_size] for i in range(0, dataset_size, self.batch_size)]
 
         train_batch = int((1.0 - self.validation_size_portion) * len(batches))
         train_batches = batches[:train_batch]
@@ -104,12 +95,8 @@ class IndependenceTest:
                 num_test_examples = num_test_examples + batch_size
 
             test_loss = test_loss / float(max(1, num_test_examples))
-            logger.debug(
-                "Train Loss after max_epoch %r is %r" % (epoch_, round(train_loss, 2))
-            )
-            logger.debug(
-                "Test Loss after max_epoch %r is %r" % (epoch_, round(test_loss, 2))
-            )
+            logger.debug("Train Loss after max_epoch %r is %r" % (epoch_, round(train_loss, 2)))
+            logger.debug("Test Loss after max_epoch %r is %r" % (epoch_, round(test_loss, 2)))
 
             if test_loss < best_test_loss:
                 patience_counter = 0
@@ -119,16 +106,11 @@ class IndependenceTest:
             else:
                 # Check patience condition
                 patience_counter += 1  # number of max_epoch since last increase
-                if (
-                    best_test_loss < self.expected_optima or test_loss > 0.8
-                ):  # Found good solution or diverged
+                if best_test_loss < self.expected_optima or test_loss > 0.8:  # Found good solution or diverged
                     break
 
                 if patience_counter == self.patience:
-                    logger.log(
-                        "Patience Condition Triggered: No improvement for %r epochs"
-                        % patience_counter
-                    )
+                    logger.log("Patience Condition Triggered: No improvement for %r epochs" % patience_counter)
                     break
 
         logger.log(
@@ -181,9 +163,7 @@ class IndependenceTest:
 
         ind_test_dataset = self._create_ind_test_dataset(dataset)
 
-        best_model, best_test_loss = self.train_model(
-            ind_test_dataset, logger, tensorboard
-        )
+        best_model, best_test_loss = self.train_model(ind_test_dataset, logger, tensorboard)
 
         if best_test_loss >= 0.65:
             return True

@@ -22,9 +22,7 @@ class IKTrainEncodingFunction:
         self.ik_learner = InverseKinematics(constants, self.epoch)
         self.patience = constants["patience"]
         self.max_retrials = constants["max_try"]
-        self.expected_optima = constants[
-            "expected_optima"
-        ]  # If the model reaches this loss then we exit
+        self.expected_optima = constants["expected_optima"]  # If the model reaches this loss then we exit
 
     def train_model(self, dataset, logger, bootstrap_model, discretized, tensorboard):
         # Current model
@@ -38,10 +36,7 @@ class IKTrainEncodingFunction:
 
         random.shuffle(dataset)
         dataset_size = len(dataset)
-        batches = [
-            dataset[i : i + self.batch_size]
-            for i in range(0, dataset_size, self.batch_size)
-        ]
+        batches = [dataset[i : i + self.batch_size] for i in range(0, dataset_size, self.batch_size)]
 
         train_batch = int((1.0 - self.validation_size_portion) * len(batches))
         train_batches = batches[:train_batch]
@@ -81,12 +76,8 @@ class IKTrainEncodingFunction:
                     tensorboard.log_scalar(key, info_dict[key])
 
                 batch_size = len(train_batch)
-                train_loss = (
-                    train_loss + float(info_dict["classification_loss"]) * batch_size
-                )
-                mean_entropy = (
-                    mean_entropy + float(info_dict["mean_entropy"]) * batch_size
-                )
+                train_loss = train_loss + float(info_dict["classification_loss"]) * batch_size
+                mean_entropy = mean_entropy + float(info_dict["mean_entropy"]) * batch_size
                 num_train_examples = num_train_examples + batch_size
 
             train_loss = train_loss / float(max(1, num_train_examples))
@@ -106,9 +97,7 @@ class IKTrainEncodingFunction:
                 )
 
                 batch_size = len(test_batch)
-                test_loss = (
-                    test_loss + float(info_dict["classification_loss"]) * batch_size
-                )
+                test_loss = test_loss + float(info_dict["classification_loss"]) * batch_size
                 num_test_examples = num_test_examples + batch_size
 
             test_loss = test_loss / float(max(1, num_test_examples))
@@ -121,9 +110,7 @@ class IKTrainEncodingFunction:
                     info_dict["entropy_coeff"],
                 )
             )
-            logger.debug(
-                "Test Loss after max_epoch %r is %r" % (epoch_, round(test_loss, 2))
-            )
+            logger.debug("Test Loss after max_epoch %r is %r" % (epoch_, round(test_loss, 2)))
 
             test_set_errors.append(test_loss)
             past_entropy.append(mean_entropy)
@@ -138,10 +125,7 @@ class IKTrainEncodingFunction:
                 patience_counter += 1  # number of max_epoch since last increase
 
                 if patience_counter == self.patience:
-                    logger.log(
-                        "Patience Condition Triggered: No improvement for %r epochs"
-                        % patience_counter
-                    )
+                    logger.log("Patience Condition Triggered: No improvement for %r epochs" % patience_counter)
                     break
 
         logger.log(

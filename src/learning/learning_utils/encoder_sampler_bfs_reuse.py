@@ -20,9 +20,7 @@ class EncoderSamplerBFSReUse(AbstractEncoderSampler):
         AbstractEncoderSampler.__init__(self)
 
     @staticmethod
-    def gather_samples(
-        num_samples, env, actions, step, homing_policies, selection_weights=None, k=1
-    ):
+    def gather_samples(num_samples, env, actions, step, homing_policies, selection_weights=None, k=1):
         assert selection_weights is None, "Selection weights don't make sense with BFS"
 
         pos_dataset = []
@@ -36,11 +34,7 @@ class EncoderSamplerBFSReUse(AbstractEncoderSampler):
             # Without the while condition, we can collect a very tiny dataset that is not useful for learning
             for ix in range(0, num_prev_policy):
                 for action in actions:
-                    pos_dataset.append(
-                        EncoderSamplerBFSReUse._gather_sample(
-                            env, actions, step, ix, action, homing_policies
-                        )
-                    )
+                    pos_dataset.append(EncoderSamplerBFSReUse._gather_sample(env, actions, step, ix, action, homing_policies))
 
         num_pos = len(pos_dataset)
 

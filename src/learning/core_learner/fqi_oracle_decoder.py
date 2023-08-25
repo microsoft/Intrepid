@@ -29,13 +29,9 @@ class FQIOracleDecoder:
 
         for step_ in range(0, self.horizon):
             if state in q_values:
-                action = self.actions[
-                    q_values[state].argmax()
-                ]  # We separate between action and action indices
+                action = self.actions[q_values[state].argmax()]  # We separate between action and action indices
             else:
-                action = random.choice(
-                    self.actions
-                )  # Take uniform actions for states without q_values
+                action = random.choice(self.actions)  # Take uniform actions for states without q_values
 
             obs, reward, done, meta = env.step(action)
             state = (step_ + 1, meta["state"])
@@ -53,12 +49,8 @@ class FQIOracleDecoder:
         for state in states_visited:
             if state not in q_values:
                 # We set Q-values of these states to 1.0 which is the maximum optimistic reward the agent can get
-                timestep = state[
-                    0
-                ]  # We append states with time step information. Start state has timestep 0
-                q_values[state] = np.repeat(
-                    1.0 * (self.horizon - timestep), self.num_actions
-                )
+                timestep = state[0]  # We append states with time step information. Start state has timestep 0
+                q_values[state] = np.repeat(1.0 * (self.horizon - timestep), self.num_actions)
 
         for it in range(10):
             for state in states_visited:
@@ -66,11 +58,7 @@ class FQIOracleDecoder:
 
                 for action in self.actions:
                     # Compute the bonus reward
-                    count_ = (
-                        0.0
-                        if (state, action) not in counts
-                        else counts[(state, action)]
-                    )
+                    count_ = 0.0 if (state, action) not in counts else counts[(state, action)]
                     bonus_reward = 1.0 / math.sqrt(max(1, count_))
 
                     # Perform a single Bellman Operator update
@@ -137,13 +125,9 @@ class FQIOracleDecoder:
         :return:
         """
 
-        counts = (
-            dict()
-        )  # Count is the number of times a state and action has been visited
+        counts = dict()  # Count is the number of times a state and action has been visited
         states_visited = set()  # States which have been visited
-        q_values = (
-            dict()
-        )  # Dictionary from state to a numpy array over actions indicating Q values
+        q_values = dict()  # Dictionary from state to a numpy array over actions indicating Q values
         model = dict()
         time_start = time.time()
 

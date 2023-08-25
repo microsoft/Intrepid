@@ -24,9 +24,7 @@ class Conv4Encoder(nn.Module):
         kernel_size2 = (4, 4)
         stride2 = (2, 2)
 
-        dynamic_size_h1, dynamic_size_w1 = get_conv_out_size(
-            self.height, self.width, kernel_size=kernel_size1, stride=stride1
-        )
+        dynamic_size_h1, dynamic_size_w1 = get_conv_out_size(self.height, self.width, kernel_size=kernel_size1, stride=stride1)
 
         dynamic_size_h2, dynamic_size_w2 = get_conv_out_size(
             dynamic_size_h1, dynamic_size_w1, kernel_size=kernel_size2, stride=stride2

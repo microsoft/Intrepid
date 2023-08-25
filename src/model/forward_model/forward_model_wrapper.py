@@ -12,7 +12,4 @@ class ForwardDynamicsWrapper:
             return ConvForwardModel(**kwargs, bootstrap_model=bootstrap_model)
 
         else:
-            raise NotImplementedError(
-                "Model %s is not implemented. Implemented models are linear, %r"
-                % (model_name, models)
-            )
+            raise NotImplementedError("Model %s is not implemented. Implemented models are linear, %r" % (model_name, models))

@@ -37,9 +37,7 @@ class Homer(AbstractRLDiscreteLatentState):
         Any implementation needs to implement this.
         """
 
-        dataset = self.encoder_sampler.gather_samples(
-            env, self.actions, step, homing_policies, num_samples, dataset
-        )
+        dataset = self.encoder_sampler.gather_samples(env, self.actions, step, homing_policies, num_samples, dataset)
         episodes = [dp for dp in dataset if dp.is_valid() == 1]
         return dataset, episodes
 

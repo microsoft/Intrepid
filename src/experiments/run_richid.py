@@ -24,10 +24,7 @@ def main():
     for exp_id in range(1, num_runs + 1):
         exp_setup.config["seed"] = seeds[exp_id - 1]
         exp_setup.config["env_seed"] = seeds[exp_id - 1] * 10
-        exp_setup.logger.log(
-            "========= STARTING EXPERIMENT %d (Seed = %d) ======== "
-            % (exp_id, exp_setup.config["seed"])
-        )
+        exp_setup.logger.log("========= STARTING EXPERIMENT %d (Seed = %d) ======== " % (exp_id, exp_setup.config["seed"]))
 
         # Set the random seed
         random.seed(exp_setup.config["seed"])
@@ -42,9 +39,7 @@ def main():
         exp_setup.logger.log("Environment Created")
 
         learning_alg = RichId(exp_setup)
-        policy_result = learning_alg.train(
-            env=env, latent_lqr=env.env.get_latent_lqr().copy()
-        )
+        policy_result = learning_alg.train(env=env, latent_lqr=env.env.get_latent_lqr().copy())
 
         performance.append(policy_result)
 

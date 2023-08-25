@@ -23,7 +23,4 @@ class EncoderModelWrapper:
             if model_name == model.NAME:
                 return model(**kwargs, bootstrap_model=bootstrap_model)
 
-        raise NotImplementedError(
-            "Model %s is not implemented. Implemented models are %s"
-            % (model_name, model_names)
-        )
+        raise NotImplementedError("Model %s is not implemented. Implemented models are %s" % (model_name, model_names))

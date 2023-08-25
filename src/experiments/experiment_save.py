@@ -22,9 +22,7 @@ def terminate(performance, exp_setup, seeds):
 
     if len(performance) > 0:
         for key in performance[0]:  # Assumes the keys are same across all runes
-            if not isinstance(performance[0][key], int) and not isinstance(
-                performance[0][key], float
-            ):
+            if not isinstance(performance[0][key], int) and not isinstance(performance[0][key], float):
                 continue
 
             metrics = [performance_[key] for performance_ in performance]

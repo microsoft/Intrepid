@@ -8,9 +8,7 @@ class ModelWrapper:
         pass
 
     @staticmethod
-    def get_model(
-        model_type, model_name, config, constants, bootstrap_model=None, **kwargs
-    ):
+    def get_model(model_type, model_name, config, constants, bootstrap_model=None, **kwargs):
         if model_type == "classifier":
             return ClassifierModelWrapper.get_classifier(
                 model_name=model_name,
@@ -21,14 +19,10 @@ class ModelWrapper:
             )
 
         elif model_type == "encoder":
-            return EncoderModelWrapper.get_encoder(
-                model_name=model_name, bootstrap_model=bootstrap_model, **kwargs
-            )
+            return EncoderModelWrapper.get_encoder(model_name=model_name, bootstrap_model=bootstrap_model, **kwargs)
 
         elif model_type == "decoder":
-            return DecoderModelWrapper.get_decoder(
-                model_name=model_name, bootstrap_model=bootstrap_model, **kwargs
-            )
+            return DecoderModelWrapper.get_decoder(model_name=model_name, bootstrap_model=bootstrap_model, **kwargs)
 
         else:
             raise NotImplementedError()

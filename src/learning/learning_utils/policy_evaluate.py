@@ -3,9 +3,7 @@ import torch
 from utils.cuda import cuda_var
 
 
-def evaluate(
-    env, policy, horizon, logger, train_episodes, sum_train_reward, regret=True
-):
+def evaluate(env, policy, horizon, logger, train_episodes, sum_train_reward, regret=True):
     """Compute mean total reward and the number of episodes to reach half regret of the optimal policy"""
 
     optimal_policy_v = env.get_optimal_value()
@@ -46,9 +44,7 @@ def generate_failure_result(env, train_samples, regret=True):
         }
 
 
-def evaluate_for_policy_value(
-    env, policy, horizon, logger, train_episodes, num_eval_episodes=100
-):
+def evaluate_for_policy_value(env, policy, horizon, logger, train_episodes, num_eval_episodes=100):
     """Evaluate the policy based on estimate of value function"""
 
     cumm_reward = 0.0
@@ -150,14 +146,8 @@ def evaluate_for_half_regret(
 
     policy_val = (policy_cumm_ret - sum_train_reward) / float(max(1, test_episode))
 
-    logger.log(
-        "Exceeded max steps. Learned/V* ratio is %r"
-        % (policy_cumm_ret / max(0.00001, float(opt_policy_cumm_ret)))
-    )
-    print(
-        "Exceeded max steps. Learned/V* ratio is %r"
-        % (policy_cumm_ret / max(0.00001, float(opt_policy_cumm_ret)))
-    )
+    logger.log("Exceeded max steps. Learned/V* ratio is %r" % (policy_cumm_ret / max(0.00001, float(opt_policy_cumm_ret))))
+    print("Exceeded max steps. Learned/V* ratio is %r" % (policy_cumm_ret / max(0.00001, float(opt_policy_cumm_ret))))
 
     result = {
         "total_episodes_half_regret": float("inf"),

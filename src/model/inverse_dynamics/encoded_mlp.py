@@ -19,9 +19,7 @@ class EncodedMLP(nn.Module):
             nn.Linear(self.dim, self.action_dim),
         )
 
-        self.mlp_h = nn.Sequential(
-            nn.Linear(2 * self.dim, self.dim), nn.LeakyReLU(), nn.Linear(self.dim, 256)
-        )
+        self.mlp_h = nn.Sequential(nn.Linear(2 * self.dim, self.dim), nn.LeakyReLU(), nn.Linear(self.dim, 256))
 
         if torch.cuda.is_available():
             self.cuda()

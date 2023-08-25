@@ -27,16 +27,12 @@ class ForwardEncoderModel(nn.Module):
 
             # Phi
             self.phi_embedding = nn.Embedding(self.budget, self.budget)
-            self.phi_embedding.weight.data.copy_(
-                torch.from_numpy(np.eye(self.budget)).float()
-            )
+            self.phi_embedding.weight.data.copy_(torch.from_numpy(np.eye(self.budget)).float())
             self.phi_embedding.weight.requires_grad = False
 
             # action embedding
             self.action_emb = nn.Embedding(config["num_actions"], config["num_actions"])
-            self.action_emb.weight.data.copy_(
-                torch.from_numpy(np.eye(config["num_actions"])).float()
-            )
+            self.action_emb.weight.data.copy_(torch.from_numpy(np.eye(config["num_actions"])).float())
             self.action_emb.weight.requires_grad = False
 
             self.abstract_state_emb = self.budget
@@ -45,9 +41,7 @@ class ForwardEncoderModel(nn.Module):
 
             # Model head
             self.classifier = nn.Sequential(
-                nn.Linear(
-                    2 + config["num_actions"] + self.budget, constants["n_hidden"]
-                ),
+                nn.Linear(2 + config["num_actions"] + self.budget, constants["n_hidden"]),
                 nn.LeakyReLU(),
                 nn.Linear(constants["n_hidden"], 2),
             )
@@ -73,16 +67,12 @@ class ForwardEncoderModel(nn.Module):
 
             # Phi
             self.phi_embedding = nn.Embedding(self.budget, self.budget)
-            self.phi_embedding.weight.data.copy_(
-                torch.from_numpy(np.eye(self.budget)).float()
-            )
+            self.phi_embedding.weight.data.copy_(torch.from_numpy(np.eye(self.budget)).float())
             self.phi_embedding.weight.requires_grad = False
 
             # action embedding
             self.action_emb = nn.Embedding(config["num_actions"], config["num_actions"])
-            self.action_emb.weight.data.copy_(
-                torch.from_numpy(np.eye(config["num_actions"])).float()
-            )
+            self.action_emb.weight.data.copy_(torch.from_numpy(np.eye(config["num_actions"])).float())
             self.action_emb.weight.requires_grad = False
 
             self.abstract_state_emb = self.budget
@@ -107,14 +97,10 @@ class ForwardEncoderModel(nn.Module):
         if bootstrap_model is not None:
             self.load_state_dict(bootstrap_model.state_dict())
 
-    def __gen_logits__(
-        self, prev_observations, actions, observations, discretized, type="logsoftmax"
-    ):
+    def __gen_logits__(self, prev_observations, actions, observations, discretized, type="logsoftmax"):
         if self.config["feature_type"] == "image":
             observations = observations.view(-1, self.channels, self.height, self.width)
-            prev_observations = prev_observations.view(
-                -1, self.channels, self.height, self.width
-            )
+            prev_observations = prev_observations.view(-1, self.channels, self.height, self.width)
             batch_size = prev_observations.size(0)
             x = torch.cat([prev_observations, observations], dim=0)
             x = self.img_encoder_conv(x)
@@ -153,24 +139,16 @@ class ForwardEncoderModel(nn.Module):
         }
 
     def gen_log_prob(self, prev_observations, actions, observations, discretized):
-        return self.__gen_logits__(
-            prev_observations, actions, observations, discretized, type="logsoftmax"
-        )
+        return self.__gen_logits__(prev_observations, actions, observations, discretized, type="logsoftmax")
 
     def gen_prob(self, prev_observations, actions, observations, discretized):
-        return self.__gen_logits__(
-            prev_observations, actions, observations, discretized, type="softmax"
-        )
+        return self.__gen_logits__(prev_observations, actions, observations, discretized, type="softmax")
 
     def encode_observations(self, prev_observations):
-        prev_observations = cuda_var(
-            torch.from_numpy(np.array(prev_observations))
-        ).float()
+        prev_observations = cuda_var(torch.from_numpy(np.array(prev_observations))).float()
 
         if self.config["feature_type"] == "image":
-            prev_observations = prev_observations.view(
-                -1, self.channels, self.height, self.width
-            )
+            prev_observations = prev_observations.view(-1, self.channels, self.height, self.width)
             prev_observations = self.img_encoder_conv(prev_observations).view(1, -1)
         elif self.config["feature_type"] == "feature":
             assert len(prev_observations.size()) == 1
@@ -190,18 +168,14 @@ class ForwardEncoderModel(nn.Module):
             param.requires_grad = False
 
     def load_from_another_instance(self, other_model, lock_params=False):
-        assert type(self) == type(
-            other_model
-        ), "Class must be the same. Found %r and %r" % (type(self), type(other_model))
+        assert type(self) == type(other_model), "Class must be the same. Found %r and %r" % (type(self), type(other_model))
 
         self.prev_encoder.load_state_dict(other_model.prev_encoder.state_dict())
         self.obs_encoder.load_state_dict(other_model.obs_encoder.state_dict())
         self.classifier.load_state_dict(other_model.classifier.state_dict())
 
         if self.config["feature_type"] == "image":
-            self.img_encoder_conv.load_state_dict(
-                other_model.img_encoder_conv.state_dict()
-            )
+            self.img_encoder_conv.load_state_dict(other_model.img_encoder_conv.state_dict())
 
         if lock_params:
             self._freeze_param(self.prev_encoder.parameters())
@@ -240,22 +214,16 @@ class BackwardEncoderModel(nn.Module):
         if config["feature_type"] == "feature":
             self.obs_encoder = nn.Sequential(nn.Linear(config["obs_dim"], self.budget))
 
-            self.prev_encoder = nn.Sequential(
-                nn.Linear(config["obs_dim"], self.budget)  # 3
-            )
+            self.prev_encoder = nn.Sequential(nn.Linear(config["obs_dim"], self.budget))  # 3
 
             # Phi
             self.phi_embedding = nn.Embedding(self.budget, self.budget)
-            self.phi_embedding.weight.data.copy_(
-                torch.from_numpy(np.eye(self.budget)).float()
-            )
+            self.phi_embedding.weight.data.copy_(torch.from_numpy(np.eye(self.budget)).float())
             self.phi_embedding.weight.requires_grad = False
 
             # action embedding
             self.action_emb = nn.Embedding(config["num_actions"], config["num_actions"])
-            self.action_emb.weight.data.copy_(
-                torch.from_numpy(np.eye(config["num_actions"])).float()
-            )
+            self.action_emb.weight.data.copy_(torch.from_numpy(np.eye(config["num_actions"])).float())
             self.action_emb.weight.requires_grad = False
 
             self.abstract_state_emb = self.budget
@@ -293,16 +261,12 @@ class BackwardEncoderModel(nn.Module):
 
             # Phi
             self.phi_embedding = nn.Embedding(self.budget, self.budget)
-            self.phi_embedding.weight.data.copy_(
-                torch.from_numpy(np.eye(self.budget)).float()
-            )
+            self.phi_embedding.weight.data.copy_(torch.from_numpy(np.eye(self.budget)).float())
             self.phi_embedding.weight.requires_grad = False
 
             # action embedding
             self.action_emb = nn.Embedding(config["num_actions"], config["num_actions"])
-            self.action_emb.weight.data.copy_(
-                torch.from_numpy(np.eye(config["num_actions"])).float()
-            )
+            self.action_emb.weight.data.copy_(torch.from_numpy(np.eye(config["num_actions"])).float())
             self.action_emb.weight.requires_grad = False
 
             self.abstract_state_emb = self.budget
@@ -327,14 +291,10 @@ class BackwardEncoderModel(nn.Module):
         if bootstrap_model is not None:
             self.load_state_dict(bootstrap_model.state_dict())
 
-    def __gen_logits__(
-        self, prev_observations, actions, observations, discretized, type="logsoftmax"
-    ):
+    def __gen_logits__(self, prev_observations, actions, observations, discretized, type="logsoftmax"):
         if self.config["feature_type"] == "image":
             observations = observations.view(-1, self.channels, self.height, self.width)
-            prev_observations = prev_observations.view(
-                -1, self.channels, self.height, self.width
-            )
+            prev_observations = prev_observations.view(-1, self.channels, self.height, self.width)
             batch_size = prev_observations.size(0)
             x = torch.cat([prev_observations, observations], dim=0)
             x = self.img_encoder_conv(x)
@@ -373,14 +333,10 @@ class BackwardEncoderModel(nn.Module):
         }
 
     def gen_log_prob(self, prev_observations, actions, observations, discretized):
-        return self.__gen_logits__(
-            prev_observations, actions, observations, discretized, type="logsoftmax"
-        )
+        return self.__gen_logits__(prev_observations, actions, observations, discretized, type="logsoftmax")
 
     def gen_prob(self, prev_observations, actions, observations, discretized):
-        return self.__gen_logits__(
-            prev_observations, actions, observations, discretized, type="softmax"
-        )
+        return self.__gen_logits__(prev_observations, actions, observations, discretized, type="softmax")
 
     def encode_observations(self, observations):
         observations = cuda_var(torch.from_numpy(np.array(observations))).float()
@@ -406,18 +362,14 @@ class BackwardEncoderModel(nn.Module):
             param.requires_grad = False
 
     def load_from_another_instance(self, other_model, lock_params=False):
-        assert type(self) == type(
-            other_model
-        ), "Class must be the same. Found %r and %r" % (type(self), type(other_model))
+        assert type(self) == type(other_model), "Class must be the same. Found %r and %r" % (type(self), type(other_model))
 
         self.prev_encoder.load_state_dict(other_model.prev_encoder.state_dict())
         self.obs_encoder.load_state_dict(other_model.obs_encoder.state_dict())
         self.classifier.load_state_dict(other_model.classifier.state_dict())
 
         if self.config["feature_type"] == "image":
-            self.img_encoder_conv.load_state_dict(
-                other_model.img_encoder_conv.state_dict()
-            )
+            self.img_encoder_conv.load_state_dict(other_model.img_encoder_conv.state_dict())
 
         if lock_params:
             self._freeze_param(self.prev_encoder.parameters())

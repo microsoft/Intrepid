@@ -19,9 +19,7 @@ class Matterport(CerebralEnvInterface):
         self.sim = MatterSim.Simulator()
         self.sim.setCameraResolution(config["width"], config["height"])
         self.sim.setCameraVFOV(math.radians(config["vfov"]))
-        self.sim.setDepthEnabled(
-            False
-        )  # Turn on depth only after running ./scripts/depth_to_skybox.py (see README.md)
+        self.sim.setDepthEnabled(False)  # Turn on depth only after running ./scripts/depth_to_skybox.py (see README.md)
         self.sim.setPreloadingEnabled(False)
         self.sim.setDiscretizedViewingAngles(True)
         self.sim.setBatchSize(1)
@@ -59,16 +57,12 @@ class Matterport(CerebralEnvInterface):
         fnames = glob.glob("./data/matterport/icon_figs/*png")
         distractors = []
 
-        assert (
-            self.obs_dim[0] >= 5 and self.obs_dim[1] >= 5
-        ), "Image has to be be at least 5x5 (hxw) large"
+        assert self.obs_dim[0] >= 5 and self.obs_dim[1] >= 5, "Image has to be be at least 5x5 (hxw) large"
 
         for fname in fnames:
             distractor_img = imageio.imread(fname)
 
-            assert len(distractor_img.shape) == 3 and (
-                3 <= distractor_img.shape[2] <= 4
-            ), "Can only read RGB and RGBA images"
+            assert len(distractor_img.shape) == 3 and (3 <= distractor_img.shape[2] <= 4), "Can only read RGB and RGBA images"
 
             if distractor_img.shape[2] == 4:
                 distractor_img = distractor_img[:, :, :3]
@@ -116,9 +110,7 @@ class Matterport(CerebralEnvInterface):
 
     def _process_image(self, img):
         height, width, channel = img.shape
-        assert height == 480 and width == 640 and channel == 3, (
-            "Wrong shape. Found %r. Expected 480 x 640 x 3" % img.shape
-        )
+        assert height == 480 and width == 640 and channel == 3, "Wrong shape. Found %r. Expected 480 x 640 x 3" % img.shape
         img = resize(img, self.obs_dim)
         img = np.ascontiguousarray(img)
 
@@ -142,9 +134,7 @@ class Matterport(CerebralEnvInterface):
             values = np.squeeze(distractor_img[blue_pixel_ix])
             np.put_along_axis(img_slice, blue_pixel_ix, values, axis=0)
 
-            img_slice = img_slice.reshape(
-                distractor_shape
-            )  # distractor and img_slice have the same shape
+            img_slice = img_slice.reshape(distractor_shape)  # distractor and img_slice have the same shape
 
             img[
                 self.distractor_ver : self.distractor_ver + distractor_shape[0],
@@ -162,13 +152,9 @@ class Matterport(CerebralEnvInterface):
         if self.use_exo:
             self.distractor_id = random.randint(0, len(self.distractors) - 1)
             # Horizon pixel location
-            self.distractor_hor = random.randint(
-                self.distractor_hor_range[0], self.distractor_hor_range[1] - 1
-            )
+            self.distractor_hor = random.randint(self.distractor_hor_range[0], self.distractor_hor_range[1] - 1)
             # Horizon pixel location
-            self.distractor_ver = random.randint(
-                self.distractor_ver_range[0], self.distractor_ver_range[1] - 1
-            )
+            self.distractor_ver = random.randint(self.distractor_ver_range[0], self.distractor_ver_range[1] - 1)
 
         state = self.sim.getState()[0]
         self.timestep = 0
@@ -276,9 +262,7 @@ class Matterport(CerebralEnvInterface):
         elif act == 5:
             return "look-up"
         else:
-            raise AssertionError(
-                "Action has to be in {0, 1, 2, 3, 4, 5}. Found %r" % act
-            )
+            raise AssertionError("Action has to be in {0, 1, 2, 3, 4, 5}. Found %r" % act)
 
     def get_action_type(self):
         """

@@ -66,9 +66,7 @@ class PPEDebugger:
             )
             for dp in dataset:
                 if dp[1] == path_id:
-                    if not os.path.exists(
-                        "%s/parent_%d" % (base_folder, parent_path_id)
-                    ):
+                    if not os.path.exists("%s/parent_%d" % (base_folder, parent_path_id)):
                         os.makedirs("%s/parent_%d" % (base_folder, parent_path_id))
                     img = (dp[0] * 255).astype(np.uint8)
 
@@ -84,9 +82,7 @@ class PPEDebugger:
                             img,
                         )
                     else:
-                        merged_path_id = backward_map[
-                            path_id
-                        ]  # The path with which it is merged
+                        merged_path_id = backward_map[path_id]  # The path with which it is merged
                         merged_path = path_map[merged_path_id]
                         imageio.imwrite(
                             "%s/parent_%d/action_%d_path_number_%d_merged_"
@@ -150,9 +146,7 @@ class PPEDebugger:
 
         for i in range(0, len(path_map)):
             old_path_id_1, old_action_1 = path_map[i].parent_path_id, path_map[i].action
-            new_state1 = env.calc_step(
-                abstract_to_state_map[old_path_id_1], old_action_1
-            )
+            new_state1 = env.calc_step(abstract_to_state_map[old_path_id_1], old_action_1)
             path1 = "%r -> %s -> %r" % (
                 abstract_to_state_map[old_path_id_1],
                 env.act_to_str(old_action_1),
@@ -164,18 +158,14 @@ class PPEDebugger:
                     path_map[j].parent_path_id,
                     path_map[j].action,
                 )
-                new_state2 = env.calc_step(
-                    abstract_to_state_map[old_path_id_2], old_action_2
-                )
+                new_state2 = env.calc_step(abstract_to_state_map[old_path_id_2], old_action_2)
                 path2 = "%r -> %s -> %r" % (
                     abstract_to_state_map[old_path_id_2],
                     env.act_to_str(old_action_2),
                     new_state2,
                 )
 
-                result = error_util.record(
-                    new_state1, new_state2, mappings[i], mappings[j]
-                )
+                result = error_util.record(new_state1, new_state2, mappings[i], mappings[j])
 
                 sim = abs(prob[:, i] - prob[:, j]).sum().item()
 
@@ -196,9 +186,7 @@ class PPEDebugger:
                         % (path_map[j], path1, path_map[i], path2, sim, elim_param)
                     )
 
-        self.logger.log(
-            "Number of states reachable via augmented paths: %d" % len(state_stats)
-        )
+        self.logger.log("Number of states reachable via augmented paths: %d" % len(state_stats))
         for ctr, (state, state_prob) in enumerate(state_stats.items()):
             paths = state_prob.get_entries()
             self.logger.log(
@@ -212,16 +200,10 @@ class PPEDebugger:
 
     def _policy_cover_validation(self, env, step, homing_policies):
         _attr_valid_fn = getattr(env, "generate_homing_policy_validation_fn", None)
-        policy_cover_validator = (
-            None
-            if not callable(_attr_valid_fn)
-            else env.generate_homing_policy_validation_fn()
-        )
+        policy_cover_validator = None if not callable(_attr_valid_fn) else env.generate_homing_policy_validation_fn()
 
         if policy_cover_validator is not None:
-            state_dist = self._evaluate_homing_policy(
-                env=env, paths=homing_policies[step]
-            )
+            state_dist = self._evaluate_homing_policy(env=env, paths=homing_policies[step])
             self.logger.log("Policy Cover state distribution %r" % state_dist)
 
             if not policy_cover_validator(state_dist, step):
@@ -236,15 +218,11 @@ class PPEDebugger:
 
     def _state_decoding_acc(self, env, step, state_decoder):
         _attr_cover = getattr(env, "get_perfect_homing_policy", None)
-        perfect_cover = (
-            None if not callable(_attr_cover) else env.get_perfect_homing_policy(step)
-        )
+        perfect_cover = None if not callable(_attr_cover) else env.get_perfect_homing_policy(step)
 
         if perfect_cover is not None:
             perfect_homing_policies = {step: env.get_perfect_homing_policy(step)}
-            state_decoder_acc = self.evaluate_state_decoder.evaluate(
-                env, step, perfect_homing_policies, state_decoder
-            )
+            state_decoder_acc = self.evaluate_state_decoder.evaluate(env, step, perfect_homing_policies, state_decoder)
             self.logger.log("State Decoder Accuracy is %f" % state_decoder_acc)
             return state_decoder_acc
         else:
@@ -289,14 +267,10 @@ class PPEDebugger:
         )
 
         # 4. Compute policy cover accuracy
-        metrics["policy_cover_validation"] = self._policy_cover_validation(
-            env, step, homing_policies
-        )
+        metrics["policy_cover_validation"] = self._policy_cover_validation(env, step, homing_policies)
 
         # 5. Compute state decoding accuracy
-        metrics["state_decoder_acc"] = self._state_decoding_acc(
-            env, step, state_decoder
-        )
+        metrics["state_decoder_acc"] = self._state_decoding_acc(env, step, state_decoder)
 
         return metrics
 

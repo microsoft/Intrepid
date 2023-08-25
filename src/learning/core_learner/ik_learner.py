@@ -34,9 +34,7 @@ class IDLearning(AbstractRLDiscreteLatentState):
         Any implementation needs to implement this.
         """
 
-        dataset = self.encoder_sampler.gather_samples(
-            num_samples, env, self.actions, step, homing_policies
-        )
+        dataset = self.encoder_sampler.gather_samples(num_samples, env, self.actions, step, homing_policies)
         return dataset, dataset
 
     def train_discrete_encoder(

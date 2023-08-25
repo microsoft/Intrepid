@@ -13,9 +13,7 @@ class SimpleLQR:
 
         assert self.state_dim == 2, "Unsupported configuration"
         assert self.act_dim == 1, "Unsupported configuration"
-        assert (
-            self.obs_dim >= self.state_dim
-        ), "Cannot handle observation dimension smaller than world dimension"
+        assert self.obs_dim >= self.state_dim, "Cannot handle observation dimension smaller than world dimension"
 
         self.A = np.diag([0.9, 0.3])  # Matrix of size 2 x 2
         self.B = np.array([[1.0], [1.0]])  # Matrix of size 2 x 1
@@ -62,9 +60,7 @@ class SimpleLQR:
             noise = np.random.randn(self.obs_dim - self.state_dim)
             return np.concatenate([state, noise], axis=0)
         else:
-            raise AssertionError(
-                "Cannot handle observation dimension smaller than world dimension"
-            )
+            raise AssertionError("Cannot handle observation dimension smaller than world dimension")
 
     def step(self, action):
         """Given an action which is the acceleration output. Returns
@@ -75,9 +71,7 @@ class SimpleLQR:
 
         if self.timestep >= self.horizon:
             # Cannot take any more actions
-            raise AssertionError(
-                "Cannot take any more actions this episode. Horizon completed"
-            )
+            raise AssertionError("Cannot take any more actions this episode. Horizon completed")
 
         else:
             new_state = np.matmul(self.A, self.curr_state) + np.matmul(self.B, action)

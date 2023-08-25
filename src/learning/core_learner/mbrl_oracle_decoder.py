@@ -39,13 +39,9 @@ class MBRLOracleDecoder:
 
         for step_ in range(0, self.horizon):
             if state in q_values:
-                action = self.actions[
-                    q_values[state].argmax()
-                ]  # We separate between action and action indices
+                action = self.actions[q_values[state].argmax()]  # We separate between action and action indices
             else:
-                action = random.choice(
-                    self.actions
-                )  # Take uniform actions for states without q_values
+                action = random.choice(self.actions)  # Take uniform actions for states without q_values
 
             obs, reward, done, meta = env.step(action)
             state = (
@@ -67,9 +63,7 @@ class MBRLOracleDecoder:
         if self.count_type == "state":
             count = 0.0 if state[1] not in counts else counts[state[1]]
         elif self.count_type == "state-action":
-            count = (
-                0.0 if (state[1], action) not in counts else counts[(state[1], action)]
-            )
+            count = 0.0 if (state[1], action) not in counts else counts[(state[1], action)]
         else:
             raise AssertionError("Unhandled count type %r" % self.count_type)
 
@@ -108,9 +102,7 @@ class MBRLOracleDecoder:
                 if state_with_timstep not in q_values:
                     # We set Q-values of these states to 1.0 which is the maximum optimistic reward the agent can get
                     # timestep = state[0]   # We append states with time step information. Start state has timestep 0
-                    q_values[state_with_timstep] = np.repeat(
-                        1.0 * (self.horizon - h + 1), self.num_actions
-                    )
+                    q_values[state_with_timstep] = np.repeat(1.0 * (self.horizon - h + 1), self.num_actions)
                     # q_values[state_with_timstep] = np.repeat(0.0, self.num_actions)
 
         for h in range(self.horizon, -1, -1):
@@ -123,36 +115,26 @@ class MBRLOracleDecoder:
 
                 for action in self.actions:
                     # TODO: Use Paul Mineiro's confidence interval
-                    bonus_reward = self._get_bonus_reward(
-                        counts, state_with_timestep, action
-                    )
+                    bonus_reward = self._get_bonus_reward(counts, state_with_timestep, action)
 
                     if h == self.horizon:
                         q_values[state_with_timestep][action] = bonus_reward
                     else:
                         if (state, action) not in model:
-                            q_values[state_with_timestep][action] = (
-                                bonus_reward + self.horizon - h
-                            )
+                            q_values[state_with_timestep][action] = bonus_reward + self.horizon - h
                         else:
                             prob_values = model[(state, action)].get_probability()
                             future_return = 0.0
 
                             for new_state, prob_val in prob_values:
-                                future_return += (
-                                    prob_val * q_values[(h + 1, new_state)].max()
-                                )
+                                future_return += prob_val * q_values[(h + 1, new_state)].max()
 
                             # print("Bonus reward is %f and future_return is %f " % (bonus_reward, future_return))
-                            q_values[state_with_timestep][action] = (
-                                bonus_reward + self.gamma * future_return
-                            )
+                            q_values[state_with_timestep][action] = bonus_reward + self.gamma * future_return
 
                     max_val = max(max_val, q_values[state_with_timestep][action])
 
-            self.logger.log(
-                "Q-Value Iteration: Time step %d, Max Q_Values %f" % (h, max_val)
-            )
+            self.logger.log("Q-Value Iteration: Time step %d, Max Q_Values %f" % (h, max_val))
 
             # TODO remove timestep -> infinite discounted horizon
             # TODO John's optimization procedure: backup from states which have a reward,
@@ -198,18 +180,12 @@ class MBRLOracleDecoder:
     def train(self, env, exp_id=1):
         """Execute MBRL algorithm on an environment"""
 
-        counts = (
-            dict()
-        )  # Count is the number of times a state and action has been visited
+        counts = dict()  # Count is the number of times a state and action has been visited
         states_visited = set()  # States which have been visited
         state_action_visited = set()  # State action pair
-        model = (
-            dict()
-        )  # Dictionary from state x actions to a list of tuples {(state, prob)}
+        model = dict()  # Dictionary from state x actions to a list of tuples {(state, prob)}
         # indicating the next state and probability of doing there
-        q_values = (
-            dict()
-        )  # Dictionary from state to a numpy array over actions indicating Q values
+        q_values = dict()  # Dictionary from state to a numpy array over actions indicating Q values
         time_start = time.time()
         sum_total_return = 0
         max_return = 0
@@ -227,9 +203,7 @@ class MBRLOracleDecoder:
 
             # Refine the count
             for state, action in episode.get_state_action_pairs():
-                state_action_visited.add(
-                    (state[1], action)
-                )  # Ignoring the timestep information
+                state_action_visited.add((state[1], action))  # Ignoring the timestep information
 
             for state in episode.get_states():
                 states_visited.add(state[1])  # Ignoring the timestep information

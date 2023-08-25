@@ -21,9 +21,7 @@ class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
 
-        self.transform = nn.Sequential(
-            nn.Linear(32, 64), nn.ReLU(), nn.Linear(64, 32), nn.ReLU()
-        )
+        self.transform = nn.Sequential(nn.Linear(32, 64), nn.ReLU(), nn.Linear(64, 32), nn.ReLU())
 
         if torch.cuda.is_available():
             self.cuda()

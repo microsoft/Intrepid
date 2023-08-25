@@ -19,16 +19,10 @@ class EncoderSamplerSamePolicy(AbstractEncoderSampler):
         AbstractEncoderSampler.__init__(self)
 
     @staticmethod
-    def gather_samples(
-        num_samples, env, actions, step, homing_policies, selection_weights=None
-    ):
+    def gather_samples(num_samples, env, actions, step, homing_policies, selection_weights=None):
         dataset = []
         for _ in range(num_samples):
-            dataset.append(
-                EncoderSamplerSamePolicy._gather_sample(
-                    env, actions, step, homing_policies, selection_weights
-                )
-            )
+            dataset.append(EncoderSamplerSamePolicy._gather_sample(env, actions, step, homing_policies, selection_weights))
 
         return dataset
 
@@ -70,9 +64,7 @@ class EncoderSamplerSamePolicy(AbstractEncoderSampler):
         y = random.randint(0, 1)
 
         if y == 0:  # Add imposter
-            next_obs, new_meta = EncoderSamplerSamePolicy._gather_last_observation(
-                env, actions, step, policy
-            )
+            next_obs, new_meta = EncoderSamplerSamePolicy._gather_last_observation(env, actions, step, policy)
             reward = None  # Reward for an imposter transition makes little sense
         elif y == 1:  # Take the action
             next_obs, reward, done, meta = env.step(deviation_action)

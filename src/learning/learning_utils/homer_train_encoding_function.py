@@ -45,20 +45,14 @@ class TrainEncodingFunction:
         self.from_dataset = constants["nce_from_dataset"]
 
         if self.from_dataset:
-            self.noise_contrastive_learner = NoiseContrastiveDataset(
-                constants, self.epoch
-            )
+            self.noise_contrastive_learner = NoiseContrastiveDataset(constants, self.epoch)
         else:
-            self.noise_contrastive_learner = NoiseContrastiveGlobal(
-                constants, self.epoch
-            )
+            self.noise_contrastive_learner = NoiseContrastiveGlobal(constants, self.epoch)
 
         self.patience = constants["patience"]
 
         self.max_retrials = constants["max_try"]
-        self.expected_optima = constants[
-            "expected_optima"
-        ]  # If the model reaches this loss then we exit
+        self.expected_optima = constants["expected_optima"]  # If the model reaches this loss then we exit
 
     def train_model(
         self,
@@ -80,30 +74,20 @@ class TrainEncodingFunction:
         else:
             count = len(dataset)
 
-        logger.log(
-            "Solving encoder model %r and got dataset with stats %r"
-            % (model_type, count)
-        )
+        logger.log("Solving encoder model %r and got dataset with stats %r" % (model_type, count))
 
         # Current model
-        model = EncoderModelWrapper.get_encoder_model(
-            model_type, self.config, self.constants, bootstrap_model
-        )
+        model = EncoderModelWrapper.get_encoder_model(model_type, self.config, self.constants, bootstrap_model)
 
         # Model for storing the best model as measured by performance on the test set
-        best_model = EncoderModelWrapper.get_encoder_model(
-            model_type, self.config, self.constants, bootstrap_model
-        )
+        best_model = EncoderModelWrapper.get_encoder_model(model_type, self.config, self.constants, bootstrap_model)
 
         param_with_grad = filter(lambda p: p.requires_grad, model.parameters())
         optimizer = optim.Adam(params=param_with_grad, lr=self.learning_rate)
 
         random.shuffle(dataset)
         dataset_size = len(dataset)
-        batches = [
-            dataset[i : i + self.batch_size]
-            for i in range(0, dataset_size, self.batch_size)
-        ]
+        batches = [dataset[i : i + self.batch_size] for i in range(0, dataset_size, self.batch_size)]
 
         train_batch = int((1.0 - self.validation_size_portion) * len(batches))
         train_batches = batches[:train_batch]
@@ -139,12 +123,8 @@ class TrainEncodingFunction:
                     tensorboard.log_scalar(key, info_dict[key])
 
                 batch_size = len(train_batch)
-                train_loss = (
-                    train_loss + float(info_dict["classification_loss"]) * batch_size
-                )
-                mean_entropy = (
-                    mean_entropy + float(info_dict["mean_entropy"]) * batch_size
-                )
+                train_loss = train_loss + float(info_dict["classification_loss"]) * batch_size
+                mean_entropy = mean_entropy + float(info_dict["mean_entropy"]) * batch_size
                 num_train_examples = num_train_examples + batch_size
 
             train_loss = train_loss / float(max(1, num_train_examples))
@@ -164,9 +144,7 @@ class TrainEncodingFunction:
                 )
 
                 batch_size = len(test_batch)
-                test_loss = (
-                    test_loss + float(info_dict["classification_loss"]) * batch_size
-                )
+                test_loss = test_loss + float(info_dict["classification_loss"]) * batch_size
                 num_test_examples = num_test_examples + batch_size
 
             test_loss = test_loss / float(max(1, num_test_examples))
@@ -179,9 +157,7 @@ class TrainEncodingFunction:
                     info_dict["entropy_coeff"],
                 )
             )
-            logger.debug(
-                "Test Loss after max_epoch %r is %r" % (epoch_, round(test_loss, 2))
-            )
+            logger.debug("Test Loss after max_epoch %r is %r" % (epoch_, round(test_loss, 2)))
 
             test_set_errors.append(test_loss)
             past_entropy.append(mean_entropy)
@@ -194,16 +170,11 @@ class TrainEncodingFunction:
             else:
                 # Check patience condition
                 patience_counter += 1  # number of max_epoch since last increase
-                if (
-                    best_test_loss < self.expected_optima or test_loss > 0.8
-                ):  # Found good solution or diverged
+                if best_test_loss < self.expected_optima or test_loss > 0.8:  # Found good solution or diverged
                     break
 
                 if patience_counter == self.patience:
-                    logger.log(
-                        "Patience Condition Triggered: No improvement for %r epochs"
-                        % patience_counter
-                    )
+                    logger.log("Patience Condition Triggered: No improvement for %r epochs" % patience_counter)
                     break
 
         logger.log(
@@ -342,9 +313,7 @@ class TrainEncodingFunction:
             if overall_best_test_loss < self.expected_optima:
                 break
             else:
-                logger.log(
-                    "Failed to reach expected loss. This was attempt number %d" % ctr
-                )
+                logger.log("Failed to reach expected loss. This was attempt number %d" % ctr)
 
         return overall_best_model, {
             "loss": overall_best_test_loss,
@@ -395,22 +364,15 @@ class TrainEncodingFunction:
             if overall_best_test_loss < self.expected_optima:
                 break
             else:
-                logger.log(
-                    "Failed to reach expected loss. This was attempt number %d" % ctr
-                )
+                logger.log("Failed to reach expected loss. This was attempt number %d" % ctr)
 
-        curr_obs_actions = [
-            (dp.curr_obs, dp.action) for dp in dataset if dp.is_valid() == 1
-        ]
+        curr_obs_actions = [(dp.curr_obs, dp.action) for dp in dataset if dp.is_valid() == 1]
         next_obs = [dp.next_obs for dp in dataset if dp.is_valid() == 1]
         valid_dataset = [dp for dp in dataset if dp.is_valid() == 1]
 
         # Compute features for observations
         timestep_feature_calc_start = time.time()
-        logger.debug(
-            "Calculating compositional features for clustering steps. Size of dataset: %d"
-            % len(curr_obs_actions)
-        )
+        logger.debug("Calculating compositional features for clustering steps. Size of dataset: %d" % len(curr_obs_actions))
         # feature_fn = FeatureComputation(curr_obs_actions=curr_obs_actions,
         #                                 model=overall_best_model,
         #                                 batch_size=1024,
@@ -425,32 +387,21 @@ class TrainEncodingFunction:
         )
         vectors = feature_fn.calc_feature(next_obs)
 
-        logger.debug(
-            "Calculated features. Time taken %d sec"
-            % (time.time() - timestep_feature_calc_start)
-        )
+        logger.debug("Calculated features. Time taken %d sec" % (time.time() - timestep_feature_calc_start))
 
         # Call the clustering algorithm to generate clusters
         threshold = 0.0  # TODO use the generalization error to define threshold
         cluster_alg = GreedyClustering(threshold=threshold, dim=feature_fn.dim)
         cluster_centers = cluster_alg.cluster(vectors)
-        logger.debug(
-            "Number of clusters with L1 distance and threshold %f is %d"
-            % (threshold, len(cluster_centers))
-        )
+        logger.debug("Number of clusters with L1 distance and threshold %f is %d" % (threshold, len(cluster_centers)))
 
         # Define the state abstraction model
         encoder_model = ClusteringModel(cluster_centers, feature_fn)
         logger.debug("Mapping datapoints to their center")
         timestep_center_assign_start = time.time()
         for dp_, feature_ in zip(valid_dataset, vectors):
-            dp_.meta_dict["cluster_center"] = encoder_model.encode_observations(
-                {"vec": feature_}
-            )
-        logger.debug(
-            "Done computing in time %d sec "
-            % (time.time() - timestep_center_assign_start)
-        )
+            dp_.meta_dict["cluster_center"] = encoder_model.encode_observations({"vec": feature_})
+        logger.debug("Done computing in time %d sec " % (time.time() - timestep_center_assign_start))
 
         return encoder_model, {
             "loss": overall_best_test_loss,
@@ -520,9 +471,7 @@ class TrainEncodingFunction:
             if overall_best_test_loss < self.expected_optima:
                 break
             else:
-                logger.log(
-                    "Failed to reach expected loss. This was attempt number %d" % ctr
-                )
+                logger.log("Failed to reach expected loss. This was attempt number %d" % ctr)
 
         curr_obs_actions = [(tr[0], tr[1]) for tr in transitions]
         curr_obs = [tr[0] for tr in transitions]
@@ -530,10 +479,7 @@ class TrainEncodingFunction:
 
         # Compute features for observations
         timestep_feature_calc_start = time.time()
-        logger.debug(
-            "Calculating compositional features for clustering steps. Size of dataset: %d"
-            % len(curr_obs_actions)
-        )
+        logger.debug("Calculating compositional features for clustering steps. Size of dataset: %d" % len(curr_obs_actions))
 
         # feature_fn = FeatureComputation(curr_obs_actions=curr_obs_actions,
         #                                 model=overall_best_model,
@@ -555,19 +501,13 @@ class TrainEncodingFunction:
         vectors = list(curr_vectors)
         vectors.extend(next_vectors)
 
-        logger.debug(
-            "Calculated features. Time taken %d sec"
-            % (time.time() - timestep_feature_calc_start)
-        )
+        logger.debug("Calculated features. Time taken %d sec" % (time.time() - timestep_feature_calc_start))
 
         # Call the clustering algorithm to generate clusters
-        cluster_alg = GreedyClustering(
-            threshold=self.clustering_threshold, dim=feature_fn.dim
-        )
+        cluster_alg = GreedyClustering(threshold=self.clustering_threshold, dim=feature_fn.dim)
         cluster_centers = cluster_alg.cluster(vectors)
         logger.debug(
-            "Number of clusters with L1 distance and threshold %f is %d"
-            % (self.clustering_threshold, len(cluster_centers))
+            "Number of clusters with L1 distance and threshold %f is %d" % (self.clustering_threshold, len(cluster_centers))
         )
 
         # Define the state abstraction model
@@ -585,9 +525,7 @@ class TrainEncodingFunction:
             curr_abstract_state_ = encoder_model.encode_observations({"vec": curr_vec_})
             action_ = tr[1]
             next_abstract_state_ = encoder_model.encode_observations({"vec": next_vec_})
-            marked_transitions.append(
-                (curr_abstract_state_, action_, next_abstract_state_)
-            )
+            marked_transitions.append((curr_abstract_state_, action_, next_abstract_state_))
 
             ####################
             if tr[3] in debug_info:
@@ -617,9 +555,7 @@ class TrainEncodingFunction:
                 seen_curr_state_action.add((tr[3], tr[1]))
         chosen_indices = chosen_indices[:25]
 
-        curr_state_actions = " ".join(
-            [str((transitions[i][3], transitions[i][1])) for i in chosen_indices]
-        )
+        curr_state_actions = " ".join([str((transitions[i][3], transitions[i][1])) for i in chosen_indices])
         logs = []
         for real_state, state_vec_ls in debug_info.items():
             logger.debug("Real State %r " % (real_state,))
@@ -635,9 +571,7 @@ class TrainEncodingFunction:
 
                 for abstract_state2, vec2 in sampled_state_vec_ls[i + 1 :]:
                     dispersion = np.mean(np.abs(vec1 - vec2))
-                    max_intra_class_dispersion = max(
-                        max_intra_class_dispersion, dispersion
-                    )
+                    max_intra_class_dispersion = max(max_intra_class_dispersion, dispersion)
                     mean_intra_class_dispersion.acc(dispersion)
 
             logs.append(
@@ -668,10 +602,7 @@ class TrainEncodingFunction:
             logger.debug("Abstract state %r -> %s" % (abstract_state, real_state_map))
         ################################
 
-        logger.debug(
-            "Done computing in time %d sec "
-            % (time.time() - timestep_center_assign_start)
-        )
+        logger.debug("Done computing in time %d sec " % (time.time() - timestep_center_assign_start))
 
         return (
             encoder_model,

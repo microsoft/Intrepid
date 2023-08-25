@@ -16,9 +16,7 @@ def logtxt(fname, s):
 class MultiprocessingLoggerManager(object):
     def __init__(self, file_path, logging_level):
         self.log_queue = Queue()
-        self.p = Process(
-            target=logger_daemon, args=(self.log_queue, file_path, logging_level)
-        )
+        self.p = Process(target=logger_daemon, args=(self.log_queue, file_path, logging_level))
         self.p.start()
         atexit.register(self.cleanup)
 

@@ -18,9 +18,7 @@ class StationaryDictionaryPolicy(ActionType):
 
     def sample_action(self, state):
         action = self.get_argmax_action(state)
-        assert isinstance(
-            action, int
-        ), "Action should be of type int. Found %r of type %r" % (action, type(action))
+        assert isinstance(action, int), "Action should be of type int. Found %r of type %r" % (action, type(action))
         return action
 
     def get_argmax_action(self, state):

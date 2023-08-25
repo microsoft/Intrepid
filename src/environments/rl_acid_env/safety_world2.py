@@ -30,9 +30,7 @@ class SafetyWorld(RLAcidWrapper):
 
         assert (
             self.anti_shaping_reward < self.optimal_reward * self.optimal_reward_prob
-        ), "Anti shaping reward shouldn't exceed optimal reward which is %r" % (
-            self.optimal_reward * self.optimal_reward_prob
-        )
+        ), "Anti shaping reward shouldn't exceed optimal reward which is %r" % (self.optimal_reward * self.optimal_reward_prob)
 
         assert self.num_actions >= 4, "Atleast 4 actions are needed"
         self.actions = list(range(0, self.num_actions))
@@ -42,10 +40,7 @@ class SafetyWorld(RLAcidWrapper):
         self.safety_dim = self.horizon * self.safety_block_size
         self.num_unsafe_actions = 0
 
-        self.gold_w = (
-            np.random.randint(low=0, high=1, size=(self.safety_dim,)).astype(np.float32)
-            - 0.5
-        )
+        self.gold_w = np.random.randint(low=0, high=1, size=(self.safety_dim,)).astype(np.float32) - 0.5
         self.gold_w = (
             self.gold_w
             + np.random.randn(
@@ -110,9 +105,7 @@ class SafetyWorld(RLAcidWrapper):
             raise AssertionError("Unhandled noise type %r" % self.noise_type)
 
     def generate_safe_unsafe_ftrs(self, block_ix=-1):
-        vec = np.random.randint(low=-1, high=2, size=(self.safety_dim,)).astype(
-            np.float32
-        )
+        vec = np.random.randint(low=-1, high=2, size=(self.safety_dim,)).astype(np.float32)
         vec += (
             np.random.randn(
                 self.safety_dim,
@@ -218,9 +211,7 @@ class SafetyWorld(RLAcidWrapper):
             raise AssertionError("Path index can only take values in {0, 1, 2, 3}")
 
     def get_safety_ftrs(self, x):
-        return np.vstack(
-            [self.get_safety_ftr(x, a) for a in range(self.num_actions)]
-        )  # num_action x dim
+        return np.vstack([self.get_safety_ftr(x, a) for a in range(self.num_actions)])  # num_action x dim
 
     def get_safety_ftr(self, x, a):
         ix, h = x
@@ -334,9 +325,7 @@ class SafetyWorld(RLAcidWrapper):
         raise NotImplementedError()
 
     def adapt_config(self, config):
-        assert (
-            config["obs_dim"] == -1
-        ), "obs_dim key in config is automatically set. Please set it to -1"
+        assert config["obs_dim"] == -1, "obs_dim key in config is automatically set. Please set it to -1"
 
         if self.noise_type == RLAcidWrapper.BERNOULLI:
             config["obs_dim"] = 2 * config["horizon"] + 5
@@ -345,14 +334,10 @@ class SafetyWorld(RLAcidWrapper):
             config["obs_dim"] = config["horizon"] + 5
 
         elif self.noise_type == RLAcidWrapper.HADAMHARD:
-            config["obs_dim"] = get_sylvester_hadamhard_matrix_dim(
-                config["horizon"] + 5
-            )
+            config["obs_dim"] = get_sylvester_hadamhard_matrix_dim(config["horizon"] + 5)
 
         elif self.noise_type == RLAcidWrapper.HADAMHARDG:
-            config["obs_dim"] = get_sylvester_hadamhard_matrix_dim(
-                config["horizon"] + 5
-            )
+            config["obs_dim"] = get_sylvester_hadamhard_matrix_dim(config["horizon"] + 5)
 
         else:
             raise AssertionError("Unhandled noise type %r" % config["noise_type"])

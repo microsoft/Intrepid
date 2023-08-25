@@ -31,9 +31,7 @@ class PathPolicySearch(AbstractPolicySearch):
 
         for dp in homing_policy_dataset:
             if reward_func is None:
-                raise AssertionError(
-                    "Cannot use Path Policy Search without a given reward function. Use PSDP instead."
-                )
+                raise AssertionError("Cannot use Path Policy Search without a given reward function. Use PSDP instead.")
             else:
                 # TODO we should know what type of model we have in the reward function so
                 # we can define the appropriate reward function
@@ -84,12 +82,7 @@ class PathPolicySearch(AbstractPolicySearch):
             encoding_function, reward_id = encoder_reward_args
 
             def reward_func(observation, time):
-                return (
-                    1
-                    if time == horizon
-                    and encoding_function.encode_observations(observation) == reward_id
-                    else 0
-                )
+                return 1 if time == horizon and encoding_function.encode_observations(observation) == reward_id else 0
 
         tensorboard = None
 
@@ -107,9 +100,7 @@ class PathPolicySearch(AbstractPolicySearch):
         )
 
         # Save the learned policy to disk
-        PathPolicySearch._save_policy(
-            learned_policy, policy_folder_name, horizon, info["prev_policy_index"]
-        )
+        PathPolicySearch._save_policy(learned_policy, policy_folder_name, horizon, info["prev_policy_index"])
 
     @staticmethod
     def _save_policy(learned_policy, policy_folder_name, horizon, policy_index):
@@ -118,16 +109,12 @@ class PathPolicySearch(AbstractPolicySearch):
 
         if not os.path.exists(policy_folder_name):
             os.makedirs(policy_folder_name)
-        learned_policy[horizon].save(
-            folder_name=policy_folder_name, model_name="step_%d" % horizon
-        )
+        learned_policy[horizon].save(folder_name=policy_folder_name, model_name="step_%d" % horizon)
 
         with open(policy_folder_name + "prev_policy_index", "wb") as fobj:
             pickle.dump(policy_index, fobj)
 
-    def read_policy(
-        self, policy_folder_name, horizon, previous_step_homing_policy, delete=False
-    ):
+    def read_policy(self, policy_folder_name, horizon, previous_step_homing_policy, delete=False):
         """Read the policy from the disk"""
 
         homing_policy = dict()
@@ -166,9 +153,7 @@ class PathPolicySearch(AbstractPolicySearch):
 
         # Find which action maximizes the total reward at the last time step
         sample_start = time.time()
-        dataset = self._generate_pps_dataset(
-            replay_memory, reward_func, horizon, reward_id
-        )
+        dataset = self._generate_pps_dataset(replay_memory, reward_func, horizon, reward_id)
         sample_time = time.time() - sample_start
 
         learned_policy = dict()
@@ -185,17 +170,13 @@ class PathPolicySearch(AbstractPolicySearch):
                     best_homing_policy_index = homing_policy_index
                     best_action = action
 
-        assert best_action is not None and (
-            horizon == 1 or best_homing_policy_index != -1
-        ), "Failed to find optimal path"
+        assert best_action is not None and (horizon == 1 or best_homing_policy_index != -1), "Failed to find optimal path"
 
         learned_policy[horizon] = StationaryConstantPolicy(action=best_action)
 
         if horizon > 1:
             for i in range(1, horizon):
-                learned_policy[i] = homing_policies[horizon - 1][
-                    best_homing_policy_index
-                ][i]
+                learned_policy[i] = homing_policies[horizon - 1][best_homing_policy_index][i]
 
         mean_reward = self._evaluate__learned_policy(
             env,

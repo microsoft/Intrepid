@@ -23,10 +23,7 @@ def main():
     for exp_id in range(1, num_runs + 1):
         exp_setup.config["seed"] = seeds[exp_id - 1]
         exp_setup.config["env_seed"] = seeds[exp_id - 1] * 10
-        exp_setup.logger.log(
-            "========= STARTING EXPERIMENT %d (Seed = %d) ======== "
-            % (exp_id, exp_setup.config["seed"])
-        )
+        exp_setup.logger.log("========= STARTING EXPERIMENT %d (Seed = %d) ======== " % (exp_id, exp_setup.config["seed"]))
 
         # Set the random seed
         random.seed(exp_setup.config["seed"])
@@ -54,14 +51,8 @@ def main():
         dataset_size = len(safety_dataset)
         random.shuffle(safety_dataset)
 
-        print(
-            "Safe values are of mean %f, std %f"
-            % (np.mean(true_safety_vals), np.std(true_safety_vals))
-        )
-        print(
-            "Min safety values is %f, Max safety value is %f"
-            % (np.min(true_safety_vals), np.max(true_safety_vals))
-        )
+        print("Safe values are of mean %f, std %f" % (np.mean(true_safety_vals), np.std(true_safety_vals)))
+        print("Min safety values is %f, Max safety value is %f" % (np.min(true_safety_vals), np.max(true_safety_vals)))
         hist = dict()
         buckets = 20
         min_val, max_val = np.min(true_safety_vals), np.max(true_safety_vals)
@@ -75,10 +66,7 @@ def main():
             hist[ix] += 1
 
         for i in range(0, buckets):
-            print(
-                "%f to %f => %d entries"
-                % (min_val + i * grid_size, min_val + (i + 1) * grid_size, hist[i])
-            )
+            print("%f to %f => %d entries" % (min_val + i * grid_size, min_val + (i + 1) * grid_size, hist[i]))
         exit(0)
 
         for p in [0.2, 0.4, 0.6, 0.8]:

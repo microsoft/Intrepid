@@ -19,9 +19,7 @@ from environments.rl_acid_env.noise_gen import get_sylvester_hadamhard_matrix_di
 class GenerateEnvironmentWrapper:
     """ " Wrapper class for generating environments using names and config"""
 
-    OpenAIGym, RL_ACID, GRIDWORLD, VISUALCOMBOLOCK, MATTERPORT, SLOTFACTOREDMDP = range(
-        6
-    )
+    OpenAIGym, RL_ACID, GRIDWORLD, VISUALCOMBOLOCK, MATTERPORT, SLOTFACTOREDMDP = range(6)
 
     def __init__(self, env_name, config, bootstrap_env=None):
         """
@@ -38,9 +36,7 @@ class GenerateEnvironmentWrapper:
         # A boolean flag indicating if we should save traces or not
         # A trace is a sequence of {(obs, state, action, reward, obs, state, ...., obs, state)}
         self.save_trace = config["save_trace"]
-        self.trace_sample_rate = config[
-            "trace_sample_rate"
-        ]  # How many often should we save the traces
+        self.trace_sample_rate = config["trace_sample_rate"]  # How many often should we save the traces
         self.trace_folder = config["save_path"] + "/traces"  # Folder for saving traces
         self.trace_data = []  # Set of currently unsaved traces
         self.current_trace = None  # Current trace
@@ -64,14 +60,8 @@ class GenerateEnvironmentWrapper:
             self.reward_range = (0.0, config["optimal_reward"])
             self.metadata = None
 
-            self.env = (
-                bootstrap_env
-                if bootstrap_env is not None
-                else CombinationLock(config=config)
-            )
-            self.homing_policy_validation_fn = self.env.get_homing_policy_validation_fn(
-                tolerance=self.tolerance
-            )
+            self.env = bootstrap_env if bootstrap_env is not None else CombinationLock(config=config)
+            self.homing_policy_validation_fn = self.env.get_homing_policy_validation_fn(tolerance=self.tolerance)
 
         elif env_name == "diabcombolock":
             # Diabolical Stochastic Combination Lock
@@ -81,14 +71,8 @@ class GenerateEnvironmentWrapper:
             self.reward_range = (0.0, config["optimal_reward"])
             self.metadata = None
 
-            self.env = (
-                bootstrap_env
-                if bootstrap_env is not None
-                else DiabolicalCombinationLock(config=config)
-            )
-            self.homing_policy_validation_fn = self.env.get_homing_policy_validation_fn(
-                tolerance=self.tolerance
-            )
+            self.env = bootstrap_env if bootstrap_env is not None else DiabolicalCombinationLock(config=config)
+            self.homing_policy_validation_fn = self.env.get_homing_policy_validation_fn(tolerance=self.tolerance)
 
         elif env_name == "montezuma":
             # Montezuma Revenge
@@ -129,9 +113,7 @@ class GenerateEnvironmentWrapper:
 
             self.homing_policy_validation_fn = lambda dist, step: all(
                 [
-                    str(state) in dist
-                    and dist[str(state)]
-                    >= 1.0 / float(max(1, num_states)) - self.tolerance
+                    str(state) in dist and dist[str(state)] >= 1.0 / float(max(1, num_states)) - self.tolerance
                     for state in reachable_states[step]
                 ]
             )
@@ -222,9 +204,7 @@ class GenerateEnvironmentWrapper:
             self.homing_policy_validation_fn = None
 
         else:
-            raise AssertionError(
-                "Environment name %r not in RL Acid Environments " % env_name
-            )
+            raise AssertionError("Environment name %r not in RL Acid Environments " % env_name)
 
     def generate_homing_policy_validation_fn(self):
         if self.homing_policy_validation_fn is not None:
@@ -288,14 +268,8 @@ class GenerateEnvironmentWrapper:
             img = np.array(state.rgb, copy=False)
 
             height, width, channel = img.shape
-            assert height == 480 and width == 640 and channel == 3, (
-                "Wrong shape. Found %r. Expected 480 x 640 x 3" % img.shape
-            )
-            img = (
-                resize(img, (height // 5, width // 5, channel))
-                .swapaxes(2, 1)
-                .swapaxes(1, 0)
-            )
+            assert height == 480 and width == 640 and channel == 3, "Wrong shape. Found %r. Expected 480 x 640 x 3" % img.shape
+            img = resize(img, (height // 5, width // 5, channel)).swapaxes(2, 1).swapaxes(1, 0)
             img = np.ascontiguousarray(img)
 
             # return img, 0, False, {"state": img, "location": state.location.viewpointId}
@@ -315,19 +289,12 @@ class GenerateEnvironmentWrapper:
                 # TODO these calculations only make sense when reward-free planner doesn't use samples
                 # TODO or multi-processing is disabled. This should be added as a condition.
                 mean_result = self.sum_total_reward / float(max(1, self.num_eps))
-                mean_moving_average = sum(self.moving_average_reward) / float(
-                    max(1, len(self.moving_average_reward))
-                )
+                mean_moving_average = sum(self.moving_average_reward) / float(max(1, len(self.moving_average_reward)))
                 with open(self.trace_folder + "/progress.csv", "a") as g:
                     if self.num_eps == 0:
-                        g.write(
-                            "Episodes Completed,   Mean Total Reward,      Mean Moving Average\n"
-                        )
+                        g.write("Episodes Completed,   Mean Total Reward,      Mean Moving Average\n")
                     else:
-                        g.write(
-                            "%d \t %f \t %f \n"
-                            % (self.num_eps, mean_result, mean_moving_average)
-                        )
+                        g.write("%d \t %f \t %f \n" % (self.num_eps, mean_result, mean_moving_average))
 
             self.num_eps += 1  # Current episode ID
 
@@ -335,10 +302,7 @@ class GenerateEnvironmentWrapper:
 
             if self.save_trace:
                 # Add current trace to list of traces at a certain rate
-                if (
-                    self.current_trace is not None
-                    and self.num_eps % self.trace_sample_rate == 0
-                ):
+                if self.current_trace is not None and self.num_eps % self.trace_sample_rate == 0:
                     self.trace_data.append(self.current_trace)
 
                 # Save data if needed
@@ -375,14 +339,8 @@ class GenerateEnvironmentWrapper:
             state = self.env.getState()[0]
             img = np.array(state.rgb, copy=False)
             height, width, channel = img.shape
-            assert height == 480 and width == 640 and channel == 3, (
-                "Wrong shape. Found %r. Expected 480 x 640 x 3" % img.shape
-            )
-            img = (
-                resize(img, (height // 5, width // 5, channel))
-                .swapaxes(2, 1)
-                .swapaxes(1, 0)
-            )
+            assert height == 480 and width == 640 and channel == 3, "Wrong shape. Found %r. Expected 480 x 640 x 3" % img.shape
+            img = resize(img, (height // 5, width // 5, channel)).swapaxes(2, 1).swapaxes(1, 0)
             img = np.ascontiguousarray(img)
 
             # return img, {"state": img, "location": state.location.viewpointId}
@@ -403,9 +361,7 @@ class GenerateEnvironmentWrapper:
                 image = np.expand_dims(image, 2)  # 84 x 84 x 1
                 return image
             else:
-                raise AssertionError(
-                    "Unhandled configuration %r" % self.config["obs_dim"]
-                )
+                raise AssertionError("Unhandled configuration %r" % self.config["obs_dim"])
         else:
             raise AssertionError("Unhandled OpenAI Gym environment %r" % self.env_name)
 
@@ -455,25 +411,17 @@ class GenerateEnvironmentWrapper:
                 elif config["noise"] == "gaussian":
                     config["obs_dim"] = config["horizon"] + 4
                 elif config["noise"] == "hadamhard":
-                    config["obs_dim"] = get_sylvester_hadamhard_matrix_dim(
-                        config["horizon"] + 4
-                    )
+                    config["obs_dim"] = get_sylvester_hadamhard_matrix_dim(config["horizon"] + 4)
                 elif config["noise"] == "hadamhardg":
-                    config["obs_dim"] = get_sylvester_hadamhard_matrix_dim(
-                        config["horizon"] + 4
-                    )
+                    config["obs_dim"] = get_sylvester_hadamhard_matrix_dim(config["horizon"] + 4)
                 else:
                     raise AssertionError("Unhandled noise type %r" % config["noise"])
 
             elif env_name == "slotfactoredmdp":
-                config["obs_dim"] = (
-                    2 * config["state_dim"]
-                )  # config["grid_x"] * config["grid_y"] * config["grid_x"]
+                config["obs_dim"] = 2 * config["state_dim"]  # config["grid_x"] * config["grid_y"] * config["grid_x"]
 
             else:
-                raise AssertionError(
-                    "Cannot adapt to unhandled environment %s" % env_name
-                )
+                raise AssertionError("Cannot adapt to unhandled environment %s" % env_name)
 
     def get_bootstrap_env(self):
         """Environments which are thread safe can be bootstrapped. There are two ways to do so:
@@ -494,19 +442,13 @@ class GenerateEnvironmentWrapper:
             return None
 
     def save_environment(self, folder_name, trial_name):
-        if (
-            self.env_type == GenerateEnvironmentWrapper.RL_ACID
-            or self.env_type == GenerateEnvironmentWrapper.VISUALCOMBOLOCK
-        ):
+        if self.env_type == GenerateEnvironmentWrapper.RL_ACID or self.env_type == GenerateEnvironmentWrapper.VISUALCOMBOLOCK:
             return self.env.save(folder_name + "/trial_%r_env" % trial_name)
         else:
             pass  # Nothing to save
 
     def load_environment_from_folder(self, env_folder_name):
-        if (
-            self.env_type == GenerateEnvironmentWrapper.RL_ACID
-            or self.env_type == GenerateEnvironmentWrapper.VISUALCOMBOLOCK
-        ):
+        if self.env_type == GenerateEnvironmentWrapper.RL_ACID or self.env_type == GenerateEnvironmentWrapper.VISUALCOMBOLOCK:
             self.env = self.env.load(env_folder_name)
         else:
             raise AssertionError("Cannot load environment for Non RL Acid settings")

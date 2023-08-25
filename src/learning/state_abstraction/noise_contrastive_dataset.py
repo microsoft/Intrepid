@@ -14,42 +14,28 @@ class NoiseContrastiveDataset:
         self.entropy_decay_policy = EntropyDecayPolicy(constants, epoch)
         self.entropy_coeff = constants["entropy_reg_coeff"]
 
-    def calc_loss(
-        self, model, batch, epoch, discretized, test_set_errors=None, past_entropy=None
-    ):
+    def calc_loss(self, model, batch, epoch, discretized, test_set_errors=None, past_entropy=None):
         prev_observations = cuda_var(
             torch.cat(
-                [
-                    torch.from_numpy(np.array(point.get_curr_obs())).view(1, -1)
-                    for point in batch
-                ],
+                [torch.from_numpy(np.array(point.get_curr_obs())).view(1, -1) for point in batch],
                 dim=0,
             )
         ).float()
         actions = cuda_var(
             torch.cat(
-                [
-                    torch.from_numpy(np.array(point.get_action())).view(1, -1)
-                    for point in batch
-                ],
+                [torch.from_numpy(np.array(point.get_action())).view(1, -1) for point in batch],
                 dim=0,
             )
         ).long()
         observations = cuda_var(
             torch.cat(
-                [
-                    torch.from_numpy(np.array(point.get_next_obs())).view(1, -1)
-                    for point in batch
-                ],
+                [torch.from_numpy(np.array(point.get_next_obs())).view(1, -1) for point in batch],
                 dim=0,
             )
         ).float()
         gold_labels = cuda_var(
             torch.cat(
-                [
-                    torch.from_numpy(np.array(point.is_valid())).view(1, -1)
-                    for point in batch
-                ],
+                [torch.from_numpy(np.array(point.is_valid())).view(1, -1) for point in batch],
                 dim=0,
             )
         ).long()
@@ -67,13 +53,8 @@ class NoiseContrastiveDataset:
             # For discretized models, there is an internal classification step representation by a probability
             # distribution that can be controlled using entropy bonus
             # NOT SUPPORTED AT THE MOMENT
-            decay_coeff = self.entropy_decay_policy.get_entropy_coeff(
-                epoch, test_set_errors, past_entropy
-            )
-            loss = (
-                classification_loss
-                - self.entropy_coeff * decay_coeff * meta_dict["mean_entropy"]
-            )
+            decay_coeff = self.entropy_decay_policy.get_entropy_coeff(epoch, test_set_errors, past_entropy)
+            loss = classification_loss - self.entropy_coeff * decay_coeff * meta_dict["mean_entropy"]
         else:
             decay_coeff = None
             loss = classification_loss

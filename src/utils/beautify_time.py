@@ -17,9 +17,7 @@ def beautify(time_taken_sec):
     elif 30 * 24 * 60 * 60 <= time_taken_sec < 365 * 24 * 60 * 60:
         return "%d months" % int(time_taken_sec / (30 * 24 * 60 * 60))
     elif 365 * 24 * 60 * 60 <= time_taken_sec:
-        months = int(
-            (time_taken_sec % (365.0 * 24 * 60.0 * 60.0)) / (30.0 * 24.0 * 60.0 * 60.0)
-        )
+        months = int((time_taken_sec % (365.0 * 24 * 60.0 * 60.0)) / (30.0 * 24.0 * 60.0 * 60.0))
         return "%d years %d months" % (
             int(time_taken_sec / (365.0 * 24.0 * 60.0 * 60.0)),
             months,

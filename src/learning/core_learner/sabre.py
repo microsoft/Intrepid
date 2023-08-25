@@ -25,9 +25,7 @@ class Sabre:
 
         self.rl_method = SafePPOLearner(exp_setup)
 
-    def _generate_episodes(
-        self, env, policy, policy_disag_model, num_eps, evaluate=False
-    ):
+    def _generate_episodes(self, env, policy, policy_disag_model, num_eps, evaluate=False):
         returns = []
         counts = {
             "SafeAction": 0,
@@ -56,9 +54,7 @@ class Sabre:
                 # Calculate the masks for every state the agent visits once, and store it
                 masks = np.array(
                     [
-                        not policy_disag_model.is_surely_safe(
-                            safety_ftr=safety_ftrs[action], action=action
-                        )
+                        not policy_disag_model.is_surely_safe(safety_ftr=safety_ftrs[action], action=action)
                         for action in range(self.num_actions)
                     ]
                 ).astype(np.float32)
@@ -109,23 +105,17 @@ class Sabre:
 
         meta_dict = {
             "Total actions": total_act,
-            "Total masked actions pct": (total_masked_act * 100.0)
-            / float(max(1, total_act)),
+            "Total masked actions pct": (total_masked_act * 100.0) / float(max(1, total_act)),
             "Total Safe actions": total_safe_act,
-            "Total Masked Safe actions pct": (total_safe_masked_act * 100.0)
-            / float(max(1, total_safe_act)),
+            "Total Masked Safe actions pct": (total_safe_masked_act * 100.0) / float(max(1, total_safe_act)),
         }
 
         return states, returns, counts, meta_dict
 
-    def _create_new_safety_dataset(
-        self, env, policy, policy_disag_model, reward_disag_model, inc=True
-    ):
+    def _create_new_safety_dataset(self, env, policy, policy_disag_model, reward_disag_model, inc=True):
         dataset = []
         oracle_calls = 0
-        states, _, counts, _ = self._generate_episodes(
-            env, policy, policy_disag_model, self.m
-        )
+        states, _, counts, _ = self._generate_episodes(env, policy, policy_disag_model, self.m)
         self.logger.log("SABRE batch: %r" % counts)
 
         # state_count = dict()
@@ -154,9 +144,7 @@ class Sabre:
         return dataset, oracle_calls
 
     def _evaluate(self, env, policy, policy_disag_model):
-        _, returns, counts, meta_dict = self._generate_episodes(
-            env, policy, policy_disag_model, self.num_eval, evaluate=True
-        )
+        _, returns, counts, meta_dict = self._generate_episodes(env, policy, policy_disag_model, self.num_eval, evaluate=True)
 
         results = {
             "Num_Eval": len(returns),
@@ -182,19 +170,12 @@ class Sabre:
 
         self.logger.log("SABRE: Evaluate Policy took actions %r" % counts)
 
-        self.logger.log(
-            "SABRE: %s"
-            % " ".join(
-                "%s: %r" % (key, val) for (key, val) in sorted(meta_dict.items())
-            )
-        )
+        self.logger.log("SABRE: %s" % " ".join("%s: %r" % (key, val) for (key, val) in sorted(meta_dict.items())))
 
         return results
 
     def train(self, env, exp_id, reward_only=False):
-        self.logger.log(
-            "Starting SABRE (Experiment ID: %d, Reward Only %r)" % (exp_id, reward_only)
-        )
+        self.logger.log("Starting SABRE (Experiment ID: %d, Reward Only %r)" % (exp_id, reward_only))
 
         dataset = []
         total_oracle_calls = 0
@@ -225,10 +206,7 @@ class Sabre:
                     policy=policy if self.finetune or reward_only else None,
                     max_episodes=1000,
                 )  # Run safety reward
-                self.logger.log(
-                    "SABRE: Blackbox RL Call Completed. Time taken %s"
-                    % beautify(time.time() - time_s)
-                )
+                self.logger.log("SABRE: Blackbox RL Call Completed. Time taken %s" % beautify(time.time() - time_s))
 
                 # Create new safety dataset
                 time_s = time.time()
@@ -245,8 +223,7 @@ class Sabre:
                 )
 
                 self.logger.log(
-                    "SABRE: %d New calls to Safety Oracle were made. Total calls made %d"
-                    % (oracle_calls_, total_oracle_calls)
+                    "SABRE: %d New calls to Safety Oracle were made. Total calls made %d" % (oracle_calls_, total_oracle_calls)
                 )
 
                 self.logger.log(
@@ -280,8 +257,7 @@ class Sabre:
 
         self.logger.log(
             "Sabre experiment over. Total oracle calls %d, "
-            "Total number of unsafe actions taken %d"
-            % (total_oracle_calls, env.num_unsafe_actions)
+            "Total number of unsafe actions taken %d" % (total_oracle_calls, env.num_unsafe_actions)
         )
 
         results["Total_Lp_Calls"] = LinearDisagModel.TOTAL_CALL
@@ -300,9 +276,7 @@ class Sabre:
         return results
 
     def do_train_from_disag(self, env, model_fname):
-        policy_disag_model = LinearDisagModel.load_from_file(
-            model_fname, self.safe_action
-        )
+        policy_disag_model = LinearDisagModel.load_from_file(model_fname, self.safe_action)
 
         # Learn a policy to optimize the environment reward
         policy = self.rl_method.do_train(

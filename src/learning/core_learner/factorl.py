@@ -36,48 +36,32 @@ class TrainModel:
         self.num_homing_policies = constants["num_homing_policy"]
         self.patience = constants["patience"]
         self.max_retrials = constants["max_try"]
-        self.expected_optima = constants[
-            "expected_optima"
-        ]  # If the model reaches this loss then we exit
+        self.expected_optima = constants["expected_optima"]  # If the model reaches this loss then we exit
 
         self.entropy_coeff = constants["entropy_reg_coeff"]
 
-    def _calc_loss_from_dataset(
-        self, model, batch, epoch, discretized, test_set_errors=None, past_entropy=None
-    ):
+    def _calc_loss_from_dataset(self, model, batch, epoch, discretized, test_set_errors=None, past_entropy=None):
         prev_observations = cuda_var(
             torch.cat(
-                [
-                    torch.from_numpy(np.array(point.get_curr_obs())).view(1, -1)
-                    for point in batch
-                ],
+                [torch.from_numpy(np.array(point.get_curr_obs())).view(1, -1) for point in batch],
                 dim=0,
             )
         ).float()
         actions = cuda_var(
             torch.cat(
-                [
-                    torch.from_numpy(np.array(point.get_action())).view(1, -1)
-                    for point in batch
-                ],
+                [torch.from_numpy(np.array(point.get_action())).view(1, -1) for point in batch],
                 dim=0,
             )
         ).long()
         observations = cuda_var(
             torch.cat(
-                [
-                    torch.from_numpy(np.array(point.get_next_obs())).view(1, -1)
-                    for point in batch
-                ],
+                [torch.from_numpy(np.array(point.get_next_obs())).view(1, -1) for point in batch],
                 dim=0,
             )
         ).float()
         gold_labels = cuda_var(
             torch.cat(
-                [
-                    torch.from_numpy(np.array(point.is_valid())).view(1, -1)
-                    for point in batch
-                ],
+                [torch.from_numpy(np.array(point.is_valid())).view(1, -1) for point in batch],
                 dim=0,
             )
         ).long()
@@ -92,18 +76,13 @@ class TrainModel:
         classification_loss = -torch.mean(log_probs.gather(1, gold_labels.view(-1, 1)))
 
         self.entropy_decay_policy = EntropyDecayPolicy(self.constants, epoch)
-        decay_coeff = self.entropy_decay_policy.get_entropy_coeff(
-            epoch, test_set_errors, past_entropy
-        )
+        decay_coeff = self.entropy_decay_policy.get_entropy_coeff(epoch, test_set_errors, past_entropy)
 
         if discretized:
             # For discretized models, there is an internal classification step representation by a probability
             # distribution that can be controlled using entropy bonus
             # NOT SUPPORTED AT THE MOMENT
-            loss = (
-                classification_loss
-                - self.entropy_coeff * decay_coeff * meta_dict["mean_entropy"]
-            )
+            loss = classification_loss - self.entropy_coeff * decay_coeff * meta_dict["mean_entropy"]
         else:
             loss = classification_loss
 
@@ -120,9 +99,7 @@ class TrainModel:
 
         return loss, info_dict
 
-    def train_model(
-        self, dataset, factor_obs_dim, logger, discretized, debug, tensorboard
-    ):
+    def train_model(self, dataset, factor_obs_dim, logger, discretized, debug, tensorboard):
         # torch.manual_seed(ctr)
         print("Solving dataset with stats %r" % (len(dataset)))
 
@@ -137,10 +114,7 @@ class TrainModel:
 
         random.shuffle(dataset)
         dataset_size = len(dataset)
-        batches = [
-            dataset[i : i + self.batch_size]
-            for i in range(0, dataset_size, self.batch_size)
-        ]
+        batches = [dataset[i : i + self.batch_size] for i in range(0, dataset_size, self.batch_size)]
 
         train_batch = int((1.0 - self.validation_size_portion) * len(batches))
         train_batches = batches[:train_batch]
@@ -176,12 +150,8 @@ class TrainModel:
                     tensorboard.log_scalar(key, info_dict[key])
 
                 batch_size = len(train_batch)
-                train_loss = (
-                    train_loss + float(info_dict["classification_loss"]) * batch_size
-                )
-                mean_entropy = (
-                    mean_entropy + float(info_dict["mean_entropy"]) * batch_size
-                )
+                train_loss = train_loss + float(info_dict["classification_loss"]) * batch_size
+                mean_entropy = mean_entropy + float(info_dict["mean_entropy"]) * batch_size
                 num_train_examples = num_train_examples + batch_size
 
             train_loss = train_loss / float(max(1, num_train_examples))
@@ -201,9 +171,7 @@ class TrainModel:
                 )
 
                 batch_size = len(test_batch)
-                test_loss = (
-                    test_loss + float(info_dict["classification_loss"]) * batch_size
-                )
+                test_loss = test_loss + float(info_dict["classification_loss"]) * batch_size
                 num_test_examples = num_test_examples + batch_size
 
             test_loss = test_loss / float(max(1, num_test_examples))
@@ -216,9 +184,7 @@ class TrainModel:
                     info_dict["entropy_coeff"],
                 )
             )
-            logger.debug(
-                "Test Loss after max_epoch %r is %r" % (epoch_, round(test_loss, 2))
-            )
+            logger.debug("Test Loss after max_epoch %r is %r" % (epoch_, round(test_loss, 2)))
 
             test_set_errors.append(test_loss)
             past_entropy.append(mean_entropy)
@@ -231,16 +197,11 @@ class TrainModel:
             else:
                 # Check patience condition
                 patience_counter += 1  # number of max_epoch since last increase
-                if (
-                    best_test_loss < self.expected_optima or test_loss > 0.8
-                ):  # Found good solution or diverged
+                if best_test_loss < self.expected_optima or test_loss > 0.8:  # Found good solution or diverged
                     break
 
                 if patience_counter == self.patience:
-                    logger.log(
-                        "Patience Condition Triggered: No improvement for %r epochs"
-                        % patience_counter
-                    )
+                    logger.log("Patience Condition Triggered: No improvement for %r epochs" % patience_counter)
                     break
 
         logger.log(
@@ -401,9 +362,7 @@ class FactoRL:
 
         self.state_dim = self.config["state_dim"]
         self.obs_dim = self.config["obs_dim"]
-        assert self.obs_dim > 0, (
-            "observation dimension should be positive but found %d" % self.obs_dim
-        )
+        assert self.obs_dim > 0, "observation dimension should be positive but found %d" % self.obs_dim
         self.actions = self.config["actions"]
         self.num_actions = len(self.actions)
         self.horizon = self.config["horizon"]
@@ -476,9 +435,7 @@ class FactoRL:
         return data_point
 
     @staticmethod
-    def _gather_policy_cover_frontier(
-        env, step, homing_policies, selection_weights=None
-    ):
+    def _gather_policy_cover_frontier(env, step, homing_policies, selection_weights=None):
         """Gather sample using ALL_RANDOM style"""
 
         start_obs, meta = env.reset()
@@ -541,9 +498,7 @@ class FactoRL:
 
         return joined_indices, joined_val
 
-    def _est_model(
-        self, dataset, curr_decoder, next_decoder, logger, use_gold_state=False
-    ):
+    def _est_model(self, dataset, curr_decoder, next_decoder, logger, use_gold_state=False):
         """
                                 Estimate T(curr | prev, a)
         :param dataset:         Dataset of transitions
@@ -556,16 +511,8 @@ class FactoRL:
         labeled_dataset = []
         states_visited = set()
         for dp in dataset:
-            curr_state = (
-                dp.curr_state
-                if use_gold_state
-                else curr_decoder.encode_observations(dp.curr_obs)
-            )
-            next_state = (
-                dp.next_state
-                if use_gold_state
-                else next_decoder.encode_observations(dp.next_obs)
-            )
+            curr_state = dp.curr_state if use_gold_state else curr_decoder.encode_observations(dp.curr_obs)
+            next_state = dp.next_state if use_gold_state else next_decoder.encode_observations(dp.next_obs)
             labeled_dataset.append((curr_state, dp.action, next_state))
             states_visited.add(tuple(next_state))
 
@@ -573,15 +520,11 @@ class FactoRL:
         num_factor = curr_decoder.get_num_factor()
 
         # Take every combination of 2k set and their values
-        factor_combinations = list(
-            self._generate_combinations(num_factor, 2 * self.max_parents)
-        )
+        factor_combinations = list(self._generate_combinations(num_factor, 2 * self.max_parents))
 
         for labeled_dp in labeled_dataset:
             for factor_combination in factor_combinations:
-                factor_val = tuple(
-                    [labeled_dp[0][pt] for pt in factor_combination]
-                )  # \hat{S}[I]
+                factor_val = tuple([labeled_dp[0][pt] for pt in factor_combination])  # \hat{S}[I]
                 action = labeled_dp[1]
                 # print("Stored model for ", action)
 
@@ -597,9 +540,7 @@ class FactoRL:
                     model[i][factor_combination][key].add(labeled_dp[2][i])
 
         # Find parent
-        parent_candidates = list(
-            self._generate_combinations(num_factor, self.max_parents)
-        )
+        parent_candidates = list(self._generate_combinations(num_factor, self.max_parents))
 
         # List of parent factors and transition models for every factor
         parent_factors = []
@@ -626,9 +567,7 @@ class FactoRL:
                         for control_group_1_val in self._generate_prod_values(len_cg1):
                             for control_group_2 in control_candidates:
                                 len_cg2 = len(control_group_2)
-                                for control_group_2_val in self._generate_prod_values(
-                                    len_cg2
-                                ):
+                                for control_group_2_val in self._generate_prod_values(len_cg2):
                                     for action in self.actions:
                                         joined_group_1, joined_val_1 = self._merge(
                                             parent_candidate,
@@ -649,21 +588,14 @@ class FactoRL:
 
                                         # pdb.set_trace()
 
-                                        if (
-                                            key1 not in model[i][joined_group_1]
-                                            or key2 not in model[i][joined_group_2]
-                                        ):
+                                        if key1 not in model[i][joined_group_1] or key2 not in model[i][joined_group_2]:
                                             # print("Key1 Not found: Set %r, Value %r, Action %r, Index %d" % key1)
                                             # print("Key2 Not found: Set %r, Value %r, Action %r, Index %d" % key2)
                                             continue
 
                                         # print("Key1: Set %r, Value %r, Action %r, Index %d" % key1)
                                         # print("Key2: Set %r, Value %r, Action %r, Index %d" % key2)
-                                        width_ = model[i][joined_group_1][
-                                            key1
-                                        ].total_variation(
-                                            model[i][joined_group_2][key2]
-                                        )
+                                        width_ = model[i][joined_group_1][key1].total_variation(model[i][joined_group_2][key2])
                                         # pdb.set_trace()
                                         width = max(width, width_)
 
@@ -695,12 +627,8 @@ class FactoRL:
 
         diff = 0.0
         for state, action, next_state in labeled_dataset:
-            direct_prob_ = direct_prob.get_prob_entry(
-                entry=tuple(next_state), condition=(tuple(state), action)
-            )
-            model_prob_ = estimated_model.get_probability(
-                tuple(state), action, tuple(next_state)
-            )
+            direct_prob_ = direct_prob.get_prob_entry(entry=tuple(next_state), condition=(tuple(state), action))
+            model_prob_ = estimated_model.get_probability(tuple(state), action, tuple(next_state))
             diff += abs(model_prob_ - direct_prob_)
 
         diff /= float(max(1, len(labeled_dataset)))
@@ -730,24 +658,16 @@ class FactoRL:
                         future_return = 0.0
                         # for next_state in state_set:
                         for next_state in states_visited[h + 1]:
-                            prob_val = estimated_model[h].get_probability(
-                                state, action, next_state
-                            )
-                            future_return += (
-                                prob_val * q_values[h + 1][next_state].max()
-                            )
+                            prob_val = estimated_model[h].get_probability(state, action, next_state)
+                            future_return += prob_val * q_values[h + 1][next_state].max()
 
                         q_values[h][state][action] = reward + future_return
 
-            learned_policy[h] = StationaryDecoderLatentPolicy(
-                decoder[h], q_values[h], self.actions
-            )
+            learned_policy[h] = StationaryDecoderLatentPolicy(decoder[h], q_values[h], self.actions)
 
         mean_total_reward = AverageUtil()
         for _ in range(0, FactoRL.POLICY_COVER_ROLLOUT):
-            total_return, took_action = self._rollout(
-                learned_policy, estimated_model, reward_fn, step
-            )
+            total_return, took_action = self._rollout(learned_policy, estimated_model, reward_fn, step)
             mean_total_reward.acc(total_return)
 
         # print("Mean total reward ", mean_total_reward)
@@ -777,17 +697,13 @@ class FactoRL:
 
         return total_reward, took_action
 
-    def _learn_policy_cover(
-        self, estimated_model, step, states_visited, decoder, logger
-    ):
+    def _learn_policy_cover(self, estimated_model, step, states_visited, decoder, logger):
         """Learn a policy cover time step step using the estimated model"""
 
         num_factor = estimated_model[step - 1].get_num_factor()
 
         learned_policies = []
-        factor_candidates = list(
-            self._generate_combinations(num_factor, 2 * self.max_parents)
-        )
+        factor_candidates = list(self._generate_combinations(num_factor, 2 * self.max_parents))
 
         action_stats = [0] * self.num_actions
 
@@ -798,25 +714,16 @@ class FactoRL:
                 def reward_fn(state_, step_):
                     return (
                         1.0
-                        if step_ == step
-                        and all(
-                            [
-                                (state_[k] == parent_val[i])
-                                for i, k in enumerate(factor_candidate)
-                            ]
-                        )
+                        if step_ == step and all([(state_[k] == parent_val[i]) for i, k in enumerate(factor_candidate)])
                         else 0.0
                     )
 
                 # print("Trying to learn Policy for Factored Candidate %r and Parent Val is %r" % (factor_candidate, parent_val))
-                learned_policy, policy_val, took_action = self._plan(
-                    estimated_model, reward_fn, step, states_visited, decoder
-                )
+                learned_policy, policy_val, took_action = self._plan(estimated_model, reward_fn, step, states_visited, decoder)
 
                 if policy_val > FactoRL.MIN_POLICY_PROB:
                     logger.log(
-                        "Added Policy for Reaching state[%r] = %r at time step %d"
-                        % (factor_candidate, parent_val, step)
+                        "Added Policy for Reaching state[%r] = %r at time step %d" % (factor_candidate, parent_val, step)
                     )
                     action_stats[took_action] += 1.0
                     learned_policies.append(learned_policy)
@@ -910,25 +817,17 @@ class FactoRL:
         self.logger.log("%s: Fixed actions %r" % (self.env_name, env.env.fixed_actions))
 
         # Important quantities that are learned for each time step separately
-        children_factors = (
-            dict()
-        )  # Inferred children factors in the observation's atom space
+        children_factors = dict()  # Inferred children factors in the observation's atom space
         decoder = dict()  # Decoder for mapping observation to latent state
         estimated_model = dict()  # Estimated model in the latent state space
-        policy_cover = (
-            dict()
-        )  # Set of exploration policies to visit subset of state factors
-        states_visited = (
-            dict()
-        )  # Set of learned abstract (or real) states visited at a given time
+        policy_cover = dict()  # Set of exploration policies to visit subset of state factors
+        states_visited = dict()  # Set of learned abstract (or real) states visited at a given time
 
         tensorboard = Tensorboard(log_dir=self.config["save_path"])
 
         # Initialization for time step 0
         decoder[0] = ZeroDecoder(self.state_dim)
-        states_visited[0] = {
-            tuple([0] * self.state_dim)
-        }  # Only state reachable at the zeroth time step is (0)
+        states_visited[0] = {tuple([0] * self.state_dim)}  # Only state reachable at the zeroth time step is (0)
         policy_cover[0] = []  # Empty policy
 
         for step in range(1, self.horizon + 1):
@@ -938,25 +837,18 @@ class FactoRL:
             dataset = []
             self.logger.log("Phase 1: Data collection at time step %d." % step)
             for _ in range(2 * self.num_samples):
-                dataset.append(
-                    self._gather_sample(env, self.actions, step, policy_cover)
-                )
+                dataset.append(self._gather_sample(env, self.actions, step, policy_cover))
             self._log_dataset_stats(dataset, self.logger)
 
             # Step 2: Find the children factor
-            self.logger.log(
-                "Phase 2: Learn Mapping from Atoms to Parent Factor at time step %d."
-                % step
-            )
+            self.logger.log("Phase 2: Learn Mapping from Atoms to Parent Factor at time step %d." % step)
             gold_factors = env.env.get_children_factors(step)
             graph_identifier = FactoRLGraphIdentification(self.config, self.constants)
 
             inferred_factors = (
                 gold_factors
                 if use_gold_factor
-                else graph_identifier.get_factors(
-                    dataset[: self.num_samples], self.logger, tensorboard
-                )
+                else graph_identifier.get_factors(dataset[: self.num_samples], self.logger, tensorboard)
             )
 
             factors_succ, infer_to_gold_map = graph_identifier.test_factors(
@@ -978,16 +870,10 @@ class FactoRL:
                     return {FactoRL.SUCC_STR: 0.0}
 
             # Step 3: Train decoder
-            self.logger.log(
-                "Phase 3: Learn a Decoder for Each Children Factor Set at time step %d."
-                % step
-            )
+            self.logger.log("Phase 3: Learn a Decoder for Each Children Factor Set at time step %d." % step)
             decoders = []
             for i, children_factor in enumerate(inferred_factors):
-                self.logger.log(
-                    "Learning Decoder Number %d, corresponding to factor set %r"
-                    % (i + 1, children_factor)
-                )
+                self.logger.log("Learning Decoder Number %d, corresponding to factor set %r" % (i + 1, children_factor))
 
                 # Prepare dataset for noise contrastive learning
                 nce_dataset = self._create_nce_dataset(dataset, children_factor)
@@ -1031,9 +917,7 @@ class FactoRL:
             decoder[step] = CompoundDecoder(decoders, children_factors[step])
 
             # Step 4: Model the latent dynamics
-            self.logger.log(
-                "Phase 4: Estimate the Latent Dynamics for time step %d." % step
-            )
+            self.logger.log("Phase 4: Estimate the Latent Dynamics for time step %d." % step)
             estimated_model_, states_visited_, labeled_dataset = self._est_model(
                 dataset=dataset[self.num_samples :],
                 curr_decoder=decoder[step - 1],
@@ -1043,19 +927,15 @@ class FactoRL:
             )
 
             # Compute model error
-            avg_error = self._test_model_error(
-                labeled_dataset, estimated_model_, self.logger
-            )
+            avg_error = self._test_model_error(labeled_dataset, estimated_model_, self.logger)
 
             if avg_error <= FactoRL.MAX_MODEL_ERROR:
                 self.logger.log(
-                    "Step 4 [Model Estimation] succeeded. Avg. model error was %f <= %f"
-                    % (avg_error, FactoRL.MAX_MODEL_ERROR)
+                    "Step 4 [Model Estimation] succeeded. Avg. model error was %f <= %f" % (avg_error, FactoRL.MAX_MODEL_ERROR)
                 )
             elif fail_early:
                 self.logger.log(
-                    "Step 4 [Model Estimation] failed. Avg. model error was %f > %f"
-                    % (avg_error, FactoRL.MAX_MODEL_ERROR)
+                    "Step 4 [Model Estimation] failed. Avg. model error was %f > %f" % (avg_error, FactoRL.MAX_MODEL_ERROR)
                 )
 
                 return {FactoRL.SUCC_STR: 0.0}
@@ -1065,9 +945,7 @@ class FactoRL:
 
             # Step 5: Planning
             self.logger.log("Phase 5: Learning a policy cover for time step %d." % step)
-            policy_cover[step] = self._learn_policy_cover(
-                estimated_model, step, states_visited, decoder, self.logger
-            )
+            policy_cover[step] = self._learn_policy_cover(estimated_model, step, states_visited, decoder, self.logger)
             self._test_policy_cover(env, policy_cover, step + 1, self.logger)
 
         return {FactoRL.SUCC_STR: 1.0}

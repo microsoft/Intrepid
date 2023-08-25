@@ -27,6 +27,5 @@ class ClassifierModelWrapper:
 
         else:
             raise NotImplementedError(
-                "Model %s is not implemented. Implemented models are linear, "
-                "ff, conv2, covn3, and convm" % model_name
+                "Model %s is not implemented. Implemented models are linear, " "ff, conv2, covn3, and convm" % model_name
             )

@@ -21,8 +21,7 @@ def get_header():
     shared_vars = set(config.keys()).intersection(set(constants.keys()))
     assert len(shared_vars) == 0, (
         "Base config and constant file share following parameters %r. "
-        "This causes confusion in overwriting them with command line arguments. "
-        % shared_vars
+        "This causes confusion in overwriting them with command line arguments. " % shared_vars
     )
 
     parser = argparse.ArgumentParser()
@@ -47,9 +46,7 @@ def get_header():
         default="./saved_models",
         help="Models saved from previous run",
     )
-    parser.add_argument(
-        "--trace_sample_rate", default=500, type=int, help="How often to save traces"
-    )
+    parser.add_argument("--trace_sample_rate", default=500, type=int, help="How often to save traces")
     parser.add_argument(
         "--save_path",
         default="./results/",
@@ -76,9 +73,7 @@ def get_header():
 
     # Define log settings
     log_path = experiment + "/train.log"
-    multiprocess_logging_manager = MultiprocessingLoggerManager(
-        file_path=log_path, logging_level=logging.INFO
-    )
+    multiprocess_logging_manager = MultiprocessingLoggerManager(file_path=log_path, logging_level=logging.INFO)
     main_logger = multiprocess_logging_manager.get_logger("Main")
     main_logger.log("----------------------------------------------------------------")
     main_logger.log("                    STARING NEW EXPERIMENT                      ")
@@ -96,17 +91,13 @@ def get_header():
         env_config = json.load(f)
 
     for k, v in env_config.items():
-        config[
-            k
-        ] = v  # Overwrite base_config values with environment specific config values
+        config[k] = v  # Overwrite base_config values with environment specific config values
 
     with open("data/%s/constants.json" % env_name) as f:
         env_constants = json.load(f)
 
     for k, v in env_constants.items():
-        constants[
-            k
-        ] = v  # Overwrite base_constant values with environment specific constants
+        constants[k] = v  # Overwrite base_constant values with environment specific constants
 
     # Lastly, if command line arguments are not none then they take top most priority
     for k, v in vars(args).items():

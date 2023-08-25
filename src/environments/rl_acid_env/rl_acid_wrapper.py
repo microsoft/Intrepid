@@ -83,9 +83,7 @@ class RLAcidWrapper(CerebralEnvInterface):
                 mean_result = self.sum_return / float(self.num_eps)
 
                 with open("%s/progress.csv" % self.save_path, "a") as f:
-                    f.write(
-                        "%d,     %f,    %f\n" % (self.num_eps, mov_avg, mean_result)
-                    )
+                    f.write("%d,     %f,    %f\n" % (self.num_eps, mov_avg, mean_result))
 
             if self.save_trace and self.num_eps % self.save_trace_freq == 0:
                 self.traces.append(list(self.curr_eps))

@@ -25,36 +25,25 @@ def save_correlation_figure_(num_homing_policies, model, test_batches, exp_name)
     for batch in test_batches:
         prev_observations = cuda_var(
             torch.cat(
-                [
-                    torch.from_numpy(np.array(point.get_curr_obs())).view(1, -1)
-                    for point in batch
-                ],
+                [torch.from_numpy(np.array(point.get_curr_obs())).view(1, -1) for point in batch],
                 dim=0,
             )
         ).float()
         actions = cuda_var(
             torch.cat(
-                [
-                    torch.from_numpy(np.array(point.get_action())).view(1, -1)
-                    for point in batch
-                ],
+                [torch.from_numpy(np.array(point.get_action())).view(1, -1) for point in batch],
                 dim=0,
             )
         ).long()
         observations = cuda_var(
             torch.cat(
-                [
-                    torch.from_numpy(np.array(point.get_next_obs())).view(1, -1)
-                    for point in batch
-                ],
+                [torch.from_numpy(np.array(point.get_next_obs())).view(1, -1) for point in batch],
                 dim=0,
             )
         ).float()
 
         # Compute loss
-        _, info_dict = model.gen_prob(
-            prev_observations, actions, observations
-        )  # batch x 2
+        _, info_dict = model.gen_prob(prev_observations, actions, observations)  # batch x 2
         assigned_states = info_dict["assigned_states"]
 
         for i, point in enumerate(batch):
@@ -81,9 +70,7 @@ def save_correlation_figure_(num_homing_policies, model, test_batches, exp_name)
     scipy.misc.imsave("./%s/image_%d.png" % (exp_name, num_images + 1), image)
 
 
-def log_model_performance(
-    num_homing_policies, model, test_batches, best_test_loss, logger
-):
+def log_model_performance(num_homing_policies, model, test_batches, best_test_loss, logger):
     predictions_weight = {}
     predictions_values_gold = {}
     predictions_values_inferred = {}
@@ -96,28 +83,19 @@ def log_model_performance(
     for batch in test_batches:
         prev_observations = cuda_var(
             torch.cat(
-                [
-                    torch.from_numpy(np.array(point.get_curr_obs())).view(1, -1)
-                    for point in batch
-                ],
+                [torch.from_numpy(np.array(point.get_curr_obs())).view(1, -1) for point in batch],
                 dim=0,
             )
         ).float()
         actions = cuda_var(
             torch.cat(
-                [
-                    torch.from_numpy(np.array(point.get_action())).view(1, -1)
-                    for point in batch
-                ],
+                [torch.from_numpy(np.array(point.get_action())).view(1, -1) for point in batch],
                 dim=0,
             )
         ).long()
         observations = cuda_var(
             torch.cat(
-                [
-                    torch.from_numpy(np.array(point.get_next_obs())).view(1, -1)
-                    for point in batch
-                ],
+                [torch.from_numpy(np.array(point.get_next_obs())).view(1, -1) for point in batch],
                 dim=0,
             )
         ).float()
@@ -156,9 +134,7 @@ def log_model_performance(
                 mode_vec[assigned_state] = 1.0
                 mode_correlation_stats[next_state] = mode_vec
 
-                prob_correlation_stats[next_state] = np.zeros(
-                    num_homing_policies, dtype=np.float32
-                )
+                prob_correlation_stats[next_state] = np.zeros(num_homing_policies, dtype=np.float32)
                 for j in range(0, num_abstract_states):
                     prob_correlation_stats[next_state][j] += float(assigned_prob[i][j])
 
@@ -210,9 +186,7 @@ def log_model_performance(
     for i in range(0, num_homing_policies):
         vec = np.zeros(num_states, dtype=np.float32)
         for j, state in enumerate(ordered_states):
-            vec[j] += mode_correlation_stats[state][
-                i
-            ]  # number of times i matched to state
+            vec[j] += mode_correlation_stats[state][i]  # number of times i matched to state
         vec = vec / max(1.0, vec.sum())
         log_str = ""
         for j, state in enumerate(ordered_states):
@@ -220,9 +194,7 @@ def log_model_performance(
                 log_str += "%r: %r,  " % (state, round(vec[j], 2))
         logger.log("Abstract State: %r correlations %r" % (i, log_str))
 
-    for key in sorted(
-        predictions_weight, key=lambda x: x[::-1]
-    ):  # Sort based on ordering of reverse of key strings
+    for key in sorted(predictions_weight, key=lambda x: x[::-1]):  # Sort based on ordering of reverse of key strings
         prior = predictions_weight[key] / float(max(1, num_counts))
 
         gold = predictions_values_gold[key]
@@ -283,12 +255,7 @@ def log_dataset_stats(dataset, logger):
     neg = (neg * 100.0) / float(max(1, dataset_size))
 
     for state in state_counts:
-        state_counts[state] = round(
-            (state_counts[state] * 100.0) / float(max(1, dataset_size)), 2
-        )
+        state_counts[state] = round((state_counts[state] * 100.0) / float(max(1, dataset_size)), 2)
 
-    logger.log(
-        "Dataset size %r {pos: %r, neg: %r}"
-        % (dataset_size, round(pos, 2), round(neg, 2))
-    )
+    logger.log("Dataset size %r {pos: %r, neg: %r}" % (dataset_size, round(pos, 2), round(neg, 2)))
     logger.log("State Visitation Stats %s" % state_counts)

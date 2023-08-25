@@ -17,9 +17,7 @@ class ReconstructObservation:
         self.logger = exp_setup.logger
 
         self.height, self.width, self.channel = exp_setup.config["obs_dim"]
-        self.out_dim = exp_setup.constants[
-            "vq_dim"
-        ]  # exp_setup.constants["hidden_dim"]
+        self.out_dim = exp_setup.constants["vq_dim"]  # exp_setup.constants["hidden_dim"]
         self.experiment = exp_setup.experiment
 
         self.max_epoch = exp_setup.constants["encoder_training_epoch"]
@@ -36,9 +34,7 @@ class ReconstructObservation:
         encoding = cuda_var(torch.vstack([dp[1] for dp in batch]))
 
         if obs.dim() == 4:  # Image
-            obs = obs.transpose(2, 3).transpose(
-                1, 2
-            )  # batch x channel x height x width
+            obs = obs.transpose(2, 3).transpose(1, 2)  # batch x channel x height x width
 
         # encoding = encoder.encode(obs)
         x_pred = decoder.decode(encoding)
@@ -49,16 +45,11 @@ class ReconstructObservation:
         return loss, dict()
 
     def _encode_dataset(self, encoder, dataset):
-        batches = [
-            dataset[i : i + self.batch_size]
-            for i in range(0, len(dataset), self.batch_size)
-        ]
+        batches = [dataset[i : i + self.batch_size] for i in range(0, len(dataset), self.batch_size)]
         processed_dataset = []
 
         for batch in batches:
-            obs = cuda_var(
-                torch.FloatTensor(np.array(batch))
-            )  # batch x height x width x channel
+            obs = cuda_var(torch.FloatTensor(np.array(batch)))  # batch x height x width x channel
 
             if obs.dim() == 4:  # Image
                 obs = obs.permute(0, 3, 1, 2)  # batch x channel x height x width
@@ -69,9 +60,7 @@ class ReconstructObservation:
         return processed_dataset
 
     def train(self, encoder, dataset, tensorboard=None):
-        self.logger.log(
-            "Autoencoder Training Starts with Model Type=%s" % self.model_type
-        )
+        self.logger.log("Autoencoder Training Starts with Model Type=%s" % self.model_type)
 
         # Current model
         decoder = DecoderModelWrapper.get_decoder(
@@ -108,10 +97,7 @@ class ReconstructObservation:
         train_dataset = dataset[:train_size]
         test_dataset = dataset[train_size:]
 
-        test_batches = [
-            test_dataset[i : i + self.batch_size]
-            for i in range(0, len(test_dataset), self.batch_size)
-        ]
+        test_batches = [test_dataset[i : i + self.batch_size] for i in range(0, len(test_dataset), self.batch_size)]
 
         best_test_loss, best_epoch, train_loss = float("inf"), -1, float("inf")
         num_train, num_test = 0, 0
@@ -134,10 +120,7 @@ class ReconstructObservation:
 
             # Create a batch
             random.shuffle(train_dataset)
-            train_batches = [
-                train_dataset[i : i + self.batch_size]
-                for i in range(0, len(train_dataset), self.batch_size)
-            ]
+            train_batches = [train_dataset[i : i + self.batch_size] for i in range(0, len(train_dataset), self.batch_size)]
 
             train_loss, num_train = 0.0, 0
             for train_batch in train_batches:
@@ -186,10 +169,7 @@ class ReconstructObservation:
                 patience_ctr += 1  # number of max_epoch since last increase
 
                 if patience_ctr == self.patience:
-                    self.logger.log(
-                        "Patience Condition Triggered: No improvement for last %d epochs"
-                        % patience_ctr
-                    )
+                    self.logger.log("Patience Condition Triggered: No improvement for last %d epochs" % patience_ctr)
                     break
 
         self.logger.log(
@@ -225,31 +205,22 @@ class ReconstructObservation:
 
         return best_decoder, results
 
-    def reconstruct(
-        self, encoder, decoder, test_dataset, base_folder, max_generate=100
-    ):
+    def reconstruct(self, encoder, decoder, test_dataset, base_folder, max_generate=100):
         if not os.path.exists(base_folder):
             os.makedirs(base_folder)
 
         test_dataset = test_dataset[:max_generate]
-        test_batches = [
-            test_dataset[i : i + self.batch_size]
-            for i in range(0, len(test_dataset), self.batch_size)
-        ]
+        test_batches = [test_dataset[i : i + self.batch_size] for i in range(0, len(test_dataset), self.batch_size)]
         test_dataset_size = len(test_dataset)
 
         total_loss = 0
         ctr = 0
 
         time_start = time.time()
-        self.logger.log(
-            "Reconstructing %d Observations with Autoencoder" % (len(test_dataset))
-        )
+        self.logger.log("Reconstructing %d Observations with Autoencoder" % (len(test_dataset)))
 
         for test_batch in test_batches:
-            obs = cuda_var(
-                torch.FloatTensor(np.array(test_batch))
-            )  # batch x height x width x channel
+            obs = cuda_var(torch.FloatTensor(np.array(test_batch)))  # batch x height x width x channel
 
             if obs.dim() == 4:  # Image
                 obs = obs.permute(0, 3, 1, 2)  # batch x channel x height x width
@@ -264,12 +235,8 @@ class ReconstructObservation:
 
             total_loss += loss.item()
 
-            combined_image = torch.cat(
-                [obs, x_pred], dim=3
-            )  # batch x channel x height x (2 width)
-            combined_image = combined_image.permute(
-                0, 2, 3, 1
-            )  # batch x height x (2 width) x channel
+            combined_image = torch.cat([obs, x_pred], dim=3)  # batch x channel x height x (2 width)
+            combined_image = combined_image.permute(0, 2, 3, 1)  # batch x height x (2 width) x channel
             combined_image = combined_image.data.cpu()
 
             for i in range(0, combined_image.size(0)):

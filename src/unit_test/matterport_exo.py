@@ -60,15 +60,11 @@ print("Distractor slice's shape is ", distractor_shape)
 distractor_img = distractor_img.reshape((-1, 3))
 img_slice = img_slice.reshape((-1, 3))
 distractor_img_min = distractor_img.min(1)
-blue_pixel_ix = np.argwhere(
-    distractor_img_min < 220
-)  # flattened (x, y) position where pixels are blue in color
+blue_pixel_ix = np.argwhere(distractor_img_min < 220)  # flattened (x, y) position where pixels are blue in color
 values = np.squeeze(distractor_img[blue_pixel_ix])
 np.put_along_axis(img_slice, blue_pixel_ix, values, axis=0)
 
-img_slice = img_slice.reshape(
-    distractor_shape
-)  # distractor and img_slice have the same shape
+img_slice = img_slice.reshape(distractor_shape)  # distractor and img_slice have the same shape
 
 img[
     distractor_ver : distractor_ver + distractor_shape[0],

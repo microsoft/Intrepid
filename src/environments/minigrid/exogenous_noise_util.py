@@ -88,10 +88,7 @@ class CircleExogenous(ExoUtil):
                 config["width"] * config["tile_size"],
             )
 
-        self.colors = [
-            "#" + "".join([random.choice("0123456789ABCDEF") for _ in range(6)])
-            for _ in range(8)
-        ]
+        self.colors = ["#" + "".join([random.choice("0123456789ABCDEF") for _ in range(6)]) for _ in range(8)]
         self.circle_width = config["circle_width"]
         self.circle_motion = config["circle_motion"]
         self.num_circles = config["num_exo_var"]
@@ -111,10 +108,7 @@ class CircleExogenous(ExoUtil):
             self.circles.append(Circle(coord, color, self.circle_width))
 
     def update(self):
-        self.circles = [
-            self._perturb_circle(circle, self.height, self.width)
-            for circle in self.circles
-        ]
+        self.circles = [self._perturb_circle(circle, self.height, self.width) for circle in self.circles]
 
     def _perturb_circle(self, circle, height, width):
         # Each of the four coordinate is moved independently by 10% of the corresponding dimension
@@ -141,9 +135,7 @@ class CircleExogenous(ExoUtil):
         exo_im = exo_im.reshape((-1, 3))
         img = img.reshape((-1, 3))
         obs_max = img.max(1)
-        bg_pixel_ix = np.argwhere(
-            obs_max < 100
-        )  # flattened (x, y) position where pixels are black in color
+        bg_pixel_ix = np.argwhere(obs_max < 100)  # flattened (x, y) position where pixels are black in color
         values = np.squeeze(exo_im[bg_pixel_ix])
         np.put_along_axis(img, bg_pixel_ix, values, axis=0)
         img = img.reshape(img_shape)
@@ -174,10 +166,7 @@ class PixelNoise(ExoUtil):
         self.pixels = None
 
     def reset(self):
-        colors = [
-            "#" + "".join([random.choice("0123456789ABCDEF") for _ in range(6)])
-            for _ in range(self.num_pixels)
-        ]
+        colors = ["#" + "".join([random.choice("0123456789ABCDEF") for _ in range(6)]) for _ in range(self.num_pixels)]
         self.pixels = []
 
         for i in range(self.num_pixels):
@@ -191,10 +180,7 @@ class PixelNoise(ExoUtil):
         return tuple(int(hex.lstrip("#")[i : i + 2], 16) for i in (0, 2, 4))
 
     def update(self):
-        self.pixels = [
-            self._perturb_pixels(pixel, self.height, self.width)
-            for pixel in self.pixels
-        ]
+        self.pixels = [self._perturb_pixels(pixel, self.height, self.width) for pixel in self.pixels]
 
     @staticmethod
     def _perturb_pixels(pixel, height, width):
@@ -223,9 +209,7 @@ class PixelNoise(ExoUtil):
             for i in range(pixel.x - self.size // 2, pixel.x + self.size // 2 + 1):
                 for j in range(pixel.y - self.size // 2, pixel.y + self.size // 2 + 1):
                     if (
-                        0 <= i < img.shape[0]
-                        and 0 <= j < img.shape[1]
-                        and np.max(img[i, j, :]) < 100
+                        0 <= i < img.shape[0] and 0 <= j < img.shape[1] and np.max(img[i, j, :]) < 100
                     ):  # Pixel is black in color denoting background
                         img[i, j, :] = pixel.color
                         exo_noise[i, j, :] = pixel.color
@@ -278,10 +262,7 @@ class DropNoise(ExoUtil):
         self.drops = None
 
     def reset(self):
-        colors = [
-            "#" + "".join([random.choice("0123456789ABCDEF") for _ in range(6)])
-            for _ in range(self.num_drops)
-        ]
+        colors = ["#" + "".join([random.choice("0123456789ABCDEF") for _ in range(6)]) for _ in range(self.num_drops)]
         self.drops = []
 
         for i in range(self.num_drops):
@@ -295,9 +276,7 @@ class DropNoise(ExoUtil):
         return tuple(int(hex.lstrip("#")[i : i + 2], 16) for i in (0, 2, 4))
 
     def update(self):
-        self.drops = [
-            self._perturb_drops(drop, self.height, self.width) for drop in self.drops
-        ]
+        self.drops = [self._perturb_drops(drop, self.height, self.width) for drop in self.drops]
 
     @staticmethod
     def _perturb_drops(drop, height, width):
@@ -336,9 +315,7 @@ class DropNoise(ExoUtil):
 
                 for j in range(drop.x - cols // 2, drop.x + cols // 2 + 1):
                     if (
-                        0 <= i < img.shape[0]
-                        and 0 <= j < img.shape[1]
-                        and np.max(img[i, j, :]) < 100
+                        0 <= i < img.shape[0] and 0 <= j < img.shape[1] and np.max(img[i, j, :]) < 100
                     ):  # Pixel is black in color denoting background
                         img[i, j, :] = drop.color
                         exo_noise[i, j, :] = drop.color

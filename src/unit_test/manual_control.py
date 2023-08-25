@@ -86,15 +86,9 @@ def key_handler(event):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument(
-    "--env", help="gym environment to load", default=None  #'MiniGrid-MultiRoom-N6-v0'
-)
-parser.add_argument(
-    "--seed", type=int, help="random seed to generate the environment with", default=-1
-)
-parser.add_argument(
-    "--tile_size", type=int, help="size at which to render tiles", default=32
-)
+parser.add_argument("--env", help="gym environment to load", default=None)  #'MiniGrid-MultiRoom-N6-v0'
+parser.add_argument("--seed", type=int, help="random seed to generate the environment with", default=-1)
+parser.add_argument("--tile_size", type=int, help="size at which to render tiles", default=32)
 parser.add_argument(
     "--agent_view",
     default=False,
@@ -134,10 +128,7 @@ for _ in range(0, 1000):
         obs, reward, done, info = env.step(action, generate_obs=(h == 7))
 time_taken = time.time() - time_s
 print("Time taken for 1000 samples is %s." % beautify(time_taken))
-print(
-    "Expected time that will take for 8 (H) x 500,000 is %s"
-    % beautify(500 * 8 * time_taken)
-)
+print("Expected time that will take for 8 (H) x 500,000 is %s" % beautify(500 * 8 * time_taken))
 exit(0)
 ####################################
 

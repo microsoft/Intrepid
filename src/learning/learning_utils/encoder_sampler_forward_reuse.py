@@ -20,15 +20,11 @@ class EncoderSamplerForwardReUse(AbstractEncoderSampler):
         AbstractEncoderSampler.__init__(self)
 
     @staticmethod
-    def gather_samples(
-        num_samples, env, actions, step, homing_policies, selection_weights=None, k=1
-    ):
+    def gather_samples(num_samples, env, actions, step, homing_policies, selection_weights=None, k=1):
         pos_dataset = []
         for _ in range(num_samples):
             pos_dataset.append(
-                EncoderSamplerForwardReUse._gather_sample(
-                    env, actions, step, homing_policies, selection_weights
-                )
+                EncoderSamplerForwardReUse._gather_sample(env, actions, step, homing_policies, selection_weights)
             )
 
         num_pos = len(pos_dataset)
@@ -47,12 +43,8 @@ class EncoderSamplerForwardReUse(AbstractEncoderSampler):
                 neg_data.curr_obs = chosen_sample.curr_obs  # Replaced curr observation
                 neg_data.curr_state = chosen_sample.curr_state  # Replaced curr state
                 neg_data.action = chosen_sample.action  # Replaced action
-                neg_data.action_prob = (
-                    chosen_sample.action_prob
-                )  # Replaced action probability
-                neg_data.policy_index = (
-                    chosen_sample.policy_index
-                )  # Replaced policy that generates curr_obs
+                neg_data.action_prob = chosen_sample.action_prob  # Replaced action probability
+                neg_data.policy_index = chosen_sample.policy_index  # Replaced policy that generates curr_obs
                 neg_data.reward = None  # Reward for fake transition makes little sense
 
                 neg_dataset.append(neg_data)

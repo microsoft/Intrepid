@@ -25,15 +25,11 @@ class TemporalCombinationLock(RLAcidWrapper):
         self.tolerance = 0.1
 
         self.exo_flip_prob = config["exo_flip_prob"]
-        self.exo_dim = (
-            self.horizon if config["exo_dim"] == -1 else config["exo_dim"]
-        )  # Dimension of exogenous noise
+        self.exo_dim = self.horizon if config["exo_dim"] == -1 else config["exo_dim"]  # Dimension of exogenous noise
 
         assert (
             self.anti_shaping_reward < self.optimal_reward * self.optimal_reward_prob
-        ), "Anti shaping reward shouldn't exceed optimal reward which is %r" % (
-            self.optimal_reward * self.optimal_reward_prob
-        )
+        ), "Anti shaping reward shouldn't exceed optimal reward which is %r" % (self.optimal_reward * self.optimal_reward_prob)
 
         assert self.num_actions >= 2, "Atleast two actions are needed"
         self.actions = list(range(0, self.num_actions))
@@ -48,9 +44,7 @@ class TemporalCombinationLock(RLAcidWrapper):
         elif self.noise_type == RLAcidWrapper.BERNOULLI:
             # We encode the state type and time separately. The type is one of the 2 and the time could be any value
             # in 1 to horizon + 1. We further add noise of size horizon.
-            self.dim = (
-                self.horizon + 3 + self.exo_dim + self.horizon
-            )  # Add noise of length horizon
+            self.dim = self.horizon + 3 + self.exo_dim + self.horizon  # Add noise of length horizon
 
         elif self.noise_type == RLAcidWrapper.HADAMHARD:
             # We encode the state type and time separately. The type is one of the 2 and the time could be any value
@@ -108,9 +102,7 @@ class TemporalCombinationLock(RLAcidWrapper):
             v[x[0]] = 1.0
             v[2 + x[1]] = 1.0
             v[self.horizon + 3 : self.horizon + 3 + self.exo_dim] = x[2]
-            v[self.horizon + 3 + self.exo_dim :] = self.rng.binomial(
-                1, 0.5, self.horizon
-            )
+            v[self.horizon + 3 + self.exo_dim :] = self.rng.binomial(1, 0.5, self.horizon)
 
         elif self.noise_type == RLAcidWrapper.GAUSSIAN:
             v = np.zeros(self.dim, dtype=float)
@@ -160,9 +152,7 @@ class TemporalCombinationLock(RLAcidWrapper):
         return 0
 
     def get_optimal_value(self):
-        return (
-            self.optimal_reward * self.optimal_reward_prob - self.anti_shaping_reward2
-        )
+        return self.optimal_reward * self.optimal_reward_prob - self.anti_shaping_reward2
 
     @staticmethod
     def calc_obs_dim(config):
@@ -196,9 +186,7 @@ class TemporalCombinationLock(RLAcidWrapper):
             raise AssertionError("Unhandled noise type %r" % noise_type)
 
     def adapt_config(self, config):
-        assert (
-            config["obs_dim"] == -1
-        ), "obs_dim key in config is automatically set. Please set it to -1"
+        assert config["obs_dim"] == -1, "obs_dim key in config is automatically set. Please set it to -1"
 
         config["obs_dim"] = TemporalCombinationLock.calc_obs_dim(config)
 
@@ -208,9 +196,9 @@ class TemporalCombinationLock(RLAcidWrapper):
     @staticmethod
     def validate_config(config):
         calc_dim = TemporalCombinationLock.calc_obs_dim(config)
-        assert config["obs_dim"] == calc_dim, (
-            "Observation dimension in dictionary %d does not match what is expected %d"
-            % (config["obs_dim"], calc_dim)
+        assert config["obs_dim"] == calc_dim, "Observation dimension in dictionary %d does not match what is expected %d" % (
+            config["obs_dim"],
+            calc_dim,
         )
 
     def generate_homing_policy_validation_fn(self):

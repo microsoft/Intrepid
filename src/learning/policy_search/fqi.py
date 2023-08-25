@@ -47,12 +47,7 @@ class FQI(AbstractPolicySearch):
             encoding_function, reward_id = encoder_reward_args
 
             def reward_func(obs, time):
-                return (
-                    1
-                    if time == horizon
-                    and encoding_function.encode_observations(obs) == reward_id
-                    else 0
-                )
+                return 1 if time == horizon and encoding_function.encode_observations(obs) == reward_id else 0
 
         learned_policy, mean_reward, _ = fqi.train(
             homing_policy_dataset,
@@ -76,13 +71,9 @@ class FQI(AbstractPolicySearch):
         for i in range(1, horizon + 1):
             if not os.path.exists(policy_folder_name):
                 os.makedirs(policy_folder_name)
-            learned_policy[i].save(
-                folder_name=policy_folder_name, model_name="step_%d" % i
-            )
+            learned_policy[i].save(folder_name=policy_folder_name, model_name="step_%d" % i)
 
-    def read_policy(
-        self, policy_folder_name, horizon, previous_step_homing_policy, delete=False
-    ):
+    def read_policy(self, policy_folder_name, horizon, previous_step_homing_policy, delete=False):
         """Read the policy from the disk"""
 
         homing_policy = dict()
@@ -103,9 +94,7 @@ class FQI(AbstractPolicySearch):
         dataset = []
         for replay_item in replay_dataset[step]:
             assert (
-                type(replay_item) == TransitionDatapoint
-                and replay_item.get_timestep() == step
-                and replay_item.is_valid() == 1
+                type(replay_item) == TransitionDatapoint and replay_item.get_timestep() == step and replay_item.is_valid() == 1
             )
 
             current_obs = replay_item.get_curr_obs()
@@ -118,12 +107,8 @@ class FQI(AbstractPolicySearch):
 
             if step < horizon:
                 obs_var = cuda_var(torch.from_numpy(next_obs)).float().view(1, -1)
-                q_val = (
-                    learned_policy[step + 1].gen_q_val(obs_var).view(-1)
-                )  # num_actions
-                total_reward += float(
-                    q_val.max(0)[0].data.cpu()
-                )  # Predict reward and take max
+                q_val = learned_policy[step + 1].gen_q_val(obs_var).view(-1)  # num_actions
+                total_reward += float(q_val.max(0)[0].data.cpu())  # Predict reward and take max
 
             datapoint = (
                 current_obs,
@@ -169,16 +154,12 @@ class FQI(AbstractPolicySearch):
         for step in range(horizon, 0, -1):
             # Learn the optimal policy for this step
             sample_start = time.time()
-            cb_dataset = self._gather_fqi_samples(
-                replay_memory, step, horizon, reward_func, learned_policy
-            )
+            cb_dataset = self._gather_fqi_samples(replay_memory, step, horizon, reward_func, learned_policy)
             sample_time += time.time() - sample_start
 
             # Call contextual bandit oracle
             oracle_start = time.time()
-            optimal_policy_step, info = self.cb_oracle.learn_optimal_policy(
-                cb_dataset, logger, tensorboard, debug
-            )
+            optimal_policy_step, info = self.cb_oracle.learn_optimal_policy(cb_dataset, logger, tensorboard, debug)
             oracle_time += time.time() - oracle_start
 
             learned_policy[step] = optimal_policy_step

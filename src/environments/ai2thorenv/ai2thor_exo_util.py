@@ -20,14 +20,9 @@ class AI2ThorExoUtil:
         self.triangle_color = None
 
     def reset(self):
-        colors = [
-            "#" + "".join([random.choice("0123456789ABCDEF") for _ in range(6)])
-            for _ in range(2)
-        ]
+        colors = ["#" + "".join([random.choice("0123456789ABCDEF") for _ in range(6)]) for _ in range(2)]
 
-        self.circle_coord = int(random.random() * self.width), int(
-            random.random() * self.height
-        )
+        self.circle_coord = int(random.random() * self.width), int(random.random() * self.height)
         self.circle_color = self._to_rgb(colors[1])
 
         self.triangle_x = int(random.random() * self.width)
@@ -41,18 +36,12 @@ class AI2ThorExoUtil:
     def update(self):
         rnd = [random.choice([-1, 1]) for _ in range(4)]
 
-        self.circle_coord = (
-            self.circle_coord[0] + rnd[0] * int(0.1 * self.width)
-        ) % self.width, (
+        self.circle_coord = (self.circle_coord[0] + rnd[0] * int(0.1 * self.width)) % self.width, (
             self.circle_coord[1] + rnd[1] * int(0.1 * self.height)
         ) % self.height
 
-        self.triangle_x = (
-            self.triangle_x + rnd[2] * int(0.1 * self.width)
-        ) % self.width
-        self.triangle_y = (
-            self.triangle_y + rnd[3] * int(0.1 * self.height)
-        ) % self.height
+        self.triangle_x = (self.triangle_x + rnd[2] * int(0.1 * self.width)) % self.width
+        self.triangle_y = (self.triangle_y + rnd[3] * int(0.1 * self.height)) % self.height
 
     def generate(self, img):
         width, height = img.shape[0], img.shape[1]

@@ -33,24 +33,16 @@ class GreedyPolicySearch(AbstractPolicySearch):
         homing_policy_reward_count = np.zeros(num_homing_policy)
 
         dataset_size = len(dataset)
-        batches = [
-            dataset[i : i + self.batch_size]
-            for i in range(0, dataset_size, self.batch_size)
-        ]
+        batches = [dataset[i : i + self.batch_size] for i in range(0, dataset_size, self.batch_size)]
 
         for batch in batches:
             observation_batch = cuda_var(
                 torch.cat(
-                    [
-                        torch.from_numpy(np.array(point[0])).view(1, -1)
-                        for point in batch
-                    ],
+                    [torch.from_numpy(np.array(point[0])).view(1, -1) for point in batch],
                     dim=0,
                 )
             ).float()
-            predicted_rewards = stationary_policy.gen_q_val(
-                observation_batch
-            )  # Batch x Actions
+            predicted_rewards = stationary_policy.gen_q_val(observation_batch)  # Batch x Actions
             predicted_max_rewards = predicted_rewards.max(1)[0]  # Batch
 
             for i, dp in enumerate(batch):
@@ -61,23 +53,17 @@ class GreedyPolicySearch(AbstractPolicySearch):
                 homing_policy_reward_count[policy_index] += 1.0
 
         for i in range(0, num_homing_policy):
-            homing_policy_reward[i] = homing_policy_reward[i] / max(
-                1.0, homing_policy_reward_count[i]
-            )
+            homing_policy_reward[i] = homing_policy_reward[i] / max(1.0, homing_policy_reward_count[i])
 
         return homing_policy_reward.argmax()
 
     @staticmethod
-    def _generate_contextual_bandit_dataset(
-        homing_policy_dataset, reward_func, horizon
-    ):
+    def _generate_contextual_bandit_dataset(homing_policy_dataset, reward_func, horizon):
         contextual_bandit_dataset = []
 
         for dp in homing_policy_dataset:
             if reward_func is None:
-                raise AssertionError(
-                    "Cannot use Path Policy Search without a given reward function. Use PSDP instead."
-                )
+                raise AssertionError("Cannot use Path Policy Search without a given reward function. Use PSDP instead.")
             else:
                 reward = reward_func(dp.get_next_obs(), horizon)
 
@@ -121,12 +107,7 @@ class GreedyPolicySearch(AbstractPolicySearch):
             encoding_function, reward_id = encoder_reward_args
 
             def reward_func(obs, time):
-                return (
-                    1
-                    if time == horizon
-                    and encoding_function.encode_observations(obs) == reward_id
-                    else 0
-                )
+                return 1 if time == horizon and encoding_function.encode_observations(obs) == reward_id else 0
 
         tensorboard = None
 
@@ -144,9 +125,7 @@ class GreedyPolicySearch(AbstractPolicySearch):
         )
 
         # Save the learned policy to disk
-        GreedyPolicySearch._save_policy(
-            learned_policy, policy_folder_name, horizon, info["prev_policy_index"]
-        )
+        GreedyPolicySearch._save_policy(learned_policy, policy_folder_name, horizon, info["prev_policy_index"])
 
     @staticmethod
     def _save_policy(learned_policy, policy_folder_name, horizon, policy_index):
@@ -155,16 +134,12 @@ class GreedyPolicySearch(AbstractPolicySearch):
 
         if not os.path.exists(policy_folder_name):
             os.makedirs(policy_folder_name)
-        learned_policy[horizon].save(
-            folder_name=policy_folder_name, model_name="step_%d" % horizon
-        )
+        learned_policy[horizon].save(folder_name=policy_folder_name, model_name="step_%d" % horizon)
 
         with open(policy_folder_name + "prev_policy_index", "wb") as fobj:
             pickle.dump(policy_index, fobj)
 
-    def read_policy(
-        self, policy_folder_name, horizon, previous_step_homing_policy, delete=False
-    ):
+    def read_policy(self, policy_folder_name, horizon, previous_step_homing_policy, delete=False):
         """Read the policy from the disk"""
 
         homing_policy = dict()
@@ -203,9 +178,7 @@ class GreedyPolicySearch(AbstractPolicySearch):
 
         # Learn the optimal policy for the last step
         sample_start = time.time()
-        contextual_bandit_dataset = self._generate_contextual_bandit_dataset(
-            homing_policy_dataset, reward_func, horizon
-        )
+        contextual_bandit_dataset = self._generate_contextual_bandit_dataset(homing_policy_dataset, reward_func, horizon)
         sample_time = time.time() - sample_start
 
         # Call contextual bandit oracle
@@ -226,9 +199,7 @@ class GreedyPolicySearch(AbstractPolicySearch):
                 len(homing_policies[horizon - 1]),
             )
             for i in range(1, horizon):
-                learned_policy[i] = homing_policies[horizon - 1][
-                    best_homing_policy_index
-                ][i]
+                learned_policy[i] = homing_policies[horizon - 1][best_homing_policy_index][i]
         else:
             best_homing_policy_index = -1
 

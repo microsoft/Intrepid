@@ -20,10 +20,7 @@ def main():
     for exp_id in range(1, num_runs + 1):
         exp_setup.config["seed"] = seeds[exp_id - 1]
         exp_setup.config["env_seed"] = seeds[exp_id - 1] * 10
-        exp_setup.logger.log(
-            "========= STARTING EXPERIMENT %d (Seed = %d) ======== "
-            % (exp_id, exp_setup.config["seed"])
-        )
+        exp_setup.logger.log("========= STARTING EXPERIMENT %d (Seed = %d) ======== " % (exp_id, exp_setup.config["seed"]))
 
         # Set the random seed
         random.seed(exp_setup.config["seed"])

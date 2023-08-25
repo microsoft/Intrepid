@@ -41,9 +41,7 @@ class SlotFactoredMDP:
             for i in range(0, self.num_factors):
                 # Each factor emits two atoms, e.g., factor i emits atoms 2i and 2i+1, and these are, however,
                 # shuffled and put in different buckets
-                self.atom_factor_set[step].append(
-                    [atom_set[2 * i], atom_set[2 * i + 1]]
-                )
+                self.atom_factor_set[step].append([atom_set[2 * i], atom_set[2 * i + 1]])
 
                 # y = np.random.randint(0, 2)
                 y = 0  # TODO enable other noise
@@ -52,9 +50,7 @@ class SlotFactoredMDP:
                 else:
                     self.noise_type[step].append(SlotFactoredMDP.GAUSSIAN2)
 
-        assert (
-            self.num_factors == self.num_action
-        ), "Number of actions should be equal to number of factors"
+        assert self.num_factors == self.num_action, "Number of actions should be equal to number of factors"
 
         # Quantities below will change as agent takes action
         self.curr_state = None
@@ -89,10 +85,7 @@ class SlotFactoredMDP:
                 elif state[ix] == 1:
                     vec = np.array([0.0, 1.0]).astype(np.float32)
                 else:
-                    raise AssertionError(
-                        "State can only take value in {0, 1}. Found value %r"
-                        % state[ix]
-                    )
+                    raise AssertionError("State can only take value in {0, 1}. Found value %r" % state[ix])
 
                 vec += np.random.normal(loc=0.0, scale=0.1, size=(1,))  # Add noise
 
@@ -103,17 +96,12 @@ class SlotFactoredMDP:
                 elif state[ix] == 1:
                     vec = np.array([val, 0.5]).astype(np.float32)
                 else:
-                    raise AssertionError(
-                        "State can only take value in {0, 1}. Found value %r"
-                        % state[ix]
-                    )
+                    raise AssertionError("State can only take value in {0, 1}. Found value %r" % state[ix])
 
                 vec += np.random.normal(loc=0.0, scale=0.1, size=(1,))  # Add noise
 
             else:
-                raise AssertionError(
-                    "Unhandled noise type %r" % self.noise_type[self.timestep][ix]
-                )
+                raise AssertionError("Unhandled noise type %r" % self.noise_type[self.timestep][ix])
 
             data.append(vec)
 
@@ -138,9 +126,7 @@ class SlotFactoredMDP:
 
         if self.timestep >= self.horizon:
             # Cannot take any more actions
-            raise AssertionError(
-                "Cannot take any more actions this episode. Horizon completed"
-            )
+            raise AssertionError("Cannot take any more actions this episode. Horizon completed")
 
         else:
             new_state = self.curr_state.copy()
@@ -221,9 +207,7 @@ class SlotFactoredMDP1:
 
         if self.timestep >= self.horizon:
             # Cannot take any more actions
-            raise AssertionError(
-                "Cannot take any more actions this episode. Horizon completed"
-            )
+            raise AssertionError("Cannot take any more actions this episode. Horizon completed")
 
         else:
             action_x, action_y = action // self.grid_y, action % self.grid_y

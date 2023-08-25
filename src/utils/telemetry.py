@@ -31,12 +31,8 @@ class Telemeter:
             self.ctr[self.active_key] = 1
 
     def merge(self, telemetry):
-        assert (
-            self.timer is not None and telemetry is not None
-        ), "Cannot merge telemeters with running timer."
-        assert (
-            self.name != telemetry.name
-        ), "Telemeters with same name cannot be merged."
+        assert self.timer is not None and telemetry is not None, "Cannot merge telemeters with running timer."
+        assert self.name != telemetry.name, "Telemeters with same name cannot be merged."
 
         for key in telemetry.time_data:
             self.time_data[key] = telemetry.time_data[key]

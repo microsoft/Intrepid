@@ -52,9 +52,7 @@ class RichIDHTKModel(nn.Module):
 
         elif self.feature_type == "image":
             # TODO fix channel size below
-            self.h_model = nn.Sequential(
-                nn.Conv2d(6, 16, 8, 4), nn.LeakyReLU(), nn.Conv2d(16, 16, 8, 2)
-            )
+            self.h_model = nn.Sequential(nn.Conv2d(6, 16, 8, 4), nn.LeakyReLU(), nn.Conv2d(16, 16, 8, 2))
 
             self.m_layer = nn.Linear(16, self.state_dim)  # TODO 16 is hard-coded
         else:
@@ -85,9 +83,7 @@ class RichIDHTKModel(nn.Module):
 
         embed_y_t_k = self.get_h_val(k_step_obs)  # h(y_{t+k}) of size batch x state_dim
         embed_y_t = self.get_h_val(y_t)  # h(y_t) of size batch x state_dim
-        embed_y_0_t = self.hat_f(
-            curr_obs_seq
-        ).detach()  # \hat{f}(y_{0:t}) of size batch x state_dim
+        embed_y_0_t = self.hat_f(curr_obs_seq).detach()  # \hat{f}(y_{0:t}) of size batch x state_dim
 
         out = (
             embed_y_t_k
@@ -104,9 +100,7 @@ class RichIDHTModel(nn.Module):
     """Take as input a sequence of observations y_{0:t} and a single observation y_{t+k} and predicts a vector
     of length k * action_dim"""
 
-    def __init__(
-        self, feature_type, obs_dim, state_dim, hat_f, hat_A, hat_B, hat_K, hat_M
-    ):
+    def __init__(self, feature_type, obs_dim, state_dim, hat_f, hat_A, hat_B, hat_K, hat_M):
         """
         :param feature_type:  Type of feature
         :param obs_dim        observation dimension
@@ -139,9 +133,7 @@ class RichIDHTModel(nn.Module):
 
         elif self.feature_type == "image":
             # TODO fix channel size below
-            self.h_model = nn.Sequential(
-                nn.Conv2d(6, 16, 8, 4), nn.LeakyReLU(), nn.Conv2d(16, 16, 8, 2)
-            )
+            self.h_model = nn.Sequential(nn.Conv2d(6, 16, 8, 4), nn.LeakyReLU(), nn.Conv2d(16, 16, 8, 2))
 
             self.m_layer = nn.Linear(16, self.state_dim)  # TODO 16 is hard-coded
         else:
@@ -171,9 +163,7 @@ class RichIDHTModel(nn.Module):
 
         embed_y_t_1 = self.get_h_val(next_obs)  # h(y_{t+1}) of size batch x state_dim
         embed_y_t = self.get_h_val(y_t)  # h(y_t) of size batch x state_dim
-        embed_y_0_t = self.hat_f(
-            curr_obs_seq
-        ).detach()  # \hat{f}(y_{0:t}) of size batch x state_dim
+        embed_y_0_t = self.hat_f(curr_obs_seq).detach()  # \hat{f}(y_{0:t}) of size batch x state_dim
 
         term1 = embed_y_t_1
         term2 = torch.matmul(embed_y_t, self.hat_A.transpose(0, 1))
@@ -295,9 +285,7 @@ class RichIDPsiModel(nn.Module):
         )
 
     def forward(self, curr_obs, new_obs, action):
-        x = torch.cat(
-            [curr_obs, new_obs, action], dim=1
-        )  # Batch x (2 x Obs_dim + Act_dim)
+        x = torch.cat([curr_obs, new_obs, action], dim=1)  # Batch x (2 x Obs_dim + Act_dim)
         out = self.network(x)
 
         return out
