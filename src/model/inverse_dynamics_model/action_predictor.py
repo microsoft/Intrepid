@@ -4,7 +4,6 @@ import torch.nn.functional as F
 
 
 class ActionPredictor(nn.Module):
-
     def __init__(self, config, constants, bootstrap_model):
         super(ActionPredictor, self).__init__()
 
@@ -15,7 +14,7 @@ class ActionPredictor(nn.Module):
             nn.LeakyReLU(),
             nn.Linear(constants["hidden_dim"], constants["hidden_dim"]),
             nn.LeakyReLU(),
-            nn.Linear(constants["hidden_dim"], config["num_actions"])
+            nn.Linear(constants["hidden_dim"], config["num_actions"]),
         )
 
         if bootstrap_model is not None:
@@ -25,7 +24,6 @@ class ActionPredictor(nn.Module):
             self.cuda()
 
     def gen_log_prob(self, curr_obs, next_obs):
-
         x = torch.cat([curr_obs, next_obs], dim=1)
 
         out = self.network(x)
@@ -38,27 +36,22 @@ class ActionPredictor(nn.Module):
 
 
 class ActionPredictorFlatNN(nn.Module):
-
     def __init__(self, config, constants, bootstrap_model):
         super(ActionPredictorFlatNN, self).__init__()
 
         self.input_shape = config["obs_dim"]
         n = self.input_shape[0]
         m = self.input_shape[1]
-        self.image_conv1 = nn.Sequential(
-            nn.Flatten()
-        )
-        self.image_conv2 = nn.Sequential(
-            nn.Flatten()
-        )
-        self.embedding_size = m*n*3
+        self.image_conv1 = nn.Sequential(nn.Flatten())
+        self.image_conv2 = nn.Sequential(nn.Flatten())
+        self.embedding_size = m * n * 3
 
         self.network = nn.Sequential(
-            nn.Linear(self.embedding_size*2, constants["hidden_dim"]),
+            nn.Linear(self.embedding_size * 2, constants["hidden_dim"]),
             nn.LeakyReLU(),
             nn.Linear(constants["hidden_dim"], constants["hidden_dim"]),
             nn.LeakyReLU(),
-            nn.Linear(constants["hidden_dim"], config["num_actions"])
+            nn.Linear(constants["hidden_dim"], config["num_actions"]),
         )
 
         if bootstrap_model is not None:
@@ -86,7 +79,6 @@ class ActionPredictorFlatNN(nn.Module):
 
 
 class ActionPredictorCNN1(nn.Module):
-
     def __init__(self, config, constants, bootstrap_model):
         super(ActionPredictorCNN1, self).__init__()
 
@@ -101,7 +93,7 @@ class ActionPredictorCNN1(nn.Module):
             nn.ReLU(),
             nn.Conv2d(32, 64, (2, 2)),
             nn.ReLU(),
-            nn.Flatten()
+            nn.Flatten(),
         )
         self.image_conv2 = nn.Sequential(
             nn.Conv2d(3, 16, (2, 2)),
@@ -111,16 +103,16 @@ class ActionPredictorCNN1(nn.Module):
             nn.ReLU(),
             nn.Conv2d(32, 64, (2, 2)),
             nn.ReLU(),
-            nn.Flatten()
+            nn.Flatten(),
         )
         self.embedding_size = ((n - 1) // 2 - 2) * ((m - 1) // 2 - 2) * 64
 
         self.network = nn.Sequential(
-            nn.Linear(self.embedding_size*2, constants["hidden_dim"]),
+            nn.Linear(self.embedding_size * 2, constants["hidden_dim"]),
             nn.LeakyReLU(),
             nn.Linear(constants["hidden_dim"], constants["hidden_dim"]),
             nn.LeakyReLU(),
-            nn.Linear(constants["hidden_dim"], config["num_actions"])
+            nn.Linear(constants["hidden_dim"], config["num_actions"]),
         )
 
         if bootstrap_model is not None:
@@ -148,7 +140,6 @@ class ActionPredictorCNN1(nn.Module):
 
 
 class ActionPredictorCNN2(nn.Module):
-
     def __init__(self, config, constants, bootstrap_model):
         super(ActionPredictorCNN2, self).__init__()
 
@@ -161,7 +152,7 @@ class ActionPredictorCNN2(nn.Module):
             nn.MaxPool2d((4, 4)),
             nn.Conv2d(16, 32, (2, 2)),
             nn.ReLU(),
-            nn.Flatten()
+            nn.Flatten(),
         )
         self.image_conv2 = nn.Sequential(
             nn.Conv2d(3, 16, (2, 2)),
@@ -169,16 +160,16 @@ class ActionPredictorCNN2(nn.Module):
             nn.MaxPool2d((4, 4)),
             nn.Conv2d(16, 32, (2, 2)),
             nn.ReLU(),
-            nn.Flatten()
+            nn.Flatten(),
         )
         self.embedding_size = ((n - 1) // 4 - 1) * ((m - 1) // 4 - 1) * 32
 
         self.network = nn.Sequential(
-            nn.Linear(self.embedding_size*2, constants["hidden_dim"]),
+            nn.Linear(self.embedding_size * 2, constants["hidden_dim"]),
             nn.LeakyReLU(),
             nn.Linear(constants["hidden_dim"], constants["hidden_dim"]),
             nn.LeakyReLU(),
-            nn.Linear(constants["hidden_dim"], config["num_actions"])
+            nn.Linear(constants["hidden_dim"], config["num_actions"]),
         )
 
         if bootstrap_model is not None:
@@ -206,7 +197,6 @@ class ActionPredictorCNN2(nn.Module):
 
 
 class ActionPredictorCNN3(nn.Module):
-
     def __init__(self, config, constants, bootstrap_model):
         super(ActionPredictorCNN3, self).__init__()
 
@@ -221,7 +211,7 @@ class ActionPredictorCNN3(nn.Module):
             nn.Conv2d(16, 32, (4, 4), 2),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(800, 256)
+            nn.Linear(800, 256),
         )
         self.image_conv2 = nn.Sequential(
             nn.Conv2d(3, 16, (8, 8), 4),
@@ -229,13 +219,13 @@ class ActionPredictorCNN3(nn.Module):
             nn.Conv2d(16, 32, (4, 4), 2),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(800, 256)
+            nn.Linear(800, 256),
         )
 
         self.network = nn.Sequential(
             nn.Linear(2 * 256, constants["hidden_dim"]),
             nn.LeakyReLU(),
-            nn.Linear(constants["hidden_dim"], config["num_actions"])
+            nn.Linear(constants["hidden_dim"], config["num_actions"]),
         )
 
         if bootstrap_model is not None:
@@ -263,7 +253,6 @@ class ActionPredictorCNN3(nn.Module):
 
 
 class ActionPredictorCNN4(nn.Module):
-
     def __init__(self, config, constants, bootstrap_model):
         super(ActionPredictorCNN4, self).__init__()
 
@@ -278,13 +267,13 @@ class ActionPredictorCNN4(nn.Module):
             nn.Conv2d(16, 32, (4, 4), 2),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(800, 256)
+            nn.Linear(800, 256),
         )
 
         self.network = nn.Sequential(
             nn.Linear(2 * 256, constants["hidden_dim"]),
             nn.LeakyReLU(),
-            nn.Linear(constants["hidden_dim"], config["num_actions"])
+            nn.Linear(constants["hidden_dim"], config["num_actions"]),
         )
 
         if bootstrap_model is not None:
@@ -312,7 +301,6 @@ class ActionPredictorCNN4(nn.Module):
 
 
 class ActionPredictorCNN5(nn.Module):
-
     def __init__(self, config, constants, bootstrap_model):
         super(ActionPredictorCNN5, self).__init__()
 
@@ -327,13 +315,13 @@ class ActionPredictorCNN5(nn.Module):
             nn.Conv2d(16, 32, (4, 4), 2),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(800, 256)
+            nn.Linear(800, 256),
         )
 
         self.network = nn.Sequential(
             nn.Linear(256, constants["hidden_dim"]),
             nn.LeakyReLU(),
-            nn.Linear(constants["hidden_dim"], config["num_actions"])
+            nn.Linear(constants["hidden_dim"], config["num_actions"]),
         )
 
         if bootstrap_model is not None:
@@ -361,7 +349,6 @@ class ActionPredictorCNN5(nn.Module):
 
 
 class ActionPredictorCNN6(nn.Module):
-
     def __init__(self, config, constants, bootstrap_model):
         super(ActionPredictorCNN6, self).__init__()
 
@@ -376,7 +363,7 @@ class ActionPredictorCNN6(nn.Module):
             nn.Conv2d(16, 32, (4, 4), 2),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(800, config["num_actions"])
+            nn.Linear(800, config["num_actions"]),
         )
 
         if bootstrap_model is not None:
@@ -404,7 +391,6 @@ class ActionPredictorCNN6(nn.Module):
 
 
 class ActionPredictorCNN7(nn.Module):
-
     def __init__(self, config, constants, bootstrap_model):
         super(ActionPredictorCNN7, self).__init__()
 
@@ -419,7 +405,7 @@ class ActionPredictorCNN7(nn.Module):
             nn.Conv2d(16, 32, (4, 4), 2),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(128, config["num_actions"])
+            nn.Linear(128, config["num_actions"]),
         )
 
         if bootstrap_model is not None:
@@ -444,4 +430,3 @@ class ActionPredictorCNN7(nn.Module):
         log_prob = self.gen_log_prob(curr_obs, next_obs)
         action = log_prob.argmax(dim=-1)
         return action
-

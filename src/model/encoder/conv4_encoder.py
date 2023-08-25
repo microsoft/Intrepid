@@ -1,4 +1,3 @@
-import math
 import torch
 import torch.nn as nn
 
@@ -6,11 +5,9 @@ from utils.conv_util import get_conv_out_size
 
 
 class Conv4Encoder(nn.Module):
-
     NAME = "conv4"
 
     def __init__(self, height, width, channel, out_dim, bootstrap_model=None):
-
         super(Conv4Encoder, self).__init__()
 
         self.height = height
@@ -27,13 +24,11 @@ class Conv4Encoder(nn.Module):
         kernel_size2 = (4, 4)
         stride2 = (2, 2)
 
-        dynamic_size_h1, dynamic_size_w1 = get_conv_out_size(self.height, self.width,
-                                                             kernel_size=kernel_size1,
-                                                             stride=stride1)
+        dynamic_size_h1, dynamic_size_w1 = get_conv_out_size(self.height, self.width, kernel_size=kernel_size1, stride=stride1)
 
-        dynamic_size_h2, dynamic_size_w2 = get_conv_out_size(dynamic_size_h1, dynamic_size_w1,
-                                                             kernel_size=kernel_size2,
-                                                             stride=stride2)
+        dynamic_size_h2, dynamic_size_w2 = get_conv_out_size(
+            dynamic_size_h1, dynamic_size_w1, kernel_size=kernel_size2, stride=stride2
+        )
 
         self.n_channels_out = 32
         self.dynamic_size = dynamic_size_h2 * dynamic_size_w2 * self.n_channels_out
@@ -44,7 +39,7 @@ class Conv4Encoder(nn.Module):
             nn.Conv2d(16, self.n_channels_out, (4, 4), 2),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(self.dynamic_size, out_dim)
+            nn.Linear(self.dynamic_size, out_dim),
         )
 
         if torch.cuda.is_available():
@@ -57,6 +52,5 @@ class Conv4Encoder(nn.Module):
         return self.encode(img)
 
     def encode(self, img):
-        
         # print(img.shape)
         return self.model(img)

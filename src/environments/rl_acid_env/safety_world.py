@@ -1,10 +1,12 @@
-import pdb
-from environments.rl_acid_env.noise_gen import *
+import numpy as np
+from environments.rl_acid_env.noise_gen import (
+    generated_hadamhard_matrix,
+    get_sylvester_hadamhard_matrix_dim,
+)
 from environments.rl_acid_env.rl_acid_wrapper import RLAcidWrapper
 
 
 class SafetyWorld(RLAcidWrapper):
-
     env_name = "safetyworld"
 
     def __init__(self, config):
@@ -24,9 +26,9 @@ class SafetyWorld(RLAcidWrapper):
         self.anti_shaping_reward = config["anti_shaping_reward"]
         self.anti_shaping_reward2 = config["anti_shaping_reward2"]
 
-        assert self.anti_shaping_reward < self.optimal_reward * self.optimal_reward_prob, \
-            "Anti shaping reward shouldn't exceed optimal reward which is %r" % \
-            (self.optimal_reward * self.optimal_reward_prob)
+        assert (
+            self.anti_shaping_reward < self.optimal_reward * self.optimal_reward_prob
+        ), "Anti shaping reward shouldn't exceed optimal reward which is %r" % (self.optimal_reward * self.optimal_reward_prob)
 
         assert self.num_actions >= 4, "Atleast 4 actions are needed"
         self.actions = list(range(0, self.num_actions))
@@ -48,14 +50,23 @@ class SafetyWorld(RLAcidWrapper):
         self.num_oracle_calls_metric = []
 
         self.gold_w = np.random.randint(low=0, high=1, size=(self.safety_dim,)).astype(np.float32) - 0.5
-        self.gold_w = self.gold_w + np.random.randn(1,)[0] * 0.025
-        self.gold_w /= (np.linalg.norm(self.gold_w) + 1e-6)
+        self.gold_w = (
+            self.gold_w
+            + np.random.randn(
+                1,
+            )[0]
+            * 0.025
+        )
+        self.gold_w /= np.linalg.norm(self.gold_w) + 1e-6
         self.gold_b = 0.5
 
         self.gold_w_norm = np.linalg.norm(self.gold_w)
         self.gold_w_norm_sq = self.gold_w_norm * self.gold_w_norm
 
-        self.constant_safe_feature, self.constant_unsafe_feature = self.generate_safe_unsafe_ftrs()
+        (
+            self.constant_safe_feature,
+            self.constant_unsafe_feature,
+        ) = self.generate_safe_unsafe_ftrs()
 
         self.switch_actions = []
         self.unsafe_actions = []
@@ -76,19 +87,16 @@ class SafetyWorld(RLAcidWrapper):
 
         # Check dimensions below
         if self.noise_type == RLAcidWrapper.GAUSSIAN:
-
             # We encode the state type and time separately. The type is one of the 4 and the time could be any value
             # in 0 to horizon .
             self.dim = self.horizon + 5
 
         elif self.noise_type == RLAcidWrapper.BERNOULLI:
-
             # We encode the state type and time separately. The type is one of the 4 and the time could be any value
             # in 0 to horizon. We further add noise of size horizon.
             self.dim = self.horizon + 5 + self.horizon  # Add noise of length horizon
 
         elif self.noise_type == RLAcidWrapper.HADAMHARD:
-
             # We encode the state type and time separately. The type is one of the 4 and the time could be any value
             # in 0 to horizon.
             lower_bound = self.horizon + 5
@@ -96,7 +104,6 @@ class SafetyWorld(RLAcidWrapper):
             self.dim = self.hadamhard_matrix.shape[0]
 
         elif self.noise_type == RLAcidWrapper.HADAMHARDG:
-
             # We encode the state type and time separately. The type is one of the 4 and the time could be any value
             # in 0 to horizon.
             lower_bound = self.horizon + 5
@@ -107,14 +114,18 @@ class SafetyWorld(RLAcidWrapper):
             raise AssertionError("Unhandled noise type %r" % self.noise_type)
 
     def generate_safe_unsafe_ftrs(self, block_ix=-1):
-
         vec = np.random.randint(low=-1, high=2, size=(self.safety_dim,)).astype(np.float32)
-        vec += np.random.randn(self.safety_dim,) * 0.01
+        vec += (
+            np.random.randn(
+                self.safety_dim,
+            )
+            * 0.01
+        )
         # vec /= (np.linalg.norm(vec) + 1e-6)
 
         if block_ix >= 0:
-            vec[:(block_ix * self.safety_block_size)] = 0.0
-            vec[((block_ix + 1) * self.safety_block_size):] = 0.0
+            vec[: (block_ix * self.safety_block_size)] = 0.0
+            vec[((block_ix + 1) * self.safety_block_size) :] = 0.0
 
         val = np.dot(self.gold_w, vec) + self.gold_b
 
@@ -122,9 +133,9 @@ class SafetyWorld(RLAcidWrapper):
             safe_ftr = vec
 
             # If <w, v> + b >= 0 then <w,  - v - 2b w> + b = - <w, v> - 2b + b = - <w, v> - b <= 0
-            unsafe_ftr = - vec - 2 * self.gold_b * self.gold_w / self.gold_w_norm_sq
+            unsafe_ftr = -vec - 2 * self.gold_b * self.gold_w / self.gold_w_norm_sq
         else:
-            safe_ftr = - vec - 2 * self.gold_b * self.gold_w / self.gold_w_norm_sq
+            safe_ftr = -vec - 2 * self.gold_b * self.gold_w / self.gold_w_norm_sq
 
             # If <w, v> + b >= 0 then <w,  - v - 2b w> + b = - <w, v> - 2b + b = - <w, v> - b <= 0
             unsafe_ftr = vec
@@ -149,7 +160,6 @@ class SafetyWorld(RLAcidWrapper):
         return self.horizon
 
     def transition(self, x, a):
-
         # The world transitions deterministically as follows: There are 4 actions and 4 paths
         #
         # 1. There is a bad path (index 0) that gives a reward of -1/H at each step. The agent enters this path on
@@ -177,54 +187,50 @@ class SafetyWorld(RLAcidWrapper):
             self.unsafe_actions_metric.append(self.num_eps)
 
         if ix == 0:
-            if a == self.stop_action:           # stop/safe action
+            if a == self.stop_action:  # stop/safe action
                 return 3, h + 1
             else:
-                return 0, h + 1                 # continue
+                return 0, h + 1  # continue
 
         elif ix == 1:
-            if a == self.unsafe_actions[h]:     # continue action
+            if a == self.unsafe_actions[h]:  # continue action
                 return 0, h + 1
-            elif a == self.switch_actions[h]:   # switch action
+            elif a == self.switch_actions[h]:  # switch action
                 return 2, h + 1
-            elif a == self.stop_action:         # stop/safe action
+            elif a == self.stop_action:  # stop/safe action
                 return 3, h + 1
-            else:                               # continue
+            else:  # continue
                 return 1, h + 1
 
         elif ix == 2:
-
-            if a == self.unsafe_actions[h]:     # unsafe action
+            if a == self.unsafe_actions[h]:  # unsafe action
                 return 0, h + 1
-            elif a == self.switch_actions[h]:   # switch action
+            elif a == self.switch_actions[h]:  # switch action
                 return 1, h + 1
-            elif a == self.stop_action:         # stop/safe action
+            elif a == self.stop_action:  # stop/safe action
                 return 3, h + 1
             else:
-                return 2, h + 1                 # continue
+                return 2, h + 1  # continue
 
         elif ix == 3:
-            return 3, h + 1                     # continue
+            return 3, h + 1  # continue
 
         else:
             raise AssertionError("Path index can only take values in {0, 1, 2, 3}")
 
     def get_safety_ftrs(self, x):
-
-        return np.vstack([self.get_safety_ftr(x, a) for a in range(self.num_actions)])      # num_action x dim
+        return np.vstack([self.get_safety_ftr(x, a) for a in range(self.num_actions)])  # num_action x dim
 
     def get_safety_ftr(self, x, a):
-
         ix, h = x
 
-        if ix == 0:     # Safety features are constant
+        if ix == 0:  # Safety features are constant
             if a == self.stop_action:
                 return self.constant_safe_feature
             else:
                 return self.constant_unsafe_feature
 
-        elif ix == 1:   # Fast revelation of safety features
-
+        elif ix == 1:  # Fast revelation of safety features
             safe_ftr, unsafe_ftr = self.generate_safe_unsafe_ftrs()
 
             if a == self.unsafe_actions[h]:
@@ -233,7 +239,6 @@ class SafetyWorld(RLAcidWrapper):
                 return safe_ftr
 
         elif ix == 2:  # Slow revelation of safety features
-
             safe_ftr, unsafe_ftr = self.generate_safe_unsafe_ftrs(h)
 
             if a == self.unsafe_actions[h]:
@@ -241,14 +246,13 @@ class SafetyWorld(RLAcidWrapper):
             else:
                 return safe_ftr
 
-        elif ix == 3:   # Safety features are constant. Everything here is safe.
+        elif ix == 3:  # Safety features are constant. Everything here is safe.
             return self.constant_safe_feature
 
         else:
             raise AssertionError("Path index can only take values in {0, 1, 2, 3}")
 
     def safety_query(self, safety_ftr, save=True):
-
         if save:
             self.num_oracle_calls += 1
             self.num_oracle_calls_metric.append(self.num_eps)
@@ -261,30 +265,25 @@ class SafetyWorld(RLAcidWrapper):
             return False
 
     def make_obs(self, x):
-
         if self.noise_type == RLAcidWrapper.BERNOULLI:
-
             v = np.zeros(self.dim, dtype=float)
             v[x[0]] = 1.0
             v[4 + x[1]] = 1.0
-            v[self.horizon + 5:] = self.rng.binomial(1, 0.5, self.horizon)
+            v[self.horizon + 5 :] = self.rng.binomial(1, 0.5, self.horizon)
 
         elif self.noise_type == RLAcidWrapper.GAUSSIAN:
-
             v = np.zeros(self.dim, dtype=float)
             v[x[0]] = 1.0
             v[4 + x[1]] = 1.0
             v = v + self.rng.normal(loc=0.0, scale=0.1, size=v.shape)
 
         elif self.noise_type == RLAcidWrapper.HADAMHARD:
-
             v = np.zeros(self.hadamhard_matrix.shape[1], dtype=float)
             v[x[0]] = 1.0
             v[4 + x[1]] = 1.0
             v = np.matmul(self.hadamhard_matrix, v)
 
         elif self.noise_type == RLAcidWrapper.HADAMHARDG:
-
             v = np.zeros(self.hadamhard_matrix.shape[1], dtype=float)
             v[x[0]] = 1.0
             v[4 + x[1]] = 1.0
@@ -301,7 +300,6 @@ class SafetyWorld(RLAcidWrapper):
         return 2, 0
 
     def reward(self, x, a, next_x):
-
         ix, _ = x
         next_ix, h = next_x
 
@@ -327,7 +325,6 @@ class SafetyWorld(RLAcidWrapper):
         raise NotImplementedError()
 
     def adapt_config(self, config):
-
         assert config["obs_dim"] == -1, "obs_dim key in config is automatically set. Please set it to -1"
 
         if self.noise_type == RLAcidWrapper.BERNOULLI:

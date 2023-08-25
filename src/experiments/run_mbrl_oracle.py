@@ -10,7 +10,6 @@ from learning.core_learner.mbrl_oracle_decoder import MBRLOracleDecoder
 
 
 def main():
-
     exp_setup = get_header()
 
     performance = []
@@ -23,11 +22,9 @@ def main():
         num_runs = 1
 
     for exp_id in range(1, num_runs + 1):
-
         exp_setup.config["seed"] = seeds[exp_id - 1]
         exp_setup.config["env_seed"] = seeds[exp_id - 1] * 10
-        exp_setup.logger.log(
-            "========= STARTING EXPERIMENT %d (Seed = %d) ======== " % (exp_id, exp_setup.config["seed"]))
+        exp_setup.logger.log("========= STARTING EXPERIMENT %d (Seed = %d) ======== " % (exp_id, exp_setup.config["seed"]))
 
         # Set the random seed
         random.seed(exp_setup.config["seed"])
@@ -47,8 +44,7 @@ def main():
 
         learning_alg = MBRLOracleDecoder(exp_setup)
 
-        policy_result = learning_alg.train(env=env,
-                                           exp_id=exp_id)
+        policy_result = learning_alg.train(env=env, exp_id=exp_id)
 
         performance.append(policy_result)
 
@@ -56,8 +52,7 @@ def main():
 
 
 if __name__ == "__main__":
-
     print("SETTING THE START METHOD ")
     mp.freeze_support()
-    mp.set_start_method('spawn')
+    mp.set_start_method("spawn")
     main()

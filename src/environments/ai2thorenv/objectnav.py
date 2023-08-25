@@ -1,15 +1,11 @@
-import pdb
-import time
 import random
 import numpy as np
-import matplotlib.pyplot as plt
 
 from environments.cerebral_env_meta.environment_keys import EnvKeys
 from environments.cerebral_env_meta.cerebral_env_interface import CerebralEnvInterface
 
 
 class ObjectNav(CerebralEnvInterface):
-
     MOVE_AHEAD = "MoveAhead"
     MOVE_BACK = "MoveBack"
     MOVE_LEFT = "MoveLeft"
@@ -21,7 +17,6 @@ class ObjectNav(CerebralEnvInterface):
     env_name = "objectnav"
 
     def __init__(self, config):
-
         from ai2thor.controller import Controller
 
         self.scene_name = config["scene_name"]
@@ -49,30 +44,25 @@ class ObjectNav(CerebralEnvInterface):
         self.exo_sat_low = 0.0
 
         if self.headless:
-
             from ai2thor.platform import CloudRendering
 
             self.controller = Controller(
                 platform=CloudRendering,
-
                 scene=self.scene_name,
                 agentMode="default",
                 visibilityDistance=1.5,
-
                 # step sizes
                 gridSize=0.25,
                 # snapToGrid=True,          # Default setting from AI2Thor
-                snapToGrid=False,           # Made false so that we can rotate by 45 degree
-                rotateStepDegrees=45,       # Default angle is 90
-
+                snapToGrid=False,  # Made false so that we can rotate by 45 degree
+                rotateStepDegrees=45,  # Default angle is 90
                 # image modalities
                 renderDepthImage=False,
                 renderInstanceSegmentation=False,
-
                 # camera properties
                 width=self.width,
                 height=self.height,
-                fieldOfView=90
+                fieldOfView=90,
             )
 
         else:
@@ -80,42 +70,40 @@ class ObjectNav(CerebralEnvInterface):
                 scene=self.scene_name,
                 agentMode="default",
                 visibilityDistance=1.5,
-
                 # step sizes
                 gridSize=0.25,
                 # snapToGrid=True,          # Default setting from AI2Thor
-                snapToGrid=False,           # Made false so that we can rotate by 45 degree
-                rotateStepDegrees=45,       # Default angle is 90
-
+                snapToGrid=False,  # Made false so that we can rotate by 45 degree
+                rotateStepDegrees=45,  # Default angle is 90
                 # image modalities
                 renderDepthImage=False,
                 renderInstanceSegmentation=False,
-
                 # camera properties
                 width=self.width,
                 height=self.height,
-                fieldOfView=90
+                fieldOfView=90,
             )
 
         self.act_to_name = {
             0: ObjectNav.MOVE_AHEAD,
             1: ObjectNav.ROTATE_LEFT,
             2: ObjectNav.ROTATE_RIGHT,
-            3: ObjectNav.STOP
+            3: ObjectNav.STOP,
         }
 
         self.num_actions = len(self.act_to_name)
-        assert self.num_actions == config["num_actions"], "Number of actions in config do not match the number of" \
-                                                          "supported actions in AI2Thor Nav Bot."
+        assert self.num_actions == config["num_actions"], (
+            "Number of actions in config do not match the number of" "supported actions in AI2Thor Nav Bot."
+        )
 
         self.timestep = 0
         self.goal_obj = "Book_4549024d"
 
     def reset(self):
-
         if self.enable_exo:
-            self.exo_brightness = \
+            self.exo_brightness = (
                 random.random() * (self.exo_brightness_high - self.exo_brightness_low) + self.exo_brightness_low
+            )
             self.exo_hue = random.random() * (self.exo_hue_high - self.exo_hue_low) + self.exo_hue_low
             self.exo_sat = random.random() * (self.exo_sat_high - self.exo_sat_low) + self.exo_sat_low
 
@@ -126,7 +114,7 @@ class ObjectNav(CerebralEnvInterface):
             new_event = self.exo_update(old_event=new_event, respawn=True)
 
         self.curr_event = new_event
-        obs = new_event.frame           # Height x Width x {RGB channel} as uint8
+        obs = new_event.frame  # Height x Width x {RGB channel} as uint8
         obs = self._process_image(obs)
 
         info = self._get_info_from_event(new_event)
@@ -134,11 +122,12 @@ class ObjectNav(CerebralEnvInterface):
         return obs, info
 
     def step(self, action):
-
         if self.timestep >= self.horizon:
-            raise AssertionError("Cannot take more actions as H many actions have been already taken in this episode"
-                                 "where H is the horizon. Resetting the episode, or increasing the horizon may solve"
-                                 "this problem.")
+            raise AssertionError(
+                "Cannot take more actions as H many actions have been already taken in this episode"
+                "where H is the horizon. Resetting the episode, or increasing the horizon may solve"
+                "this problem."
+            )
 
         if action in self.act_to_name:
             new_event = self.controller.step(self.act_to_name[action])
@@ -149,12 +138,12 @@ class ObjectNav(CerebralEnvInterface):
         if self.enable_exo:
             new_event = self.exo_update(new_event)
 
-        obs = new_event.frame       # Height x Width x {RGB channel} as uint8
+        obs = new_event.frame  # Height x Width x {RGB channel} as uint8
         obs = self._process_image(obs)
 
         self.timestep += 1
         done = self.timestep == self.horizon
-        reward = 0                       # TODO: define reward somehow
+        reward = 0  # TODO: define reward somehow
         self.curr_event = new_event
         info = self._get_info_from_event(new_event)
 
@@ -164,24 +153,22 @@ class ObjectNav(CerebralEnvInterface):
         return (obs / 255.0).astype(np.float32)
 
     def get_objects(self, event):
-
         obj_pos = dict()
         for obj in event.metadata["objects"]:
             obj_pos[obj["name"]] = np.array([obj["position"]["x"], obj["position"]["y"], obj["position"]["z"]])
         return obj_pos
 
     def exo_update(self, old_event, respawn=False):
-
         if respawn:
             new_event = self.controller.step(
                 action="InitialRandomSpawn",
-                randomSeed=random.randint(0, int(1e6)),       # random.randint(0, int(1e9))
+                randomSeed=random.randint(0, int(1e6)),  # random.randint(0, int(1e9))
                 forceVisible=False,
                 numPlacementAttempts=5,
                 placeStationary=True,
                 numDuplicatesOfType=[],
                 excludedReceptacles=[],
-                excludedObjectIds=[]
+                excludedObjectIds=[],
             )
 
         # Randomize Materials (Not Exogenous)
@@ -191,7 +178,7 @@ class ObjectNav(CerebralEnvInterface):
                 useTrainMaterials=None,
                 useValMaterials=None,
                 useTestMaterials=None,
-                inRoomTypes=None
+                inRoomTypes=None,
             )
 
         self.exo_brightness = self.update_val(self.exo_brightness, 0.25, self.exo_brightness_high, self.exo_brightness_low)
@@ -205,7 +192,7 @@ class ObjectNav(CerebralEnvInterface):
             randomizeColor=True,
             hue=(self.exo_hue, self.exo_hue),
             saturation=(self.exo_sat, self.exo_sat),
-            synchronized=False
+            synchronized=False,
         )
 
         # Randomize Colors (Not Exogenous)
@@ -216,7 +203,6 @@ class ObjectNav(CerebralEnvInterface):
 
     @staticmethod
     def update_val(current, step, high_val, low_val):
-
         if random.random() < 0.5:
             val = current - step
         else:
@@ -228,7 +214,6 @@ class ObjectNav(CerebralEnvInterface):
 
     @staticmethod
     def _get_info_from_event(event):
-
         agent_state = (
             event.metadata["agent"]["position"]["x"],  # x position of the agent
             event.metadata["agent"]["position"]["y"],  # y position of the agent
@@ -236,13 +221,10 @@ class ObjectNav(CerebralEnvInterface):
             event.metadata["agent"]["rotation"]["x"],  # x rotation of the agent
             event.metadata["agent"]["rotation"]["y"],  # y rotation of the agent
             event.metadata["agent"]["rotation"]["z"],  # z rotation of the agent
-            event.metadata["agent"]["cameraHorizon"]   # The angle in degrees that the camera's pitch is rotated
+            event.metadata["agent"]["cameraHorizon"],  # The angle in degrees that the camera's pitch is rotated
         )
 
-        info = {
-            EnvKeys.STATE: agent_state,
-            EnvKeys.ENDO_STATE: agent_state
-        }
+        info = {EnvKeys.STATE: agent_state, EnvKeys.ENDO_STATE: agent_state}
 
         return info
 

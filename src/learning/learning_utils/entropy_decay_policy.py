@@ -1,5 +1,4 @@
 class EntropyDecayPolicy:
-
     def __init__(self, constants, epoch):
         self.epoch = epoch
 
@@ -44,7 +43,6 @@ class EntropyDecayPolicy:
         return 1 - epoch / float(max(1.0, self.epoch))
 
     def _smart(self, epoch, test_set_errors, past_entropy):
-
         # If test set loss is not decreasing and entropy is high then decrease by 0.1
         # If test set loss is not increasing and entropy is low then increase by 0.1
 
@@ -62,11 +60,11 @@ class EntropyDecayPolicy:
             last_entropy = past_entropy[-1]
 
             if last_error < snd_last_error - 0.001:
-                pass # Nothing to do
+                pass  # Nothing to do
             elif last_error >= snd_last_error - 0.001:
-                if last_entropy > 0.1: # entropy is high. Reduce it
+                if last_entropy > 0.1:  # entropy is high. Reduce it
                     current = current - 0.1
-                elif last_entropy < 0.1: # entropy is low. Increase it
+                elif last_entropy < 0.1:  # entropy is low. Increase it
                     current = current + 0.1
 
         self.current[epoch] = current
@@ -74,8 +72,7 @@ class EntropyDecayPolicy:
         return current
 
     def _step_decrease(self, epoch, test_set_errors, past_entropy, step=10):
-
-        if epoch <= step: # Exploration Started
+        if epoch <= step:  # Exploration Started
             return 1.0
         elif epoch <= 2 * step:
             return 0.5
@@ -85,7 +82,7 @@ class EntropyDecayPolicy:
             return 0.125
         elif epoch <= 10 * step:
             return 0.0
-        elif epoch <= 12 * step: # Convergence started
+        elif epoch <= 12 * step:  # Convergence started
             return -0.125
         elif epoch <= 14 * step:
             return -0.25

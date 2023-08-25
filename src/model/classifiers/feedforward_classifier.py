@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 
 class FeedForwardClassifier(nn.Module):
-    """ Model for learning the forward kinematic inseparability """
+    """Model for learning the forward kinematic inseparability"""
 
     NAME = "ff"
 
@@ -15,17 +15,16 @@ class FeedForwardClassifier(nn.Module):
         self.config = config
         self.constants = constants
 
-        if config["feature_type"] == 'feature':
-
+        if config["feature_type"] == "feature":
             self.obs_encoder = nn.Sequential(
                 nn.Linear(config["obs_dim"], constants["n_hidden"]),
                 nn.LeakyReLU(),
                 nn.Linear(constants["n_hidden"], constants["n_hidden"]),
                 nn.LeakyReLU(),
-                nn.Linear(constants["n_hidden"], self.num_class)
+                nn.Linear(constants["n_hidden"], self.num_class),
             )
 
-        elif config["feature_type"] == 'image':
+        elif config["feature_type"] == "image":
             raise NotImplementedError()
 
         else:
@@ -38,8 +37,7 @@ class FeedForwardClassifier(nn.Module):
             self.load_state_dict(bootstrap_model.state_dict())
 
     def _gen_logits(self, observations, return_log_prob=True):
-
-        if self.config["feature_type"] == 'image':
+        if self.config["feature_type"] == "image":
             raise AssertionError("Cannot handle images right now")
 
         logits = self.obs_encoder(observations)
@@ -56,14 +54,12 @@ class FeedForwardClassifier(nn.Module):
         return self._gen_logits(observations, return_log_prob=False)
 
     def save(self, folder_name, model_name=None):
-
         if model_name is None:
             torch.save(self.state_dict(), folder_name + FeedForwardClassifier.NAME)
         else:
             torch.save(self.state_dict(), folder_name + model_name)
 
     def load(self, folder_name, model_name=None):
-
         if model_name is None:
             self.load_state_dict(torch.load(folder_name + FeedForwardClassifier.NAME))
         else:

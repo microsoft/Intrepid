@@ -1,4 +1,7 @@
-from gym_minigrid.minigrid import *
+import numpy as np
+from enum import IntEnum
+from gym import spaces
+from gym_minigrid.minigrid import Goal, Grid, Lava, MiniGridEnv, Wall
 
 
 class GridWorld1(MiniGridEnv):
@@ -25,7 +28,7 @@ class GridWorld1(MiniGridEnv):
         width = config["width"]
         height = config["height"]
         horizon = config["horizon"]
-        seed = config["env_seed"]
+        config["env_seed"]
         agent_view_size = config["agent_view_size"]
 
         super().__init__(
@@ -35,7 +38,7 @@ class GridWorld1(MiniGridEnv):
             # Set this to True for maximum speed
             see_through_walls=False,
             seed=None,
-            agent_view_size=agent_view_size
+            agent_view_size=agent_view_size,
         )
 
         self.min_dist_to_goal = 17
@@ -95,7 +98,6 @@ class GridWorld1(MiniGridEnv):
         )
 
     def step(self, action):
-
         if self.last_done:
             # If done then the agent gets stuck
             obs = self.gen_obs()
@@ -125,18 +127,16 @@ class GridWorld1(MiniGridEnv):
         # Move forward
         if action == self.actions.left or action == self.actions.right:
             pass
-        elif action == self.actions.forward \
-                or action == self.actions.left_forward or action == self.actions.right_forward:
-
+        elif action == self.actions.forward or action == self.actions.left_forward or action == self.actions.right_forward:
             if fwd_cell is None or fwd_cell.can_overlap():
                 self.agent_pos = fwd_pos
 
-            if fwd_cell is not None and fwd_cell.type == 'goal':
+            if fwd_cell is not None and fwd_cell.type == "goal":
                 done = True
                 self.agent_pos = fwd_pos
                 reward = self._goal_reward()
 
-            if fwd_cell is not None and fwd_cell.type == 'lava':
+            if fwd_cell is not None and fwd_cell.type == "lava":
                 done = True
                 self.agent_pos = fwd_pos
                 reward = self._lava_reward()

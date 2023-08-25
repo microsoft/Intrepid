@@ -6,7 +6,7 @@ from utils.cuda import cuda_var
 
 class EvaluateStateDecoder:
     """
-        Evaluate state decoder on permutation invariant metric
+    Evaluate state decoder on permutation invariant metric
     """
 
     def __init__(self, exp_setup):
@@ -15,7 +15,6 @@ class EvaluateStateDecoder:
 
     @staticmethod
     def _rollout(env, step, homing_policies):
-
         start_obs, meta = env.reset()
 
         # Select a homing policy for the previous time step randomly uniformly
@@ -28,16 +27,17 @@ class EvaluateStateDecoder:
             action = policy[step_].sample_action(obs_var)
             obs, reward, done, meta = env.step(action)
 
-        return obs, meta["state"] if "endogenous_state" not in meta else meta["endogenous_state"]
+        return (
+            obs,
+            meta["state"] if "endogenous_state" not in meta else meta["endogenous_state"],
+        )
 
     def evaluate(self, env, step, policy_cover, encoding_function):
-
         # Collect data
         succ = 0
         state_dist = dict()
 
         for it in range(0, self.num_eval_samples):
-
             # Sample two independent roll-outs
             obs1, state1 = self._rollout(env, step, policy_cover)
             obs2, state2 = self._rollout(env, step, policy_cover)
@@ -56,8 +56,9 @@ class EvaluateStateDecoder:
             abstract_state1 = encoding_function.encode_observations(obs1)
             abstract_state2 = encoding_function.encode_observations(obs2)
 
-            if (state1 == state2 and abstract_state1 == abstract_state2) or \
-                    (state1 != state2 and abstract_state1 != abstract_state2):
+            if (state1 == state2 and abstract_state1 == abstract_state2) or (
+                state1 != state2 and abstract_state1 != abstract_state2
+            ):
                 succ += 1
 
             if it % 100 == 99:

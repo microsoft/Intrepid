@@ -1,21 +1,26 @@
 import time
 import numpy as np
 
-from environments.cerebral_env_meta.environment_wrapper import GenerateEnvironmentWrapper
+from environments.cerebral_env_meta.environment_wrapper import (
+    GenerateEnvironmentWrapper,
+)
 from learning.learning_utils.encoder_sampler_wrapper import EncoderSamplerWrapper
 from learning.learning_utils.homer_train_encoding_function import TrainEncodingFunction
-from learning.learning_utils.rl_discrete_latent_state_util import RLDiscreteLatentStateUtil
+from learning.learning_utils.rl_discrete_latent_state_util import (
+    RLDiscreteLatentStateUtil,
+)
 from learning.learning_utils.transition import TransitionDatapoint
-from model.policy.stationary_action_condition_policy import StationaryActionConditionPolicy
+from model.policy.stationary_action_condition_policy import (
+    StationaryActionConditionPolicy,
+)
 from utils.tensorboard import Tensorboard
 from functools import partial
 
 
 class DebugTrainEncodingFunction:
-    """ A class for debugging the training of encoding function using oracle homing policies """
+    """A class for debugging the training of encoding function using oracle homing policies"""
 
     def __init__(self, config, constants):
-
         self.config = config
         self.constants = constants
 
@@ -29,7 +34,6 @@ class DebugTrainEncodingFunction:
         self.util = RLDiscreteLatentStateUtil(config, constants)
 
     def generate_gold_homing_policies(self, env, env_name, horizon):
-
         if env_name == "combolock":
             return DebugTrainEncodingFunction.generate_combolock_gold_homing_policies(env, horizon)
         elif env_name == "stochcombolock":
@@ -41,11 +45,9 @@ class DebugTrainEncodingFunction:
 
     @staticmethod
     def generate_combolock_gold_homing_policies(env, horizon):
-
         homing_policy = dict()
 
         for step in range(1, horizon + 1):
-
             # Create policy to reach live branch
             live_state_policy = []
             for step_ in range(1, step + 1):
@@ -84,11 +86,9 @@ class DebugTrainEncodingFunction:
 
     @staticmethod
     def generate_stochcombolock_gold_homing_policies(env, horizon):
-
         homing_policy = dict()
 
         for step in range(1, horizon + 1):
-
             # Create policy to reach live branch
             live_state_policy = dict()
             for step_ in range(1, step + 1):
@@ -131,11 +131,9 @@ class DebugTrainEncodingFunction:
 
     @staticmethod
     def generate_diabcombolock_gold_homing_policies(env, horizon):
-
         homing_policy = dict()
 
         for step in range(1, horizon + 1):
-
             # Create policy to reach live branch
             live_state_policy = dict()
             for step_ in range(1, step + 1):
@@ -177,15 +175,15 @@ class DebugTrainEncodingFunction:
         return homing_policy
 
     def _purge_observation(self, env_name, obs):
-        """ Purge observation for combolocks """
+        """Purge observation for combolocks"""
 
         vec = np.copy(obs)
         horizon = self.config["horizon"]
 
         if env_name == "combolock":
-            vec[2 * horizon + 2:] = vec[2 * horizon + 2:] * 0.0
+            vec[2 * horizon + 2 :] = vec[2 * horizon + 2 :] * 0.0
         elif env_name == "stochcombolock" or env_name == "diabcombolock":
-            vec[3 * horizon + 3:] = vec[3 * horizon + 3:] * 0.0
+            vec[3 * horizon + 3 :] = vec[3 * horizon + 3 :] * 0.0
         else:
             raise AssertionError("Cannot handle")
 
@@ -201,12 +199,12 @@ class DebugTrainEncodingFunction:
         :return nothing is returned.
         """
 
-        assert env_name == "combolock" or env_name == "stochcombolock" or env_name == "diabcombolock", \
-            "Only combolocks are supported"
+        assert (
+            env_name == "combolock" or env_name == "stochcombolock" or env_name == "diabcombolock"
+        ), "Only combolocks are supported"
         assert purge_type == "curr" or purge_type == "next" or purge_type == "both", "Only supported types"
 
         for datapoint in dataset:
-
             assert isinstance(datapoint, TransitionDatapoint), "Must be of type Transition Datapoint"
 
             if purge_type == "curr" or purge_type == "both":
@@ -220,16 +218,13 @@ class DebugTrainEncodingFunction:
 
     @staticmethod
     def do_train(config, constants, env_name, experiment_name, logger, use_pushover, debug):
-
         # Create the environment
         env = GenerateEnvironmentWrapper(env_name, config)
         logger.log("Environment Created")
 
         if env_name == "stochcombolock" or env_name == "diabcombolock":
-            logger.log("Created Environment. First 5 actions Opt-A %r and Opt-B %r" %
-                       (env.env.opt_a[0:5], env.env.opt_b[0:5]))
-            print("Created Environment. First 5 actions Opt-A %r and Opt-B %r" %
-                       (env.env.opt_a[0:5], env.env.opt_b[0:5]))
+            logger.log("Created Environment. First 5 actions Opt-A %r and Opt-B %r" % (env.env.opt_a[0:5], env.env.opt_b[0:5]))
+            print("Created Environment. First 5 actions Opt-A %r and Opt-B %r" % (env.env.opt_a[0:5], env.env.opt_b[0:5]))
         elif env_name == "combolock":
             logger.log("Created Environment. First 5 actions %r" % env.env.opt[0:5])
             print("Created Environment. First 5 actions %r" % env.env.opt[0:5])
@@ -240,7 +235,7 @@ class DebugTrainEncodingFunction:
         learner.train(env, env_name, experiment_name, logger, use_pushover, debug)
 
     def train(self, env, env_name, experiment_name, logger, use_pushover, debug):
-        """ Performs the learning """
+        """Performs the learning"""
 
         horizon = self.config["horizon"]
         actions = self.config["actions"]
@@ -249,9 +244,9 @@ class DebugTrainEncodingFunction:
         tensorboard = Tensorboard(log_dir=self.config["save_path"])
 
         gold_homing_policies = self.generate_gold_homing_policies(env, env_name, horizon)
-        encoding_function = None    # Learned encoding function for the current time step
-        dataset = []                # Dataset of samples collected for training the encoder
-        selection_weights = None    # A distribution over homing policies from the previous time step (can be None)
+        encoding_function = None  # Learned encoding function for the current time step
+        dataset = []  # Dataset of samples collected for training the encoder
+        selection_weights = None  # A distribution over homing policies from the previous time step (can be None)
         observation_samples = None  # A set of observations observed on exploration
         success = True
 
@@ -265,14 +260,20 @@ class DebugTrainEncodingFunction:
         assert horizon >= 2
 
         for step in range(2, 3):
-
             logger.log("Step %r out of %r " % (step, horizon))
 
             # Step 1: Create dataset for learning the encoding function. A single datapoint consists of a transition
             # (x, a, x') and a 0-1 label y. If y=1 then transition was observed and y=0 otherwise.
             time_collection_start = time.time()
-            dataset = self.encoder_sampler.gather_samples(env, actions, step, gold_homing_policies, num_samples,
-                                                          dataset, selection_weights)
+            dataset = self.encoder_sampler.gather_samples(
+                env,
+                actions,
+                step,
+                gold_homing_policies,
+                num_samples,
+                dataset,
+                selection_weights,
+            )
             logger.log("Encoder: %r sample collected in %r sec" % (num_samples, time.time() - time_collection_start))
 
             # Optionally purge the dataset for ablation.
@@ -286,8 +287,16 @@ class DebugTrainEncodingFunction:
                 encoding_function = None
 
             if self.config["encoder_training_type"] == "transfer":
-                encoding_function, result_dict = self.train_encoding_function.do_train_with_discretized_models(
-                    dataset, logger, tensorboard, debug, bootstrap_model=encoding_function)
+                (
+                    encoding_function,
+                    result_dict,
+                ) = self.train_encoding_function.do_train_with_discretized_models(
+                    dataset,
+                    logger,
+                    tensorboard,
+                    debug,
+                    bootstrap_model=encoding_function,
+                )
             else:
                 raise AssertionError("Unhandled training %r" % self.config["encoder_training_type"])
 
@@ -295,7 +304,6 @@ class DebugTrainEncodingFunction:
 
             if debug:
                 if self.config["feature_type"] == "image":
-
                     # Save the abstract state and an image
                     if observation_samples is not None:
                         self.util.save_abstract_state_figures(observation_samples, step)

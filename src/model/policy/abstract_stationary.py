@@ -1,5 +1,4 @@
 class AbstractStationaryPolicy:
-
     def __init__(self):
         pass
 

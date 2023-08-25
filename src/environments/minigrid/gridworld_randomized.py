@@ -1,5 +1,7 @@
 import random
-from gym_minigrid.minigrid import *
+from enum import IntEnum
+from gym import spaces
+from gym_minigrid.minigrid import Goal, Grid, Lava, MiniGridEnv, Wall
 
 
 class GridWorldRandomized(MiniGridEnv):
@@ -20,7 +22,6 @@ class GridWorldRandomized(MiniGridEnv):
         right_forward = 4
 
     def __init__(self, config):
-
         width = config["width"]
         height = config["height"]
         horizon = config["horizon"]
@@ -38,7 +39,7 @@ class GridWorldRandomized(MiniGridEnv):
             # Set this to True for maximum speed
             see_through_walls=False,
             seed=seed,
-            agent_view_size=agent_view_size
+            agent_view_size=agent_view_size,
         )
 
         self.min_dist_to_goal = 8
@@ -50,7 +51,6 @@ class GridWorldRandomized(MiniGridEnv):
         self.reward_decay_ratio = 0.1  # config["reward_decay_ratio"]
 
     def _gen_grid(self, width, height):
-
         assert width == 15 and height == 15
 
         # Create an empty grid
@@ -60,16 +60,50 @@ class GridWorldRandomized(MiniGridEnv):
         self.grid.wall_rect(0, 0, width, height)
 
         self.wall_squares = {
-            (3, 2), (3, 3), (3, 4), (3, 5), (3, 6), (3, 7), (3, 8), (3, 9), (3, 10), (3, 11),
+            (3, 2),
+            (3, 3),
+            (3, 4),
+            (3, 5),
+            (3, 6),
+            (3, 7),
+            (3, 8),
+            (3, 9),
+            (3, 10),
+            (3, 11),
             (2, 3),
-            (4, 5), (5, 5),
-            (2, 8), (3, 8), (4, 8), (5, 8), (6, 8), (7, 8), (8, 8), (9, 8), (10, 8), (11, 8),
-            (10, 4), (10, 5), (10, 6), (10, 7),
-            (8, 2), (8, 3), (8, 4), (9, 4),
-            (12, 2), (12, 3), (12, 4), (11, 4),
-            (10, 8), (10, 9), (10, 10), (10, 11),
-            (6, 11), (7, 11), (8, 11), (9, 11),
-            (6, 10)
+            (4, 5),
+            (5, 5),
+            (2, 8),
+            (3, 8),
+            (4, 8),
+            (5, 8),
+            (6, 8),
+            (7, 8),
+            (8, 8),
+            (9, 8),
+            (10, 8),
+            (11, 8),
+            (10, 4),
+            (10, 5),
+            (10, 6),
+            (10, 7),
+            (8, 2),
+            (8, 3),
+            (8, 4),
+            (9, 4),
+            (12, 2),
+            (12, 3),
+            (12, 4),
+            (11, 4),
+            (10, 8),
+            (10, 9),
+            (10, 10),
+            (10, 11),
+            (6, 11),
+            (7, 11),
+            (8, 11),
+            (9, 11),
+            (6, 10),
         }
 
         self.agent_pos, self.goal_pos = self._sample_agent_goal(width, height)
@@ -92,7 +126,6 @@ class GridWorldRandomized(MiniGridEnv):
         )
 
     def _sample_agent_goal(self, width, height):
-
         available_squares = []
         for i in range(1, width - 1):
             for j in range(1, height - 1):
@@ -103,8 +136,9 @@ class GridWorldRandomized(MiniGridEnv):
         available_squares.remove(agent_pos)
 
         # Find a goal at least 5 distance way
-        available_pos = [potential_goal  for potential_goal in available_squares
-                         if 10 >= self._l1dist(potential_goal, agent_pos) >= 5]
+        available_pos = [
+            potential_goal for potential_goal in available_squares if 10 >= self._l1dist(potential_goal, agent_pos) >= 5
+        ]
 
         if len(available_pos) > 0:
             goal = random.choice(available_pos)
@@ -118,12 +152,10 @@ class GridWorldRandomized(MiniGridEnv):
         return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
     def reset(self):
-
         self.last_done = False
         return super().reset()
 
     def step(self, action):
-
         if self.last_done:
             # If done then the agent gets stuck
             obs = None
@@ -154,18 +186,16 @@ class GridWorldRandomized(MiniGridEnv):
         # Move forward
         if action == self.actions.left or action == self.actions.right:
             pass
-        elif action == self.actions.forward \
-                or action == self.actions.left_forward or action == self.actions.right_forward:
-
+        elif action == self.actions.forward or action == self.actions.left_forward or action == self.actions.right_forward:
             if fwd_cell is None or fwd_cell.can_overlap():
                 self.agent_pos = fwd_pos
 
-            if fwd_cell is not None and fwd_cell.type == 'goal':
+            if fwd_cell is not None and fwd_cell.type == "goal":
                 done = True
                 self.agent_pos = fwd_pos
                 reward = self._goal_reward()
 
-            if fwd_cell is not None and fwd_cell.type == 'lava':
+            if fwd_cell is not None and fwd_cell.type == "lava":
                 done = True
                 self.agent_pos = fwd_pos
                 reward = self._lava_reward()

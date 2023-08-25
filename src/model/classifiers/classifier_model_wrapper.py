@@ -6,11 +6,10 @@ from model.classifiers.linear_classifier import LinearClassifier
 
 
 class ClassifierModelWrapper:
-    """ Wrapper for classification model """
+    """Wrapper for classification model"""
 
     @staticmethod
     def get_classifier(model_name, num_class, config, constants, bootstrap_model=None):
-
         if model_name == "linear":
             return LinearClassifier(num_class, config, constants, bootstrap_model)
 
@@ -27,5 +26,6 @@ class ClassifierModelWrapper:
             return ConvMClassifier(num_class, config, constants, bootstrap_model)
 
         else:
-            raise NotImplementedError("Model %s is not implemented. Implemented models are linear, "
-                                      "ff, conv2, covn3, and convm" % model_name)
+            raise NotImplementedError(
+                "Model %s is not implemented. Implemented models are linear, " "ff, conv2, covn3, and convm" % model_name
+            )

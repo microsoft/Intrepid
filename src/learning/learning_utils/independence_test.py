@@ -8,9 +8,7 @@ from utils.cuda import cuda_var
 
 
 class IndependenceTest:
-
     def __init__(self, config, constants):
-
         self.config = config
         self.epoch = 10  # constants["encoder_training_epoch"]
         self.learning_rate = constants["encoder_training_lr"]
@@ -23,11 +21,18 @@ class IndependenceTest:
         self.expected_optima = constants["expected_optima"]  # If
 
     def _calc_loss(self, model, batch):
-
-        model_input = cuda_var(torch.cat([torch.from_numpy(np.array(point[0])).view(1, -1)
-                                          for point in batch], dim=0)).float()
-        gold_labels = cuda_var(torch.cat([torch.from_numpy(np.array(point[1])).view(1, -1)
-                                          for point in batch], dim=0)).long()
+        model_input = cuda_var(
+            torch.cat(
+                [torch.from_numpy(np.array(point[0])).view(1, -1) for point in batch],
+                dim=0,
+            )
+        ).float()
+        gold_labels = cuda_var(
+            torch.cat(
+                [torch.from_numpy(np.array(point[1])).view(1, -1) for point in batch],
+                dim=0,
+            )
+        ).long()
 
         # Compute loss
         log_probs = model.gen_log_prob(model_input=model_input)  # outputs a matrix of size batch x 2
@@ -36,7 +41,6 @@ class IndependenceTest:
         return loss
 
     def train_model(self, dataset, logger, tensorboard):
-
         # torch.manual_seed(ctr)
         print("Solving dataset with stats %r" % (len(dataset)))
 
@@ -51,7 +55,7 @@ class IndependenceTest:
 
         random.shuffle(dataset)
         dataset_size = len(dataset)
-        batches = [dataset[i:i + self.batch_size] for i in range(0, dataset_size, self.batch_size)]
+        batches = [dataset[i : i + self.batch_size] for i in range(0, dataset_size, self.batch_size)]
 
         train_batch = int((1.0 - self.validation_size_portion) * len(batches))
         train_batches = batches[:train_batch]
@@ -62,10 +66,8 @@ class IndependenceTest:
         patience_counter = 0
 
         for epoch_ in range(1, self.epoch + 1):
-
             train_loss, num_train_examples = 0.0, 0
             for train_batch in train_batches:
-
                 loss = self._calc_loss(model, train_batch)
 
                 optimizer.zero_grad()
@@ -111,15 +113,22 @@ class IndependenceTest:
                     logger.log("Patience Condition Triggered: No improvement for %r epochs" % patience_counter)
                     break
 
-        logger.log("FactoRL, Train/Test = %d/%d, Best Tune Loss %r at max_epoch %r, "
-                   "Train Loss after %r epochs is %r " % (num_train_examples, num_test_examples,
-                                                          round(best_test_loss, 2), best_epoch, epoch_,
-                                                          round(train_loss, 2)))
+        logger.log(
+            "FactoRL, Train/Test = %d/%d, Best Tune Loss %r at max_epoch %r, "
+            "Train Loss after %r epochs is %r "
+            % (
+                num_train_examples,
+                num_test_examples,
+                round(best_test_loss, 2),
+                best_epoch,
+                epoch_,
+                round(train_loss, 2),
+            )
+        )
 
         return best_model, best_test_loss
 
     def test_model(self, decoder, children_factor, dataset, k):
-
         correspondence = np.zeros((2, 2))
         for dp in dataset:
             atoms = np.array([dp.next_obs[i] for i in children_factor])
@@ -130,13 +139,11 @@ class IndependenceTest:
 
     @staticmethod
     def _create_ind_test_dataset(dataset):
-
         ind_test_dataset = []
 
         z_examples = [dp[1] for dp in dataset]
 
-        for (x, y) in dataset:
-
+        for x, y in dataset:
             # Add positive example dataset
             xy = np.array([x, y])
             ind_test_dataset.append((xy, 1))

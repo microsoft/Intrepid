@@ -1,9 +1,8 @@
-from environments.cerebral_env_meta.action_type import ActionType
 from model.policy.abstract_stationary import AbstractStationaryPolicy
 
 
 class StationaryActionConditionPolicy(AbstractStationaryPolicy):
-    """ A policy that takes action by evaluating an input condition """
+    """A policy that takes action by evaluating an input condition"""
 
     def __init__(self, action_condition):
         super(StationaryActionConditionPolicy, self).__init__()
