@@ -49,7 +49,8 @@ class FQIOracleDecoder:
 
         return episode
 
-    def q_value_iteration(self, q_values, transitions, counts, states_visited):
+    def q_value_iteration(self, q_values, model, counts, states_visited):
+
         for state in states_visited:
             if state not in q_values:
                 # We set Q-values of these states to 1.0 which is the maximum optimistic reward the agent can get
@@ -144,6 +145,7 @@ class FQIOracleDecoder:
         q_values = (
             dict()
         )  # Dictionary from state to a numpy array over actions indicating Q values
+        model = dict()
         time_start = time.time()
 
         for it in range(1, self.max_iter + 1):
@@ -157,11 +159,13 @@ class FQIOracleDecoder:
                 else:
                     counts[(state, action)] = 1.0
 
+            self.refine_model(model, episode)
+
             for state in episode.get_states():
                 states_visited.add(state)
 
             # Refine the value iteration
-            self.q_value_iteration(q_values, counts, states_visited)
+            self.q_value_iteration(q_values, model, counts, states_visited)
 
             if it % 100 == 0:
                 # print("\n\n")
