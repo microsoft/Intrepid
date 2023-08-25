@@ -2,11 +2,11 @@ import os
 import pickle
 
 from collections import deque
-from environments.cerebral_env_meta.action_type import ActionType
-from environments.cerebral_env_meta.cerebral_env_interface import CerebralEnvInterface
+from environments.intrepid_env_meta.action_type import ActionType
+from environments.intrepid_env_meta.intrepid_env_interface import IntrepidEnvInterface
 
 
-class RLAcidWrapper(CerebralEnvInterface):
+class RLAcidWrapper(IntrepidEnvInterface):
     """ Any environment using Cerebral Env Interface must support the following API """
 
     BERNOULLI, GAUSSIAN, HADAMHARD, HADAMHARDG = range(4)

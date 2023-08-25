@@ -1,11 +1,11 @@
 import numpy as np
 
 from environments.ai2thorenv.ai2thor_exo_util import AI2ThorExoUtil
-from environments.cerebral_env_meta.cerebral_env_interface import CerebralEnvInterface
-from environments.cerebral_env_meta.environment_keys import EnvKeys
+from environments.intrepid_env_meta.intrepid_env_interface import IntrepidEnvInterface
+from environments.intrepid_env_meta.environment_keys import EnvKeys
 
 
-class NavAI2Thor(CerebralEnvInterface):
+class NavAI2Thor(IntrepidEnvInterface):
 
     MOVE_AHEAD = "MoveAhead"
     MOVE_BACK = "MoveBack"

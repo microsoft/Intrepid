@@ -1,6 +1,6 @@
 import pickle
 
-from environments.cerebral_env_meta.action_type import ActionType
+from environments.intrepid_env_meta.action_type import ActionType
 
 
 class StationaryConstantPolicy(ActionType):

@@ -2,7 +2,7 @@ import MatterSim
 import numpy as np
 import json
 import os
-from environments.cerebral_env_meta.environment_wrapper import GenerateEnvironmentWrapper
+from environments.intrepid_env_meta.environment_wrapper import GenerateEnvironmentWrapper
 
 
 def first_test():

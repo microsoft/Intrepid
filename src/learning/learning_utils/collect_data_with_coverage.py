@@ -2,7 +2,7 @@ import random
 import numpy as np
 
 from learning.learning_utils.episode import Episode
-from environments.cerebral_env_meta.environment_keys import EnvKeys
+from environments.intrepid_env_meta.environment_keys import EnvKeys
 
 
 class CollectDatawithCoverage:

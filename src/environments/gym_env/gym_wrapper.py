@@ -4,11 +4,11 @@ import numpy as np
 from collections import deque
 from skimage.color import rgb2gray
 from skimage.transform import resize
-from environments.cerebral_env_meta.environment_keys import EnvKeys
-from environments.cerebral_env_meta.cerebral_env_interface import CerebralEnvInterface
+from environments.intrepid_env_meta.environment_keys import EnvKeys
+from environments.intrepid_env_meta.intrepid_env_interface import IntrepidEnvInterface
 
 
-class GymWrapper(CerebralEnvInterface):
+class GymWrapper(IntrepidEnvInterface):
 
     TARGET_SHAPE = (8, 11)
     MAX_PIX_VALUE = 8

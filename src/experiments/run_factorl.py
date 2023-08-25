@@ -6,7 +6,7 @@ import torch.multiprocessing as mp
 from experiments.experiment_header import get_header
 from experiments.experiment_save import terminate
 from learning.core_learner.factorl import FactoRL
-from environments.cerebral_env_meta.make_env import MakeEnvironment
+from environments.intrepid_env_meta.make_env import MakeEnvironment
 
 
 def main():

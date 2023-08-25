@@ -4,11 +4,11 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 
-from environments.cerebral_env_meta.environment_keys import EnvKeys
-from environments.cerebral_env_meta.cerebral_env_interface import CerebralEnvInterface
+from environments.intrepid_env_meta.environment_keys import EnvKeys
+from environments.intrepid_env_meta.intrepid_env_interface import IntrepidEnvInterface
 
 
-class ObjectNav(CerebralEnvInterface):
+class ObjectNav(IntrepidEnvInterface):
 
     MOVE_AHEAD = "MoveAhead"
     MOVE_BACK = "MoveBack"

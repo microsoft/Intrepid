@@ -3,7 +3,7 @@ import os
 import pickle
 
 from model.policy.stationary_constant_policy import StationaryConstantPolicy
-from environments.cerebral_env_meta.environment_wrapper import GenerateEnvironmentWrapper
+from environments.intrepid_env_meta.environment_wrapper import GenerateEnvironmentWrapper
 from learning.policy_search.abstract_policy_search import AbstractPolicySearch
 
 

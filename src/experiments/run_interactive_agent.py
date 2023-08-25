@@ -8,7 +8,7 @@ import torch.multiprocessing as mp
 
 from experiments.experiment_save import terminate
 from experiments.experiment_header import get_header
-from environments.cerebral_env_meta.make_env import MakeEnvironment
+from environments.intrepid_env_meta.make_env import MakeEnvironment
 
 
 def main():

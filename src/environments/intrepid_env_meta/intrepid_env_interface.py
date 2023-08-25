@@ -1,5 +1,5 @@
-class CerebralEnvInterface:
-    """ Any environment using Cerebral Env Interface must support the following API """
+class IntrepidEnvInterface:
+    """ Any environment using Intrepid Env Interface must support the following API """
 
     def reset(self):
         """

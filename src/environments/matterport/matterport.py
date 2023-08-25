@@ -6,11 +6,11 @@ import numpy as np
 
 from skimage.transform import resize
 
-from environments.cerebral_env_meta.action_type import ActionType
-from environments.cerebral_env_meta.cerebral_env_interface import CerebralEnvInterface
+from environments.intrepid_env_meta.action_type import ActionType
+from environments.intrepid_env_meta.intrepid_env_interface import IntrepidEnvInterface
 
 
-class Matterport(CerebralEnvInterface):
+class Matterport(IntrepidEnvInterface):
 
     env_name = "matterport"
 

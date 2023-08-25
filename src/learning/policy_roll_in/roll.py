@@ -1,7 +1,7 @@
 import random
 
 from learning.learning_utils.episode import Episode
-from environments.cerebral_env_meta.environment_keys import EnvKeys
+from environments.intrepid_env_meta.environment_keys import EnvKeys
 
 
 class Roll:

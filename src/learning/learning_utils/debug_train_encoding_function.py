@@ -1,7 +1,7 @@
 import time
 import numpy as np
 
-from environments.cerebral_env_meta.environment_wrapper import GenerateEnvironmentWrapper
+from environments.intrepid_env_meta.environment_wrapper import GenerateEnvironmentWrapper
 from learning.learning_utils.encoder_sampler_wrapper import EncoderSamplerWrapper
 from learning.learning_utils.homer_train_encoding_function import TrainEncodingFunction
 from learning.learning_utils.rl_discrete_latent_state_util import RLDiscreteLatentStateUtil
