@@ -5,12 +5,12 @@ import torch.nn.functional as F
 
 from collections import deque
 from environments.minigrid.exogenous_noise_util import get_exo_util
-from environments.cerebral_env_meta.environment_keys import EnvKeys
-from environments.cerebral_env_meta.cerebral_env_interface import CerebralEnvInterface
+from environments.intrepid_env_meta.environment_keys import EnvKeys
+from environments.intrepid_env_meta.intrepid_env_interface import IntrepidEnvInterface
 from model.policy.stationary_constant_policy import StationaryConstantPolicy
 
 
-class GridWorldWrapper(CerebralEnvInterface):
+class GridWorldWrapper(IntrepidEnvInterface):
     def __init__(self, env, config, logger):
         self.timestep = -1  # Current time step
         self.horizon = config["horizon"]

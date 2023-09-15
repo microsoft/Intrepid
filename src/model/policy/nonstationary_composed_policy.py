@@ -2,7 +2,7 @@ import random
 import numpy as np
 import torch.nn as nn
 
-from environments.cerebral_env_meta.action_type import ActionType
+from environments.intrepid_env_meta.action_type import ActionType
 
 
 class NonStationaryComposedPolicy(nn.Module, ActionType):

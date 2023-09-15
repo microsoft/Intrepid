@@ -6,7 +6,7 @@ import torch.multiprocessing as mp
 from experiments.experiment_save import terminate
 from experiments.experiment_header import get_header
 from learning.core_learner.ik_learner import IDLearning
-from environments.cerebral_env_meta.make_env import MakeEnvironment
+from environments.intrepid_env_meta.make_env import MakeEnvironment
 
 
 def main():

@@ -5,7 +5,6 @@ import importlib
 
 from environments.gym_env.gym_wrapper import GymWrapper
 from environments.minigrid.gridworld_wrapper import GridWorldWrapper
-from environments.minigrid.gridworld_wrapper_iclr import GridWorldWrapperICLR
 from environments.rl_acid_env.rl_acid_wrapper import RLAcidWrapper
 
 
@@ -141,8 +140,6 @@ class MakeEnvironment:
 
     def make(self, exp_setup):
         env_name = exp_setup.env_name
-        print(env_name)
-        # raise Exception
         base_env_name = exp_setup.base_env_name
 
         if (env_name.startswith("rlacid/") and base_env_name in self.rl_acid_names) or env_name in self.rl_acid_names:
@@ -156,10 +153,7 @@ class MakeEnvironment:
 
         elif (env_name.startswith("minigrid/") and base_env_name in self.minigrid_names) or env_name in self.minigrid_names:
             base_env = self.minigrid_names[base_env_name](exp_setup.config)
-            if base_env_name == "gridworld_iclr":
-                return GridWorldWrapperICLR(base_env, exp_setup.config)
-            else:
-                return GridWorldWrapper(base_env, exp_setup.config, exp_setup.logger)
+            return GridWorldWrapper(base_env, exp_setup.config, exp_setup.logger)
 
         elif (
             env_name.startswith("matterport/") and base_env_name in self.matterport_names

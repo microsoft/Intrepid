@@ -4,9 +4,7 @@ import torch
 
 from utils.cuda import cuda_var
 from learning.learning_utils.transition import TransitionDatapoint
-from environments.cerebral_env_meta.environment_wrapper import (
-    GenerateEnvironmentWrapper,
-)
+from environments.intrepid_env_meta.environment_wrapper import GenerateEnvironmentWrapper
 from learning.policy_search.abstract_policy_search import AbstractPolicySearch
 from learning.learning_utils.contextual_bandit_oracle import ContextualBanditOracle
 from model.policy.stationary_deterministic_policy import StationaryDeterministicPolicy

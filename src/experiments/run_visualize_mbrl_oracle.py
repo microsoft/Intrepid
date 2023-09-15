@@ -8,9 +8,7 @@ import torch.multiprocessing as mp
 from analysis_tools.visualize_latent_dynamics import VisualizeDynamics
 from setup_validator.core_validator import validate
 from utils.multiprocess_logger import MultiprocessingLoggerManager
-from environments.cerebral_env_meta.environment_wrapper import (
-    GenerateEnvironmentWrapper,
-)
+from environments.intrepid_env_meta.environment_wrapper import GenerateEnvironmentWrapper
 
 
 def main():

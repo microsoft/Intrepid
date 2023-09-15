@@ -7,9 +7,7 @@ import torch.multiprocessing as mp
 
 from os import listdir
 from os.path import isdir, join
-from environments.cerebral_env_meta.environment_wrapper import (
-    GenerateEnvironmentWrapper,
-)
+from environments.intrepid_env_meta.environment_wrapper import GenerateEnvironmentWrapper
 from learning.core_learner.homer import Homer
 from utils.multiprocess_logger import MultiprocessingLoggerManager
 from setup_validator.core_validator import validate

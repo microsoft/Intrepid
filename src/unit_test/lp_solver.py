@@ -5,7 +5,7 @@ import numpy as np
 import torch.multiprocessing as mp
 
 from experiments.experiment_header import get_header
-from environments.cerebral_env_meta.make_env import MakeEnvironment
+from environments.intrepid_env_meta.make_env import MakeEnvironment
 from learning.learning_utils.linear_disag_model import LinearDisagModel
 from utils.beautify_time import beautify
 

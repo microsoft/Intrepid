@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from environments.cerebral_env_meta.action_type import ActionType
+from environments.intrepid_env_meta.action_type import ActionType
 
 
 class StationaryStochasticPolicy(nn.Module, ActionType):
