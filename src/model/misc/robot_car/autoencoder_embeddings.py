@@ -15,7 +15,7 @@ if __name__ == "__main__":
     batch_size = 24
     data_root = "./car_data"
     train_root = "./autoencoder_training"
-    torch.set_float32_matmul_precision('medium')
+    torch.set_float32_matmul_precision("medium")
 
     parser = argparse.ArgumentParser()
     parser.add_argument("checkpoint", type=str)
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     model = CarAutoencoder.load_from_checkpoint(args.checkpoint).to(device)
 
     print("Loading data...")
-    dataset = CarDataset(data_root, max_k=1, resize=(256,256), cache_into_memory=False)
+    dataset = CarDataset(data_root, max_k=1, resize=(256, 256), cache_into_memory=False)
     num_samples = len(dataset.actions)
     assert len(dataset.pic_filenames) == num_samples
     assert sum(dataset.traj_lengths) == num_samples
@@ -54,9 +54,9 @@ if __name__ == "__main__":
             action = np.array([0.5, 0.5, 0.5, 0.5])
         else:
             # get action that comes after this observation
-            action = dataset.actions[i+1]
+            action = dataset.actions[i + 1]
         actions.append(action)
-    
+
     embeddings = np.array(embeddings, dtype=np.float32)
     actions = np.array(actions, dtype=np.float32)
 
@@ -69,4 +69,4 @@ if __name__ == "__main__":
 
     print("Saving pickle...")
     with open(args.output_file, "wb") as f:
-        pickle.dump(output, f)       
+        pickle.dump(output, f)

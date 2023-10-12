@@ -12,21 +12,25 @@ args = parser.parse_args()
 
 # Find logs in input directory
 client_log = glob.glob(os.path.join(args.input_dir, "client*.txt"))
-assert len(client_log) == 1, f"Error: Search for client log in directory {args.input_dir} returned {client_log}. Expected exactly one file."
+assert (
+    len(client_log) == 1
+), f"Error: Search for client log in directory {args.input_dir} returned {client_log}. Expected exactly one file."
 client_log = client_log[0]
 
 server_log = glob.glob(os.path.join(args.input_dir, "server*.txt"))
-assert len(server_log) == 1, f"Error: Search for server log in directory {args.input_dir} returned {server_log}. Expected exactly one file."
+assert (
+    len(server_log) == 1
+), f"Error: Search for server log in directory {args.input_dir} returned {server_log}. Expected exactly one file."
 server_log = server_log[0]
 
 # Read client log and server log
 print(f"Reading client log {client_log}")
-with open(client_log, 'r') as f:
+with open(client_log, "r") as f:
     client_lines = f.readlines()
 assert len(client_lines) > 0, "Error: Client log is empty"
 
 print(f"Reading server log {server_log}")
-with open(server_log, 'r') as f:
+with open(server_log, "r") as f:
     server_lines = f.readlines()
 assert len(server_lines) > 0, "Error: Server log is empty"
 
@@ -45,7 +49,7 @@ current_action_id = None
 current_action = {}
 for line_num, line in enumerate(server_lines):
     try:
-        line_split = line.split(',')
+        line_split = line.split(",")
 
         if line_split[0] == "setid":
             # Line indicates start of a new action
@@ -68,20 +72,20 @@ for line_num, line in enumerate(server_lines):
             current_action["direction"] = "reverse"
             current_action["speed"] = float(line_split[1])
             current_action["time"] = float(line_split[2])
-        
+
         elif line_split[0] == "take_pic":
             filename = line_split[1].strip()
             if not filename:
-                raise Exception(f"Missing filename")
+                raise Exception("Missing filename")
             current_action["cam_car"] = filename
-        
+
         elif line_split[0] == "sleep":
             # Ignore sleep lines
             pass
 
         else:
             raise Exception(f"Unknown line type: {line_split[0].strip()}")
-    
+
     except Exception as e:
         print(f"Error: Could not parse server log line {line_num}: {line.strip()}")
         print(e)
@@ -116,18 +120,26 @@ for client_action in client_actions:
 
     # Validate that client and server actions match
     if server_action.get("angle", None) != client_action.get("angle", None):
-        print(f"Error: Action {action_id}: Client angle {client_action.get('angle', None)} does not match server angle {server_action.get('angle', None)}")
+        print(
+            f"Error: Action {action_id}: Client angle {client_action.get('angle', None)} does not match server angle {server_action.get('angle', None)}"
+        )
         error_actions.add(action_id)
     if server_action.get("direction", None) != client_action.get("direction", None):
-        print(f"Error: Action {action_id}: Client direction {client_action.get('direction', None)} does not match server direction {server_action.get('direction', None)}")
+        print(
+            f"Error: Action {action_id}: Client direction {client_action.get('direction', None)} does not match server direction {server_action.get('direction', None)}"
+        )
         error_actions.add(action_id)
     if server_action.get("speed", None) != client_action.get("speed", None):
-        print(f"Error: Action {action_id}: Client speed {client_action.get('speed', None)} does not match server speed {server_action.get('speed', None)}")
+        print(
+            f"Error: Action {action_id}: Client speed {client_action.get('speed', None)} does not match server speed {server_action.get('speed', None)}"
+        )
         error_actions.add(action_id)
     if server_action.get("time", None) != client_action.get("time", None):
-        print(f"Error: Action {action_id}: Client time {client_action.get('time', None)} does not match server time {server_action.get('time', None)}")
+        print(
+            f"Error: Action {action_id}: Client time {client_action.get('time', None)} does not match server time {server_action.get('time', None)}"
+        )
         error_actions.add(action_id)
-    
+
     # Validate that server action has a camera image
     if "cam_car" not in server_action:
         print(f"Error: Action {action_id}: Server action does not have a filename for car camera image")
@@ -194,7 +206,7 @@ for sequence in joined_sequences:
         os.makedirs(sequence_out_dir)
         output_log = os.path.join(sequence_out_dir, "actions.txt")
         print(f"Writing output log to {output_log}")
-        with open(output_log, 'w') as f:
+        with open(output_log, "w") as f:
             for action in sequence:
                 f.write(json.dumps(action))
                 f.write("\n")

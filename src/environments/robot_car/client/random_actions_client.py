@@ -17,13 +17,14 @@ DIRECTIONS = ["forward", "reverse"]
 SPEEDS = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
 TIMES = [0.1, 0.2, 0.3, 0.4, 0.5]
 
+
 async def do_random_actions(host, port, output_dir, cameras):
     # Create output directory and log file
     os.makedirs(output_dir, exist_ok=True)
     time_str = get_timestamp_str()
-    log_filename = os.path.join(output_dir, 'client_log_%s.txt' % time_str)
+    log_filename = os.path.join(output_dir, "client_log_%s.txt" % time_str)
     print(f"Writing client log to {log_filename}")
-    logging.basicConfig(level=logging.INFO, format='%(message)s', filename=log_filename, filemode='w')
+    logging.basicConfig(level=logging.INFO, format="%(message)s", filename=log_filename, filemode="w")
 
     # Connect to the car server
     car = CarClient(host, port)
@@ -77,12 +78,13 @@ async def do_random_actions(host, port, output_dir, cameras):
             log_output[f"cam{i}"] = filename
         logging.info(json.dumps(log_output))
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--host', type=str, default='localhost')
-    parser.add_argument('--port', type=int, default=21219)
-    parser.add_argument('--cameras', type=str, nargs='+', default=[])
-    parser.add_argument('--output_dir', type=str, default=os.path.join(os.getcwd(), "pics"))
+    parser.add_argument("--host", type=str, default="localhost")
+    parser.add_argument("--port", type=int, default=21219)
+    parser.add_argument("--cameras", type=str, nargs="+", default=[])
+    parser.add_argument("--output_dir", type=str, default=os.path.join(os.getcwd(), "pics"))
     args = parser.parse_args()
 
     cameras = init_cameras(args.cameras)

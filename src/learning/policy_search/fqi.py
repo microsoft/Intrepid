@@ -136,11 +136,7 @@ class FQI(AbstractPolicySearch):
     ):
         """Performs the learning"""
 
-        (
-            time_start,
-            sample_time,
-            oracle_time,
-        ) = (
+        (time_start, sample_time, oracle_time,) = (
             time.time(),
             0,
             0,

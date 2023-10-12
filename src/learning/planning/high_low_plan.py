@@ -16,6 +16,7 @@ class TrajOptParams:
         # number of samples used in CEM
         self.num_samples = 500
 
+
 class HighLowPlanner:
     def __init__(self, nz, nu, enc, forward_dyn, kmeans, MDP) -> None:
         # latent state dimension
@@ -68,13 +69,12 @@ class HighLowPlanner:
 
         tracking_cost_fcn = Tracking_Cost(self.forward_dyn, init_lat_state, next_lat_state)
 
-        if method == 'hj-prox':
+        if method == "hj-prox":
             hj_optimizer = HJ_Prox_Optimizer(tracking_cost_fcn, init_actions, t_param, x_min=u_min, x_max=u_max)
-            output_action, action_list = hj_optimizer.prox_grad_descent(iter_num=num_iter, x_init=init_actions,
-                                                                        t=t_param)
+            output_action, action_list = hj_optimizer.prox_grad_descent(iter_num=num_iter, x_init=init_actions, t=t_param)
 
-        if method == 'cem':
-            cem_optimizer = CEM_Optimizer(tracking_cost_fcn, x_min = u_min, x_max = u_max)
+        if method == "cem":
+            cem_optimizer = CEM_Optimizer(tracking_cost_fcn, x_min=u_min, x_max=u_max)
             output_action, _ = cem_optimizer.cem_iter(init_actions, num_samples=opt_params.num_samples, num_iter=num_iter)
 
         rollout_costs = tracking_cost_fcn(output_action)

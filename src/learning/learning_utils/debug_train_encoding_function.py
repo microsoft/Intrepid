@@ -285,10 +285,7 @@ class DebugTrainEncodingFunction:
                 encoding_function = None
 
             if self.config["encoder_training_type"] == "transfer":
-                (
-                    encoding_function,
-                    result_dict,
-                ) = self.train_encoding_function.do_train_with_discretized_models(
+                (encoding_function, result_dict,) = self.train_encoding_function.do_train_with_discretized_models(
                     dataset,
                     logger,
                     tensorboard,

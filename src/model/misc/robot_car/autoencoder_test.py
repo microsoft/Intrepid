@@ -10,7 +10,7 @@ from model.misc.robot_car.autoencoder_train import CarAutoencoder
 
 
 def interpolate(a, b, steps):
-    return torch.stack([a + (b-a)*i/(steps+1) for i in range(steps+2)], dim=1)
+    return torch.stack([a + (b - a) * i / (steps + 1) for i in range(steps + 2)], dim=1)
 
 
 if __name__ == "__main__":
@@ -24,7 +24,7 @@ if __name__ == "__main__":
     # check that checkpoint file exists
     if not os.path.isfile(args.checkpoint):
         raise FileNotFoundError(args.checkpoint)
-    
+
     # check that test data directory exists
     if not os.path.isdir(args.test_data):
         raise FileNotFoundError(args.test_data)
@@ -33,12 +33,12 @@ if __name__ == "__main__":
 
     print(f"Loading model from {args.checkpoint}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    #device = torch.device("cpu")
+    # device = torch.device("cpu")
     model = CarAutoencoder.load_from_checkpoint(args.checkpoint).to(device)
     model.eval()
 
     print("Loading data...")
-    dataset = CarDataset(args.test_data, max_k=1, resize=(256,256), cache_into_memory=False)
+    dataset = CarDataset(args.test_data, max_k=1, resize=(256, 256), cache_into_memory=False)
     dataloader_train = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=True)
 
     print("Testing on random latent vectors")
@@ -61,9 +61,9 @@ if __name__ == "__main__":
 
     print("Testing step interpolation")
     n_interp = 10
-    interp0 = interpolate(st_enc[:, 0], stk_enc[:, 0], steps=n_interp-2).reshape(-1, model.latent_dim)
-    interp1 = interpolate(st_enc[:, 1], stk_enc[:, 1], steps=n_interp-2).reshape(-1, model.latent_dim)
-    interp2 = interpolate(st_enc[:, 2], stk_enc[:, 2], steps=n_interp-2).reshape(-1, model.latent_dim)
+    interp0 = interpolate(st_enc[:, 0], stk_enc[:, 0], steps=n_interp - 2).reshape(-1, model.latent_dim)
+    interp1 = interpolate(st_enc[:, 1], stk_enc[:, 1], steps=n_interp - 2).reshape(-1, model.latent_dim)
+    interp2 = interpolate(st_enc[:, 2], stk_enc[:, 2], steps=n_interp - 2).reshape(-1, model.latent_dim)
 
     with torch.no_grad():
         pics = model.decode(torch.stack([interp0, interp1, interp2], dim=1).reshape(-1, 3, model.latent_dim).to(device))
@@ -74,9 +74,9 @@ if __name__ == "__main__":
     save_image(pics, os.path.join(train_root, "test_interpolate_step.jpg"), nrow=n_interp)
 
     print("Testing random interpolation")
-    interp0 = interpolate(st_enc[:-1, 0], st_enc[1:, 0], steps=n_interp-2).reshape(-1, model.latent_dim)
-    interp1 = interpolate(st_enc[:-1, 1], st_enc[1:, 1], steps=n_interp-2).reshape(-1, model.latent_dim)
-    interp2 = interpolate(st_enc[:-1, 2], st_enc[1:, 2], steps=n_interp-2).reshape(-1, model.latent_dim)
+    interp0 = interpolate(st_enc[:-1, 0], st_enc[1:, 0], steps=n_interp - 2).reshape(-1, model.latent_dim)
+    interp1 = interpolate(st_enc[:-1, 1], st_enc[1:, 1], steps=n_interp - 2).reshape(-1, model.latent_dim)
+    interp2 = interpolate(st_enc[:-1, 2], st_enc[1:, 2], steps=n_interp - 2).reshape(-1, model.latent_dim)
 
     with torch.no_grad():
         pics = model.decode(torch.stack([interp0, interp1, interp2], dim=1).reshape(-1, 3, model.latent_dim).to(device))

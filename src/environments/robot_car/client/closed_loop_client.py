@@ -7,8 +7,10 @@ import os
 from environments.robot_car.client.client_base import CarClient
 from environments.robot_car.client.client_utils import get_timestamp_str, init_cameras
 from environments.robot_car.client.state import CarState
-from environments.robot_car.client.alex_inference import AlexModelInference
 from environments.robot_car.client.inference import LatentForwardInference
+
+# from environments.robot_car.client.alex_inference import AlexModelInference
+
 
 async def closed_loop_navigation(host, port, cameras, model, total_steps, output_dir):
     # Connect to the car server
@@ -37,26 +39,23 @@ async def closed_loop_navigation(host, port, cameras, model, total_steps, output
 
         # Save current state to file
         saved_img_files = car_state.save_to_files(output_dir, action_id)
-        logging.info(json.dumps({
-             "action_id": action_id,
-              **saved_img_files,
-              **action
-        }))
-    
+        logging.info(json.dumps({"action_id": action_id, **saved_img_files, **action}))
+
     end_state = CarState()
     await end_state.capture_from_cameras(car, cameras)
     end_state_files = end_state.save_to_files(output_dir, "end")
     logging.info(json.dumps(end_state_files))
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--host', type=str, default='localhost')
-    parser.add_argument('--port', type=int, default=21219)
-    parser.add_argument('--cameras', type=str, nargs='+', default=[])
-    parser.add_argument('--steps', type=int, default=1)
-    parser.add_argument('--goal_state', type=str, default=os.path.join(os.getcwd(), "goal_state"))
-    parser.add_argument('--output_dir', type=str, default=os.path.join(os.getcwd(), "output"))
-    parser.add_argument('--model_dir', type=str, default=os.path.join(os.getcwd(), "models"))
+    parser.add_argument("--host", type=str, default="localhost")
+    parser.add_argument("--port", type=int, default=21219)
+    parser.add_argument("--cameras", type=str, nargs="+", default=[])
+    parser.add_argument("--steps", type=int, default=1)
+    parser.add_argument("--goal_state", type=str, default=os.path.join(os.getcwd(), "goal_state"))
+    parser.add_argument("--output_dir", type=str, default=os.path.join(os.getcwd(), "output"))
+    parser.add_argument("--model_dir", type=str, default=os.path.join(os.getcwd(), "models"))
     args = parser.parse_args()
 
     assert len(args.cameras) > 0, "Must specify at least one camera"
@@ -67,15 +66,15 @@ if __name__ == "__main__":
     goal_state.load_from_files(args.goal_state, len(args.cameras))
 
     # Load model
-    #model = AlexModelInference(goal_state, args.model_dir)
+    # model = AlexModelInference(goal_state, args.model_dir)
     model = LatentForwardInference(goal_state, args.model_dir)
 
     # Create output directory and log file
     os.makedirs(args.output_dir, exist_ok=True)
     time_str = get_timestamp_str()
-    log_filename = os.path.join(args.output_dir, 'log_%s.txt' % time_str)
+    log_filename = os.path.join(args.output_dir, "log_%s.txt" % time_str)
     print(f"Writing client log to {log_filename}")
-    logging.basicConfig(level=logging.INFO, format='%(message)s', filename=log_filename, filemode='w')
+    logging.basicConfig(level=logging.INFO, format="%(message)s", filename=log_filename, filemode="w")
 
     cameras = init_cameras(args.cameras)
     try:

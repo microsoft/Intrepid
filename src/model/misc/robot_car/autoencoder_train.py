@@ -20,7 +20,11 @@ def patch_loss(losses):
     # split into 16x16 patches and flatten
     patch_size = 16
     n_patches = losses.shape[1] // patch_size
-    patches = losses.reshape(losses.shape[0], losses.shape[1], n_patches, patch_size).permute(0, 2, 1, 3).reshape(losses.shape[0], n_patches*n_patches, patch_size*patch_size)
+    patches = (
+        losses.reshape(losses.shape[0], losses.shape[1], n_patches, patch_size)
+        .permute(0, 2, 1, 3)
+        .reshape(losses.shape[0], n_patches * n_patches, patch_size * patch_size)
+    )
     # take the mean of each flattened patch
     patch_losses = patches.mean(dim=2)
     # return the mean of the top 4 patch means
@@ -35,17 +39,23 @@ class CarAutoencoder(pl.LightningModule):
         self.patch_coeff = patch_coeff
         self.lr = lr
         self.max_kl_coeff = kl_coeff
-        self.enc0 = VAE(input_height=256, first_conv=True, maxpool1=True, enc_out_dim=512, kl_coeff=kl_coeff, latent_dim=latent_dim)
-        self.enc1 = VAE(input_height=256, first_conv=True, maxpool1=True, enc_out_dim=512, kl_coeff=kl_coeff, latent_dim=latent_dim)
-        self.enc2 = VAE(input_height=256, first_conv=True, maxpool1=True, enc_out_dim=512, kl_coeff=kl_coeff, latent_dim=latent_dim)
+        self.enc0 = VAE(
+            input_height=256, first_conv=True, maxpool1=True, enc_out_dim=512, kl_coeff=kl_coeff, latent_dim=latent_dim
+        )
+        self.enc1 = VAE(
+            input_height=256, first_conv=True, maxpool1=True, enc_out_dim=512, kl_coeff=kl_coeff, latent_dim=latent_dim
+        )
+        self.enc2 = VAE(
+            input_height=256, first_conv=True, maxpool1=True, enc_out_dim=512, kl_coeff=kl_coeff, latent_dim=latent_dim
+        )
 
     def forward(self, st):
         encoding = self.encode(st)
-        #z = self.sample(encoding)
-        #return z.reshape(z.shape[0], -1)
+        # z = self.sample(encoding)
+        # return z.reshape(z.shape[0], -1)
         mu = encoding[0]
         return mu.reshape(mu.shape[0], -1)
-    
+
     def encode(self, st):
         # input is (batch_size, 3, ch, h, w)
         z0 = self.enc0.encoder(st[:, 0])
@@ -59,7 +69,7 @@ class CarAutoencoder(pl.LightningModule):
         log_var1 = self.enc1.fc_var(z1)
         log_var2 = self.enc2.fc_var(z2)
         return (torch.stack([mu0, mu1, mu2], dim=1), torch.stack([log_var0, log_var1, log_var2], dim=1))
-    
+
     def sample(self, encoding):
         mu, log_var = encoding
         _, _, z0 = self.enc0.sample(mu[:, 0], log_var[:, 0])
@@ -73,7 +83,7 @@ class CarAutoencoder(pl.LightningModule):
         pic1 = self.enc1.decoder(z[:, 1])
         pic2 = self.enc2.decoder(z[:, 2])
         return torch.stack([pic0, pic1, pic2], dim=1)
-    
+
     def set_kl_coeff(self, kl_coeff):
         self.enc0.kl_coeff = kl_coeff
         self.enc1.kl_coeff = kl_coeff
@@ -86,14 +96,14 @@ class CarAutoencoder(pl.LightningModule):
     def _run_step(self, batch, batch_idx, run="train"):
         st, stk, k, a_true = batch
         pics = torch.cat([st, stk], dim=0)
-        
+
         # VAE expects image labels but doesn't use them, so use None
         loss0, log0, recon_losses_0 = self.enc0.step((pics[:, 0], None), batch_idx)
         loss1, log1, recon_losses_1 = self.enc1.step((pics[:, 1], None), batch_idx)
         loss2, log2, _ = self.enc2.step((pics[:, 2], None), batch_idx)
         patch_loss_0 = patch_loss(recon_losses_0)
         patch_loss_1 = patch_loss(recon_losses_1)
-        loss = loss0 + loss1 + loss2 + self.patch_coeff*patch_loss_0 + self.patch_coeff*patch_loss_1
+        loss = loss0 + loss1 + loss2 + self.patch_coeff * patch_loss_0 + self.patch_coeff * patch_loss_1
 
         logs = {
             **{f"{k}_0": v for k, v in log0.items()},
@@ -116,7 +126,7 @@ class CarAutoencoder(pl.LightningModule):
                 save_image(pics_recon, os.path.join(image_out_dir, f"{run}_recon.jpg"), nrow=12)
 
         return loss, logs
-    
+
     def training_step(self, batch, batch_idx):
         loss, logs = self._run_step(batch, batch_idx, run="train")
         self.log_dict({f"{k}_train": v for k, v in logs.items()})
@@ -133,6 +143,7 @@ class CarAutoencoder(pl.LightningModule):
     def configure_optimizers(self):
         return torch.optim.AdamW(self.parameters(), lr=self.lr, weight_decay=1e-3)
 
+
 class KLStepCallback(Callback):
     def on_train_epoch_start(self, trainer, pl_module):
         epoch = trainer.current_epoch
@@ -141,6 +152,7 @@ class KLStepCallback(Callback):
         kl = kl_coeffs[index % len(kl_coeffs)]
         print(f"\nEpoch={epoch} Steps={trainer.global_step}: Setting KL coeff to {kl}")
         pl_module.set_kl_coeff(kl)
+
 
 class KLRampCallback(Callback):
     def on_train_batch_start(self, trainer, pl_module, batch, batch_idx):
@@ -170,7 +182,7 @@ if __name__ == "__main__":
     max_k = 1
     num_workers = 8
     train_split = 0.8
-    torch.set_float32_matmul_precision('medium')
+    torch.set_float32_matmul_precision("medium")
 
     parser = argparse.ArgumentParser()
     parser.add_argument("checkpoint", type=str, nargs="?", default="")
@@ -190,11 +202,27 @@ if __name__ == "__main__":
         model.lr = args.lr
 
     print("Loading data...")
-    dataset = CarDataset(data_root, max_k=max_k, resize=(256,256), cache_into_memory=True)
+    dataset = CarDataset(data_root, max_k=max_k, resize=(256, 256), cache_into_memory=True)
     torch.manual_seed(0)
-    dataset_train, dataset_val = torch.utils.data.random_split(dataset, [int(len(dataset)*train_split), len(dataset)-int(len(dataset)*train_split)])
-    dataloader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, num_workers=num_workers, pin_memory=True, persistent_workers=True)
-    dataloader_val = DataLoader(dataset_val, batch_size=args.batch_size, shuffle=True, num_workers=num_workers, pin_memory=True, persistent_workers=True)
+    dataset_train, dataset_val = torch.utils.data.random_split(
+        dataset, [int(len(dataset) * train_split), len(dataset) - int(len(dataset) * train_split)]
+    )
+    dataloader_train = DataLoader(
+        dataset_train,
+        batch_size=args.batch_size,
+        shuffle=True,
+        num_workers=num_workers,
+        pin_memory=True,
+        persistent_workers=True,
+    )
+    dataloader_val = DataLoader(
+        dataset_val,
+        batch_size=args.batch_size,
+        shuffle=True,
+        num_workers=num_workers,
+        pin_memory=True,
+        persistent_workers=True,
+    )
 
     print("Training...")
     # save all checkpoints
@@ -206,7 +234,7 @@ if __name__ == "__main__":
         callbacks=[checkpoint_callback, kl_callback],
         max_epochs=100,
         num_sanity_val_steps=1,
-        check_val_every_n_epoch=1
+        check_val_every_n_epoch=1,
     )
 
     trainer.fit(model=model, train_dataloaders=dataloader_train, val_dataloaders=dataloader_val)

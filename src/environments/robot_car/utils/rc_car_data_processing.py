@@ -20,36 +20,43 @@ def process_data(input_dir):
         traj_actions, traj_done = [], []
         traj_observations = []
         try:
-            with open(os.path.join(input_dir, sub_dir, 'actions.txt')) as trajectories_file:
+            with open(os.path.join(input_dir, sub_dir, "actions.txt")) as trajectories_file:
                 for line in trajectories_file:
                     step_info = json.loads(line)
-                    assert all([key in step_info for key in ['cam0', 'cam1', 'cam_car', 'angle', 'direction', 'speed', 'time']])
+                    assert all(
+                        [key in step_info for key in ["cam0", "cam1", "cam_car", "angle", "direction", "speed", "time"]]
+                    )
 
-                    with Image.open(os.path.join(input_dir, sub_dir, step_info['cam0'])).resize((250, 250)) as image:
+                    with Image.open(os.path.join(input_dir, sub_dir, step_info["cam0"])).resize((250, 250)) as image:
                         cam0_array = np.asarray(image, dtype=np.uint8).transpose(2, 0, 1)
 
-                    with Image.open(os.path.join(input_dir, sub_dir, step_info['cam1'])).resize((250, 250)) as image:
+                    with Image.open(os.path.join(input_dir, sub_dir, step_info["cam1"])).resize((250, 250)) as image:
                         cam1_array = np.asarray(image, dtype=np.uint8).transpose(2, 0, 1)
 
-                    with Image.open(os.path.join(input_dir, sub_dir, step_info['cam_car'])).resize((250, 250)) as image:
+                    with Image.open(os.path.join(input_dir, sub_dir, step_info["cam_car"])).resize((250, 250)) as image:
                         car_array = np.asarray(image, dtype=np.uint8).transpose(2, 0, 1)
 
                     traj_observations.append(np.concatenate((cam0_array, cam1_array, car_array), axis=2))
 
-                    assert step_info['direction'] in ['forward', 'reverse']
-                    traj_actions.append(np.array([
-                        step_info['angle'],
-                        0.0 if step_info['direction'] == 'forward' else 1.0,
-                        step_info['speed'],
-                        step_info['time']
-                    ], dtype=np.float32))
+                    assert step_info["direction"] in ["forward", "reverse"]
+                    traj_actions.append(
+                        np.array(
+                            [
+                                step_info["angle"],
+                                0.0 if step_info["direction"] == "forward" else 1.0,
+                                step_info["speed"],
+                                step_info["time"],
+                            ],
+                            dtype=np.float32,
+                        )
+                    )
                     traj_done.append(False)
 
                 # End of trajectory
                 traj_done[-1] = True
 
-        except:
-            print(f'{sub_dir} couldn\'t be processed')
+        except Exception:
+            print(f"{sub_dir} couldn't be processed")
 
         # Shift actions by 1
         # Remove first action and last observation
@@ -70,36 +77,36 @@ def process_data(input_dir):
     A_norm = (total_actions - A_min) / (A_max - A_min)
 
     result = {
-        'X': X,
-        'A': A_norm,
-        'done': np.array(total_done, dtype=np.uint8),
-        'action-unnorm-min': A_min,
-        'action-unnorm-max': A_max
+        "X": X,
+        "A": A_norm,
+        "done": np.array(total_done, dtype=np.uint8),
+        "action-unnorm-min": A_min,
+        "action-unnorm-max": A_max,
     }
 
     print(f"X.shape = {X.shape}")
     print(f"A.shape = {A.shape}")
     print(f"min(A) = {A_min}")
     print(f"max(A) = {A_max}")
-    
+
     return result
 
 
-if __name__ == '__main__':
-    assert len(sys.argv) == 3, 'Usage: python rc_car_data_processing.py <input_dir> <output_dir>'
+if __name__ == "__main__":
+    assert len(sys.argv) == 3, "Usage: python rc_car_data_processing.py <input_dir> <output_dir>"
     input_dir = sys.argv[1]
     output_dir = sys.argv[2]
-    output_file = os.path.join(output_dir, 'dataset.p')
+    output_file = os.path.join(output_dir, "dataset.p")
 
-    assert os.path.isdir(input_dir), f'{input_dir} does not exist'
-    assert not os.path.isfile(output_file), f'{output_file} already exists'
+    assert os.path.isdir(input_dir), f"{input_dir} does not exist"
+    assert not os.path.isfile(output_file), f"{output_file} already exists"
     os.makedirs(output_dir, exist_ok=True)
 
-    print(f'Processing data from {input_dir}')
+    print(f"Processing data from {input_dir}")
     result = process_data(input_dir)
-    print(f'Done processing')
+    print("Done processing")
     gc.collect()
-    print(f'Saving pickle file to {output_file}')
-    with open(output_file, 'wb') as f:
+    print(f"Saving pickle file to {output_file}")
+    with open(output_file, "wb") as f:
         pickle.dump(result, f)
-    print('Done saving pickle file')
+    print("Done saving pickle file")

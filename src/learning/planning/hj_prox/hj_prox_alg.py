@@ -1,11 +1,6 @@
-import os, sys
+import numpy as np
 import torch
 import torch.nn as nn
-import pickle
-import numpy as np
-# from autograd import grad
-import matplotlib.pyplot as plt
-import time
 
 
 class HJ_Prox_Optimizer:
@@ -43,15 +38,14 @@ class HJ_Prox_Optimizer:
         sol_list = [x_init]
 
         for i in range(iter_num):
-            start_time = time.time()
+            # start_time = time.time()
 
             # schedule the stepsize t
             t = t0 / (i + 1)
 
             prox = self.step(x, t)
-            run_time = time.time() - start_time
-
-            cost = self.f(x)
+            # run_time = time.time() - start_time
+            # cost = self.f(x)
             # print('grad desc. iter {:d} takes {:.2f} secs. cost min: {:.2f}, cost max: {:.2f}'.format(i, run_time, cost.min().item(), cost.max().item()))
 
             if self.x_min is not None:
@@ -79,7 +73,7 @@ class HJ_Prox_Optimizer:
         sol_list = [x_init]
 
         for i in range(iter_num):
-            start_time = time.time()
+            # start_time = time.time()
 
             t = t0 / (i + 1)
 
@@ -87,9 +81,8 @@ class HJ_Prox_Optimizer:
             gamma = 2 * (1 - t / (beta + t))
 
             prox = self.step(x, t)
-            run_time = time.time() - start_time
-
-            cost = self.f(x)
+            # run_time = time.time() - start_time
+            # cost = self.f(x)
             # print('grad desc. iter {:d} takes {:.2f} secs. cost min: {:.2f}, cost max: {:.2f}'.format(i, run_time, cost.min().item(), cost.max().item()))
 
             next_x = x + gamma * (prox - x)
@@ -128,7 +121,6 @@ def tracking_cost_helper_batch(actions, forward_model, lat_state_init, lat_state
     nz = lat_state_init.size(-1)
 
     total_cost = 0
-    device = lat_state_init.device
 
     # lat_state_target = lat_state_target.repeat((n_batch, 1)).repeat((num_samples, 1, 1))
     lat_state = lat_state_init.repeat((n_batch, 1)).repeat((num_samples, 1, 1))
@@ -169,22 +161,33 @@ def tracking_cost_helper(actions, forward_model, lat_state_init, lat_state_targe
     return cost
 
 
-def compute_hj_prox(x, t, f, delta=1e-1, int_samples=1000, alpha=0.1,
-                    recursion_depth=0, alpha_decay=0.5, tol=1.0e-9,
-                    tol_underflow=0.9, device='cpu', verbose=False,
-                    return_samples=False):
-    """ Estimate proximals from function value sampling via HJ-Prox Algorithm.
+def compute_hj_prox(
+    x,
+    t,
+    f,
+    delta=1e-1,
+    int_samples=1000,
+    alpha=0.1,
+    recursion_depth=0,
+    alpha_decay=0.5,
+    tol=1.0e-9,
+    tol_underflow=0.9,
+    device="cpu",
+    verbose=False,
+    return_samples=False,
+):
+    """Estimate proximals from function value sampling via HJ-Prox Algorithm.
 
-        Args:
-            x (tensor): Input vector
-            t (tensor): Time > 0
-            f: Function to minimize
+    Args:
+        x (tensor): Input vector
+        t (tensor): Time > 0
+        f: Function to minimize
 
-        Returns:
-            tensor: Estimate of the proximal of f at x
+    Returns:
+        tensor: Estimate of the proximal of f at x
 
-        Reference:
-            [A Hamilton-Jacobi-based Proximal Operator](https://arxiv.org/pdf/2211.12997.pdf)
+    Reference:
+        [A Hamilton-Jacobi-based Proximal Operator](https://arxiv.org/pdf/2211.12997.pdf)
     """
     # valid_tensor_shape = x.shape[1] == 1 and x.shape[0] >= 1
     # assert valid_tensor_shape, "Input tensor shape incorrect."
@@ -192,11 +195,10 @@ def compute_hj_prox(x, t, f, delta=1e-1, int_samples=1000, alpha=0.1,
     # SC: not sure if it is necessary to run the codes in cpu
     device = x.device
 
-    start_time = time.time()
+    # start_time = time.time()
 
     recursion_depth += 1
     std_dev = np.sqrt(delta * t / alpha)
-    n_batch = x.shape[0]
 
     y = std_dev * torch.randn(tuple([int_samples] + list(x.size())), device=device)
     y = y + x
@@ -206,7 +208,7 @@ def compute_hj_prox(x, t, f, delta=1e-1, int_samples=1000, alpha=0.1,
     underflow_freq = float(underflow.sum()) / underflow.shape[0]
     observe_underflow = underflow_freq > tol_underflow
 
-    run_time = time.time() - start_time
+    # run_time = time.time() - start_time
     # print(f'HJ prox first phase runtime: {run_time} s.')
 
     # try to mute observe underflow
@@ -214,13 +216,23 @@ def compute_hj_prox(x, t, f, delta=1e-1, int_samples=1000, alpha=0.1,
 
     if observe_underflow:
         alpha *= alpha_decay
-        return compute_hj_prox(x, t, f, delta=delta, int_samples=int_samples,
-                               alpha=alpha, recursion_depth=recursion_depth,
-                               alpha_decay=alpha_decay, tol=tol,
-                               tol_underflow=tol_underflow, device=device,
-                               verbose=verbose, return_samples=return_samples)
+        return compute_hj_prox(
+            x,
+            t,
+            f,
+            delta=delta,
+            int_samples=int_samples,
+            alpha=alpha,
+            recursion_depth=recursion_depth,
+            alpha_decay=alpha_decay,
+            tol=tol,
+            tol_underflow=tol_underflow,
+            device=device,
+            verbose=verbose,
+            return_samples=return_samples,
+        )
     else:
-        start_time = time.time()
+        # start_time = time.time()
 
         soft_max = torch.nn.Softmax(dim=0)
 
@@ -231,7 +243,7 @@ def compute_hj_prox(x, t, f, delta=1e-1, int_samples=1000, alpha=0.1,
 
         HJ_prox = torch.mul(soft_max(z), y).sum(dim=0)
 
-        run_time = time.time() - start_time
+        # run_time = time.time() - start_time
         # print(f'HJ prox second phase runtime: {run_time} s.')
 
         valid_prox_shape = HJ_prox.shape == x.shape
@@ -241,7 +253,7 @@ def compute_hj_prox(x, t, f, delta=1e-1, int_samples=1000, alpha=0.1,
         assert prox_is_finite
 
         if verbose:
-            envelope = - (delta / alpha) * torch.log(torch.mean(torch.exp(z)))
+            envelope = -(delta / alpha) * torch.log(torch.mean(torch.exp(z)))
             return HJ_prox, recursion_depth, envelope
         elif return_samples:
             return HJ_prox, y, alpha

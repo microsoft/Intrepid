@@ -2,8 +2,10 @@ import cv2 as cv
 import sys
 from time import time, strftime, localtime
 
+
 def get_timestamp_str():
-    return strftime('%Y-%m-%d-%H-%M-%S', localtime(time()))
+    return strftime("%Y-%m-%d-%H-%M-%S", localtime(time()))
+
 
 # Initialize webcams
 # devnames: list of strings containing numbers ["0", "1"] or names (["/dev/video0", "/dev/video1"])

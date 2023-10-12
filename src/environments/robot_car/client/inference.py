@@ -20,6 +20,7 @@ class MockKMeans:
     def predict(self, state):
         return [0]
 
+
 class MockMDP:
     def __init__(self, **kwargs):
         self.discrete_transition = np.array([[0]])
@@ -30,10 +31,10 @@ class MockMDP:
 class LatentForwardInference:
     def __init__(self, goal_state, model_path, planner_type="low"):
         self.goal_state = goal_state
-        self.latent_dim = 512*3
+        self.latent_dim = 512 * 3
         self.action_dim = 4
         self.device = "cpu"
-        #self.device = "cuda"
+        # self.device = "cuda"
 
         # seed
         torch.manual_seed(0)
@@ -42,13 +43,20 @@ class LatentForwardInference:
             torch.cuda.manual_seed(0)
 
         # load dynamics
-        encoder_path = os.path.join(model_path, 'autoencoder.ckpt')
-        forward_path = os.path.join(model_path, 'latent_forward.ckpt')
+        encoder_path = os.path.join(model_path, "autoencoder.ckpt")
+        forward_path = os.path.join(model_path, "latent_forward.ckpt")
         self.encoder = CarAutoencoder.load_from_checkpoint(encoder_path, strict=False, map_location=self.device).eval()
         self.forward = LatentForward.load_from_checkpoint(forward_path, strict=False, map_location=self.device).eval()
 
         if planner_type == "low":
-            self.planner = HighLowPlanner(nz=self.latent_dim, nu=self.action_dim, enc=self.encoder, forward_dyn=self.forward, kmeans=MockKMeans(), MDP=MockMDP())
+            self.planner = HighLowPlanner(
+                nz=self.latent_dim,
+                nu=self.action_dim,
+                enc=self.encoder,
+                forward_dyn=self.forward,
+                kmeans=MockKMeans(),
+                MDP=MockMDP(),
+            )
         elif planner_type == "random":
             self.planner = RandomShootingPlanner(self.latent_dim, self.action_dim, self.encoder, self.forward)
         else:
@@ -78,17 +86,12 @@ class LatentForwardInference:
             "angle": float(unnormed[0]),
             "direction": "forward" if unnormed[1] < 0.5 else "reverse",
             "speed": float(unnormed[2]),
-            "time": float(unnormed[3])
+            "time": float(unnormed[3]),
         }
 
     def _normalize_action(self, action):
-        assert all([key in action for key in ['angle', 'direction', 'speed', 'time']])
-        action = np.array([
-            action['angle'],
-            0.0 if action['direction'] == 'forward' else 1.0,
-            action['speed'],
-            action['time']
-        ])
+        assert all([key in action for key in ["angle", "direction", "speed", "time"]])
+        action = np.array([action["angle"], 0.0 if action["direction"] == "forward" else 1.0, action["speed"], action["time"]])
         ACTION_MAX = np.array([50.0, 1.0, 0.5, 0.5])
         ACTION_MIN = np.array([-10.0, 0.0, 0.0, 0.1])
         normed = (action - ACTION_MIN) / (ACTION_MAX - ACTION_MIN)
@@ -105,9 +108,9 @@ class LatentForwardInference:
                 u_max=torch.ones(self.action_dim).float(),
                 opt_params=None,
                 method="hj-prox",
-                #method="cem",
+                # method="cem",
             )
-        #unnormalized_actions = [self._unnormalize_action(action) for action in actions]
+        # unnormalized_actions = [self._unnormalize_action(action) for action in actions]
         return self._unnormalize_action(actions[0])
 
 
@@ -130,7 +133,7 @@ class RandomShootingPlanner:
         pred_z = self.forward(init_z, random_actions)
 
         # find closest action
-        dist = F.mse_loss(pred_z, target_z, reduction='none')
+        dist = F.mse_loss(pred_z, target_z, reduction="none")
         dist = dist.mean(dim=1)
         index = torch.argmin(dist)
 
@@ -148,9 +151,9 @@ class RandomShootingPlanner:
 
     def generate_random_actions(self, n):
         ANGLES = [-10, 0, 10, 20, 30, 40, 50]
-        DIRECTIONS = [0.0, 1.0] #["forward", "reverse"]
+        DIRECTIONS = [0.0, 1.0]  # ["forward", "reverse"]
         SPEEDS = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
-        #TIMES = [0.1, 0.2, 0.3, 0.4, 0.5]
+        # TIMES = [0.1, 0.2, 0.3, 0.4, 0.5]
         TIMES = [0.2, 0.3, 0.4, 0.5]
         ACTION_MAX = np.array([50.0, 1.0, 0.5, 0.5])
         ACTION_MIN = np.array([-10.0, 0.0, 0.0, 0.1])

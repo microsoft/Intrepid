@@ -44,14 +44,16 @@ class AC(nn.Module):
         self.kemb = nn.Embedding(nk, din)
         self.cemb = nn.Embedding(150, din)
 
-        self.m = nn.Sequential(nn.Linear(din * 3, 1024),
-                               nn.LeakyReLU(),
-                               nn.Linear(1024, 512),
-                               nn.LeakyReLU(),
-                               nn.Linear(512, 512),
-                               nn.LeakyReLU(),
-                               nn.Linear(512, 256),
-                               nn.LeakyReLU())
+        self.m = nn.Sequential(
+            nn.Linear(din * 3, 1024),
+            nn.LeakyReLU(),
+            nn.Linear(1024, 512),
+            nn.LeakyReLU(),
+            nn.Linear(512, 512),
+            nn.LeakyReLU(),
+            nn.Linear(512, 256),
+            nn.LeakyReLU(),
+        )
         # self.m = nn.Sequential(nn.Linear(din*3, 256), nn.BatchNorm1d(256), nn.LeakyReLU(), nn.Linear(256,256), nn.BatchNorm1d(256), nn.LeakyReLU(), nn.Linear(256, 256))
         # self.m = nn.Sequential(nn.Linear(din * 3, 256), ResMLP(256), ResMLP(256))
 
@@ -88,24 +90,26 @@ class LatentForward(nn.Module):
         super().__init__()
         self.nact = nact
         self.alin = nn.Sequential(nn.Linear(nact, dim))
-        self.net = nn.Sequential(nn.Linear(dim + nact, 512), nn.LeakyReLU(), nn.Linear(512, 512), nn.LeakyReLU(),
-                                 nn.Linear(512, dim))
+        self.net = nn.Sequential(
+            nn.Linear(dim + nact, 512), nn.LeakyReLU(), nn.Linear(512, 512), nn.LeakyReLU(), nn.Linear(512, dim)
+        )
         # self.net = nn.Sequential(ResMLP(512), ResMLP(512), nn.Linear(512, dim))
 
         if True:
-            self.prior = nn.Sequential(nn.Linear(dim + nact, 512), nn.LayerNorm(512), nn.LeakyReLU(),
-                                       nn.Linear(512, 512))
-            self.posterior = nn.Sequential(nn.Linear(dim * 2 + nact, 512), nn.LayerNorm(512), nn.LeakyReLU(),
-                                           nn.Linear(512, 512))
-            self.decoder = nn.Sequential(nn.Linear(dim + nact + 256, 512), nn.LeakyReLU(), nn.Linear(512, 512),
-                                         nn.LeakyReLU(), nn.Linear(512, dim))
+            self.prior = nn.Sequential(nn.Linear(dim + nact, 512), nn.LayerNorm(512), nn.LeakyReLU(), nn.Linear(512, 512))
+            self.posterior = nn.Sequential(
+                nn.Linear(dim * 2 + nact, 512), nn.LayerNorm(512), nn.LeakyReLU(), nn.Linear(512, 512)
+            )
+            self.decoder = nn.Sequential(
+                nn.Linear(dim + nact + 256, 512), nn.LeakyReLU(), nn.Linear(512, 512), nn.LeakyReLU(), nn.Linear(512, dim)
+            )
 
     # zn = forward(z, a)
-    # grad(zn, z) # grad of scalar-output wrt vector-input.  
-    # ILQR get jacobian which is (mxm).  
+    # grad(zn, z) # grad of scalar-output wrt vector-input.
+    # ILQR get jacobian which is (mxm).
 
     def forward(self, z, a, detach=True):
-        a = a[:, :self.nact]
+        a = a[:, : self.nact]
         zc = torch.cat([z.detach() if detach else z, a], dim=1)
 
         if True:
@@ -120,12 +124,13 @@ class LatentForward(nn.Module):
         return zpred
 
     def loss(self, z, zn, a, do_detach=True):
-        a = a[:, :self.nact]
+        a = a[:, : self.nact]
 
+        # ignore lint E731: do not assign a lambda expression
         if do_detach:
-            detach_fn = lambda inp: inp.detach()
+            detach_fn = lambda inp: inp.detach()  # noqa: E731
         else:
-            detach_fn = lambda inp: inp
+            detach_fn = lambda inp: inp  # noqa: E731
 
         zc = torch.cat([z, a], dim=1)
         zpred = self.net(zc)
@@ -134,8 +139,9 @@ class LatentForward(nn.Module):
 
         if True:
             mu_prior, std_prior = torch.chunk(self.prior(detach_fn(zc)), 2, dim=1)
-            mu_posterior, std_posterior = torch.chunk(self.posterior(torch.cat([detach_fn(zc), detach_fn(zn)], dim=1)),
-                                                      2, dim=1)
+            mu_posterior, std_posterior = torch.chunk(
+                self.posterior(torch.cat([detach_fn(zc), detach_fn(zn)], dim=1)), 2, dim=1
+            )
             std_prior = torch.exp(std_prior)
             std_posterior = torch.exp(std_posterior)
             prior = torch.distributions.normal.Normal(mu_prior, std_prior)
@@ -160,40 +166,32 @@ class Encoder(nn.Module):
         assert len(input_dim) == 3
         # assert height == width, 'only square images are supported'
 
-        self.mixer = mixer.MLP_Mixer(n_layers=2,
-                                     n_channel=32,
-                                     n_hidden=32,
-                                     n_output=32 * 4 * 4,
-                                     image_size_h=height,
-                                     image_size_w=width,
-                                     patch_size=patch_size,
-                                     n_image_channel=input_channels)
+        self.mixer = mixer.MLP_Mixer(
+            n_layers=2,
+            n_channel=32,
+            n_hidden=32,
+            n_output=32 * 4 * 4,
+            image_size_h=height,
+            image_size_w=width,
+            patch_size=patch_size,
+            n_image_channel=input_channels,
+        )
 
         self.group_norm = nn.BatchNorm1d(32 * 4 * 4)
         self.mixer_output_dim = (np.prod((32, 4, 4)),)
         self.mlp = nn.Sequential(
-            nn.Linear(int(np.prod(self.mixer_output_dim)), 256),
-            nn.LeakyReLU(),
-            nn.Linear(256, embedding_dim)
+            nn.Linear(int(np.prod(self.mixer_output_dim)), 256), nn.LeakyReLU(), nn.Linear(256, embedding_dim)
         )
 
         self.contrastive = nn.Sequential(
-            nn.Linear(embedding_dim, 512),
-            nn.LeakyReLU(),
-            nn.Linear(512, 512),
-            nn.LeakyReLU(),
-            nn.Linear(512, embedding_dim)
+            nn.Linear(embedding_dim, 512), nn.LeakyReLU(), nn.Linear(512, 512), nn.LeakyReLU(), nn.Linear(512, embedding_dim)
         )
         self.w_contrast = nn.Linear(1, 1)
         self.b_contrast = nn.Linear(1, 1)
-        self.contrast_inv = nn.Sequential(nn.Linear(embedding_dim, 512),
-                                          nn.LeakyReLU(),
-                                          nn.Linear(512, embedding_dim))
-        self.vq = VectorQuantize(dim=embedding_dim,
-                                 codebook_size=ndiscrete,
-                                 decay=0.8,
-                                 commitment_weight=1.0,
-                                 threshold_ema_dead_code=0.1)
+        self.contrast_inv = nn.Sequential(nn.Linear(embedding_dim, 512), nn.LeakyReLU(), nn.Linear(512, embedding_dim))
+        self.vq = VectorQuantize(
+            dim=embedding_dim, codebook_size=ndiscrete, decay=0.8, commitment_weight=1.0, threshold_ema_dead_code=0.1
+        )
 
     def forward(self, x):
         h = self.mixer(x)
@@ -223,18 +221,11 @@ class CNNMultiEncoder(nn.Module):
         assert len(input_dim) == 3
         # assert height == width, 'only square images are supported'
 
-        self.cam_0 = Encoder(input_dim, embedding_dim,
-                             ndiscrete=ndiscrete, patch_size=patch_size)
-        self.cam_1 = Encoder(input_dim, embedding_dim,
-                             ndiscrete=ndiscrete, patch_size=patch_size)
-        self.cam_car = Encoder(input_dim, embedding_dim,
-                               ndiscrete=ndiscrete, patch_size=patch_size)
+        self.cam_0 = Encoder(input_dim, embedding_dim, ndiscrete=ndiscrete, patch_size=patch_size)
+        self.cam_1 = Encoder(input_dim, embedding_dim, ndiscrete=ndiscrete, patch_size=patch_size)
+        self.cam_car = Encoder(input_dim, embedding_dim, ndiscrete=ndiscrete, patch_size=patch_size)
 
-        self.mlp = nn.Sequential(
-            nn.Linear(3 * embedding_dim, 256),
-            nn.LeakyReLU(),
-            nn.Linear(256, embedding_dim)
-        )
+        self.mlp = nn.Sequential(nn.Linear(3 * embedding_dim, 256), nn.LeakyReLU(), nn.Linear(256, embedding_dim))
 
     def forward(self, x):
         x_0 = self.cam_0(x[:, :, :, :250])
@@ -346,38 +337,26 @@ class CNNProbe(nn.Module):
             # nn.BatchNorm2d(16),
             nn.ReLU(True),
             nn.Conv2d(8, 8, 3, stride=2, padding=0),
-            nn.ReLU(True)
+            nn.ReLU(True),
         )
 
         ### Flatten layer
         self.flatten = nn.Flatten(start_dim=1)
         ### Linear section
-        self.encoder_lin = nn.Sequential(
-            nn.Linear(7688, 128),
-            nn.ReLU(True),
-            nn.Linear(128, din)
-        )
+        self.encoder_lin = nn.Sequential(nn.Linear(7688, 128), nn.ReLU(True), nn.Linear(128, din))
 
-        self.decoder_lin = nn.Sequential(
-            nn.Linear(din, 512),
-            nn.ReLU(True),
-            nn.Linear(512, 7688),
-            nn.ReLU(True)
-        )
+        self.decoder_lin = nn.Sequential(nn.Linear(din, 512), nn.ReLU(True), nn.Linear(512, 7688), nn.ReLU(True))
 
         self.unflatten = nn.Unflatten(dim=1, unflattened_size=(8, 31, 31))
 
         self.decoder_conv = nn.Sequential(
-            nn.ConvTranspose2d(8, 8, 3,
-                               stride=2, output_padding=0),
+            nn.ConvTranspose2d(8, 8, 3, stride=2, output_padding=0),
             # nn.BatchNorm2d(16),
             nn.ReLU(True),
-            nn.ConvTranspose2d(8, 8, 3, stride=2,
-                               padding=1, output_padding=1),
+            nn.ConvTranspose2d(8, 8, 3, stride=2, padding=1, output_padding=1),
             # nn.BatchNorm2d(8),
             nn.ReLU(True),
-            nn.ConvTranspose2d(8, 3, 3, stride=2,
-                               padding=1, output_padding=0)
+            nn.ConvTranspose2d(8, 3, 3, stride=2, padding=1, output_padding=0),
         )
 
         # self.enc = nn.Sequential(nn.Linear(din, 256), ResMLP(256), nn.Linear(256, dout))

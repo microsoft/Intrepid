@@ -20,17 +20,25 @@ class Bottleneck(nn.Module):
         self.in1 = nn.Sequential(nn.Linear(in_dim, middle_dim), nn.LeakyReLU(), nn.BatchNorm1d(middle_dim))
         self.in2 = nn.Sequential(nn.Linear(in_dim, middle_dim), nn.LeakyReLU(), nn.BatchNorm1d(middle_dim))
         self.out = nn.Sequential(
-            nn.Linear(middle_dim*3, 1024), nn.LeakyReLU(), nn.BatchNorm1d(1024),
-            nn.Linear(1024, 512), nn.LeakyReLU(), nn.BatchNorm1d(512),
-            nn.Linear(512, 256), nn.LeakyReLU(), nn.BatchNorm1d(256),
-            nn.Linear(256, 128), nn.LeakyReLU(), nn.BatchNorm1d(128),
-            nn.Linear(128, out_dim)
+            nn.Linear(middle_dim * 3, 1024),
+            nn.LeakyReLU(),
+            nn.BatchNorm1d(1024),
+            nn.Linear(1024, 512),
+            nn.LeakyReLU(),
+            nn.BatchNorm1d(512),
+            nn.Linear(512, 256),
+            nn.LeakyReLU(),
+            nn.BatchNorm1d(256),
+            nn.Linear(256, 128),
+            nn.LeakyReLU(),
+            nn.BatchNorm1d(128),
+            nn.Linear(128, out_dim),
         )
-    
+
     def forward(self, x):
-        x0 = self.in0(x[:,0])
-        x1 = self.in1(x[:,1])
-        x2 = self.in2(x[:,2])
+        x0 = self.in0(x[:, 0])
+        x1 = self.in1(x[:, 1])
+        x2 = self.in2(x[:, 2])
         return self.out(torch.cat((x0, x1, x2), dim=1))
 
 
@@ -42,29 +50,29 @@ class VariationalBottleneck(nn.Module):
         self.in1 = nn.Sequential(nn.Linear(in_dim, middle_dim), nn.LeakyReLU(), nn.BatchNorm1d(middle_dim))
         self.in2 = nn.Sequential(nn.Linear(in_dim, middle_dim), nn.LeakyReLU(), nn.BatchNorm1d(middle_dim))
         self.mid = nn.Sequential(
-            nn.Linear(middle_dim*3, 1024), nn.LeakyReLU(), nn.BatchNorm1d(1024),
-            nn.Linear(1024, 512), nn.LeakyReLU(), nn.BatchNorm1d(512),
-            nn.Linear(512, 256), nn.LeakyReLU(), nn.BatchNorm1d(256)
+            nn.Linear(middle_dim * 3, 1024),
+            nn.LeakyReLU(),
+            nn.BatchNorm1d(1024),
+            nn.Linear(1024, 512),
+            nn.LeakyReLU(),
+            nn.BatchNorm1d(512),
+            nn.Linear(512, 256),
+            nn.LeakyReLU(),
+            nn.BatchNorm1d(256),
         )
-        self.out_mu = nn.Sequential(
-            nn.Linear(256, 128), nn.LeakyReLU(), nn.BatchNorm1d(128),
-            nn.Linear(128, out_dim)
-        )
-        self.out_var = nn.Sequential(
-            nn.Linear(256, 128), nn.LeakyReLU(), nn.BatchNorm1d(128),
-            nn.Linear(128, out_dim)
-        )
-    
+        self.out_mu = nn.Sequential(nn.Linear(256, 128), nn.LeakyReLU(), nn.BatchNorm1d(128), nn.Linear(128, out_dim))
+        self.out_var = nn.Sequential(nn.Linear(256, 128), nn.LeakyReLU(), nn.BatchNorm1d(128), nn.Linear(128, out_dim))
+
     def encode(self, x):
-        x0 = self.in0(x[:,0])
-        x1 = self.in1(x[:,1])
-        x2 = self.in2(x[:,2])
+        x0 = self.in0(x[:, 0])
+        x1 = self.in1(x[:, 1])
+        x2 = self.in2(x[:, 2])
         xm = self.mid(torch.cat((x0, x1, x2), dim=1))
 
         mu = self.out_mu(xm)
         log_var = self.out_var(xm)
         return (mu, log_var)
-    
+
     def forward(self, x):
         mu, log_var = self.encode(x)
         std = torch.exp(log_var / 2)
@@ -84,12 +92,18 @@ class Unbottleneck(nn.Module):
 
     def make_nn(self, in_dim, out_dim):
         return nn.Sequential(
-            nn.Linear(in_dim, 128), nn.LeakyReLU(), nn.BatchNorm1d(128),
-            #nn.Linear(128, 128), nn.LeakyReLU(), nn.BatchNorm1d(128),
-            nn.Linear(128, 256), nn.LeakyReLU(), nn.BatchNorm1d(256),
-            #nn.Linear(256, 256), nn.LeakyReLU(), nn.BatchNorm1d(256),
-            nn.Linear(256, 512), nn.LeakyReLU(), nn.BatchNorm1d(512),
-            nn.Linear(512, out_dim)
+            nn.Linear(in_dim, 128),
+            nn.LeakyReLU(),
+            nn.BatchNorm1d(128),
+            # nn.Linear(128, 128), nn.LeakyReLU(), nn.BatchNorm1d(128),
+            nn.Linear(128, 256),
+            nn.LeakyReLU(),
+            nn.BatchNorm1d(256),
+            # nn.Linear(256, 256), nn.LeakyReLU(), nn.BatchNorm1d(256),
+            nn.Linear(256, 512),
+            nn.LeakyReLU(),
+            nn.BatchNorm1d(512),
+            nn.Linear(512, out_dim),
         )
 
     def forward(self, x):
@@ -103,10 +117,12 @@ class ActionPredictor(nn.Module):
     def __init__(self, latent_dim, action_dim):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(2*latent_dim, 256), nn.LeakyReLU(), nn.Linear(256, action_dim)
-            #nn.Linear(2*latent_dim, 256), nn.LeakyReLU(), nn.BatchNorm1d(256),
-            #nn.Linear(256, 64), nn.LeakyReLU(), nn.BatchNorm1d(64),
-            #nn.Linear(64, action_dim)
+            nn.Linear(2 * latent_dim, 256),
+            nn.LeakyReLU(),
+            nn.Linear(256, action_dim)
+            # nn.Linear(2*latent_dim, 256), nn.LeakyReLU(), nn.BatchNorm1d(256),
+            # nn.Linear(256, 64), nn.LeakyReLU(), nn.BatchNorm1d(64),
+            # nn.Linear(64, action_dim)
         )
 
     def forward(self, st, stk):
@@ -114,7 +130,9 @@ class ActionPredictor(nn.Module):
 
 
 class LatentInverse(pl.LightningModule):
-    def __init__(self, embedding_dim=512, latent_dim=64, action_dim=4, train_on_reconstruction=False, variational=True, kl=1.0, vae=None):
+    def __init__(
+        self, embedding_dim=512, latent_dim=64, action_dim=4, train_on_reconstruction=False, variational=True, kl=1.0, vae=None
+    ):
         super().__init__()
         self.embedding_dim = embedding_dim
         self.latent_dim = latent_dim
@@ -156,7 +174,7 @@ class LatentInverse(pl.LightningModule):
                 action_pred = self.action_predict(z1.detach(), z2.detach())
             else:
                 action_pred = self.action_predict(z1, z2)
-            kl_loss = kl1 #(kl1 + kl2) / 2.0
+            kl_loss = kl1  # (kl1 + kl2) / 2.0
         else:
             z1 = self.bottleneck(state)
             z2 = self.bottleneck(state_next)
@@ -181,8 +199,8 @@ class LatentInverse(pl.LightningModule):
                 img_pred = self.vae.decode(state_recon)
             image_out_dir = self.trainer.default_root_dir
             output = torch.cat((img_true, img_pred), dim=1).reshape(-1, 3, 256, 256)
-            save_image(output[:16*6], os.path.join(image_out_dir, f"{run_type}_latent_inv.jpg"), nrow=6)
-        
+            save_image(output[: 16 * 6], os.path.join(image_out_dir, f"{run_type}_latent_inv.jpg"), nrow=6)
+
         # compute total loss
         if self.variational:
             loss = action_loss + recon_loss + (self.kl * kl_loss)
@@ -196,7 +214,7 @@ class LatentInverse(pl.LightningModule):
         }
         if self.variational:
             log[f"kl_loss_{run_type}"] = kl_loss
-        
+
         return loss, log
 
     def training_step(self, batch, batch_idx):
@@ -217,14 +235,20 @@ if __name__ == "__main__":
     train_split = 0.8
     batch_size = 256
     num_workers = 0
-    torch.set_float32_matmul_precision('medium')
+    torch.set_float32_matmul_precision("medium")
 
     print("Loading dataset pickle...")
     dataset = LatentDataset(dataset_pickle)
     torch.manual_seed(0)
-    dataset_train, dataset_val = torch.utils.data.random_split(dataset, [int(len(dataset)*train_split), len(dataset)-int(len(dataset)*train_split)])
-    dataloader_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=True, num_workers=num_workers, persistent_workers=(num_workers>0))
-    dataloader_val = DataLoader(dataset_val, batch_size=batch_size, shuffle=True, num_workers=num_workers, persistent_workers=(num_workers>0))
+    dataset_train, dataset_val = torch.utils.data.random_split(
+        dataset, [int(len(dataset) * train_split), len(dataset) - int(len(dataset) * train_split)]
+    )
+    dataloader_train = DataLoader(
+        dataset_train, batch_size=batch_size, shuffle=True, num_workers=num_workers, persistent_workers=(num_workers > 0)
+    )
+    dataloader_val = DataLoader(
+        dataset_val, batch_size=batch_size, shuffle=True, num_workers=num_workers, persistent_workers=(num_workers > 0)
+    )
 
     print("Loading autoencoder...")
     vae = CarAutoencoder.load_from_checkpoint(autoencoder_checkpoint)
@@ -232,7 +256,13 @@ if __name__ == "__main__":
     print("Initializing model...")
     model = LatentInverse(vae=vae)
     checkpoint_callback = ModelCheckpoint(dirpath=train_root, save_top_k=1, monitor="loss_val")
-    trainer = pl.Trainer(default_root_dir=train_root, callbacks=[checkpoint_callback], max_epochs=500, num_sanity_val_steps=1, check_val_every_n_epoch=1)
+    trainer = pl.Trainer(
+        default_root_dir=train_root,
+        callbacks=[checkpoint_callback],
+        max_epochs=500,
+        num_sanity_val_steps=1,
+        check_val_every_n_epoch=1,
+    )
 
     print("Training...")
     trainer.fit(model=model, train_dataloaders=dataloader_train, val_dataloaders=dataloader_val)

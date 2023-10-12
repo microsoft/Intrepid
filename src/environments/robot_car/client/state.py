@@ -4,13 +4,13 @@ import numpy as np
 import os
 from PIL import Image
 
+
 class CarState:
     # All pictures stored as numpy arrays in PyTorch pixel order
     # Picture from the car's camera
     car_pic = None
     # List of pictures from external cameras
     external_pics = None
-
 
     def __init__(self, image_size=256):
         self.image_size = (image_size, image_size)
@@ -36,12 +36,10 @@ class CarState:
         self.car_pic = self._cv_to_torch(car_pic_resized)
         self.external_pics = [self._cv_to_torch(pic) for pic in pics]
 
-    def save_to_files(self, output_dir, action_id = None):
+    def save_to_files(self, output_dir, action_id=None):
         assert self.car_pic is not None and self.external_pics is not None, "CarState is not initialized"
 
-        filenames = {
-            "action_id": action_id
-        }
+        filenames = {"action_id": action_id}
 
         # Save the car photo
         os.makedirs(output_dir, exist_ok=True)
@@ -59,7 +57,7 @@ class CarState:
 
         return filenames
 
-    def load_from_files(self, input_dir, camera_count, car_filename = None, external_filenames = None):
+    def load_from_files(self, input_dir, camera_count, car_filename=None, external_filenames=None):
         # Load the car photo
         if car_filename is None:
             filenames = glob.glob(os.path.join(input_dir, "*car*.jpg"))
@@ -71,7 +69,9 @@ class CarState:
 
         # Load the external camera photos
         external_pics = []
-        assert external_filenames is None or len(external_filenames) == camera_count, "Number of external camera filenames does not match camera count"
+        assert (
+            external_filenames is None or len(external_filenames) == camera_count
+        ), "Number of external camera filenames does not match camera count"
         for i in range(camera_count):
             if external_filenames is None:
                 filenames = glob.glob(os.path.join(input_dir, f"cam{i}*.jpg"))

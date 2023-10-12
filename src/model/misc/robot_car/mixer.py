@@ -76,21 +76,20 @@ class OutputMLP(nn.Module):
 
 
 class MLP_Mixer(nn.Module):
-    def __init__(self, n_layers, n_channel, n_hidden, n_output, image_size_h, image_size_w, patch_size,
-                 n_image_channel):
+    def __init__(self, n_layers, n_channel, n_hidden, n_output, image_size_h, image_size_w, patch_size, n_image_channel):
         super().__init__()
 
         n_tokens = (image_size_h // patch_size) * (image_size_w // patch_size)
-        n_pixels = n_image_channel * patch_size ** 2
+        n_pixels = n_image_channel * patch_size**2
 
         self.ImageToPatch = ImageToPatches(patch_size=patch_size)
         self.PerPatchMLP = PerPatchMLP(n_pixels, n_channel)
-        self.MixerStack = nn.Sequential(*[
-            nn.Sequential(
-                TokenMixingMLP(n_tokens, n_channel, n_hidden),
-                ChannelMixingMLP(n_tokens, n_channel, n_hidden)
-            ) for _ in range(n_layers)
-        ])
+        self.MixerStack = nn.Sequential(
+            *[
+                nn.Sequential(TokenMixingMLP(n_tokens, n_channel, n_hidden), ChannelMixingMLP(n_tokens, n_channel, n_hidden))
+                for _ in range(n_layers)
+            ]
+        )
         self.OutputMLP = OutputMLP(n_tokens, n_channel, n_output)
 
         self.pe = positionalencoding1d(n_channel, n_tokens).unsqueeze(0)
@@ -113,8 +112,16 @@ class MLP_Mixer(nn.Module):
 
 
 if __name__ == "__main__":
-    mix = MLP_Mixer(n_layers=2, n_channel=32, n_hidden=32, n_output=256, image_size_h=100 * 3, image_size_w=100 * 1,
-                    patch_size=10, n_image_channel=3)
+    mix = MLP_Mixer(
+        n_layers=2,
+        n_channel=32,
+        n_hidden=32,
+        n_output=256,
+        image_size_h=100 * 3,
+        image_size_w=100 * 1,
+        patch_size=10,
+        n_image_channel=3,
+    )
     batch_size = 128
     x = torch.randn(batch_size, 3, 100 * 3, 100)
     y = mix(x)

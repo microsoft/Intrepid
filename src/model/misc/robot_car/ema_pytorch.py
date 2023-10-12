@@ -1,12 +1,13 @@
-
 import copy
 import torch
 from torch import nn
 
+
 def exists(val):
     return val is not None
 
-def clamp(value, min_value = None, max_value = None):
+
+def clamp(value, min_value=None, max_value=None):
     assert exists(min_value) or exists(max_value)
     if exists(min_value):
         value = max(value, min_value)
@@ -15,6 +16,7 @@ def clamp(value, min_value = None, max_value = None):
         value = min(value, max_value)
 
     return value
+
 
 class EMA(nn.Module):
     """
@@ -36,19 +38,20 @@ class EMA(nn.Module):
         power (float): Exponential factor of EMA warmup. Default: 1.
         min_value (float): The minimum EMA decay rate. Default: 0.
     """
+
     def __init__(
         self,
         model,
-        ema_model = None,           # if your model has lazylinears or other types of non-deepcopyable modules, you can pass in your own ema model
-        beta = 0.9999,
-        update_after_step = 100,
-        update_every = 10,
-        inv_gamma = 1.0,
-        power = 2 / 3,
-        min_value = 0.0,
-        param_or_buffer_names_no_ema = set(),
-        ignore_names = set(),
-        ignore_startswith_names = set()
+        ema_model=None,  # if your model has lazylinears or other types of non-deepcopyable modules, you can pass in your own ema model
+        beta=0.9999,
+        update_after_step=100,
+        update_every=10,
+        inv_gamma=1.0,
+        power=2 / 3,
+        min_value=0.0,
+        param_or_buffer_names_no_ema=set(),
+        ignore_names=set(),
+        ignore_startswith_names=set(),
     ):
         super().__init__()
         self.beta = beta
@@ -59,8 +62,8 @@ class EMA(nn.Module):
         if not exists(self.ema_model):
             try:
                 self.ema_model = copy.deepcopy(model)
-            except:
-                print('Your model was not copyable. Please make sure you are not using any LazyLinear')
+            except Exception:
+                print("Your model was not copyable. Please make sure you are not using any LazyLinear")
                 exit()
 
         self.ema_model.requires_grad_(False)
@@ -76,13 +79,13 @@ class EMA(nn.Module):
         self.min_value = min_value
 
         assert isinstance(param_or_buffer_names_no_ema, (set, list))
-        self.param_or_buffer_names_no_ema = param_or_buffer_names_no_ema # parameter or buffer
+        self.param_or_buffer_names_no_ema = param_or_buffer_names_no_ema  # parameter or buffer
 
         self.ignore_names = ignore_names
         self.ignore_startswith_names = ignore_startswith_names
 
-        self.register_buffer('initted', torch.Tensor([False]))
-        self.register_buffer('step', torch.tensor([0]))
+        self.register_buffer("initted", torch.Tensor([False]))
+        self.register_buffer("step", torch.tensor([0]))
 
     def restore_ema_model_device(self):
         device = self.initted.device
@@ -101,20 +104,24 @@ class EMA(nn.Module):
             yield name, buffer
 
     def copy_params_from_model_to_ema(self):
-        for (_, ma_params), (_, current_params) in zip(self.get_params_iter(self.ema_model), self.get_params_iter(self.online_model)):
+        for (_, ma_params), (_, current_params) in zip(
+            self.get_params_iter(self.ema_model), self.get_params_iter(self.online_model)
+        ):
             ma_params.data.copy_(current_params.data)
 
-        for (_, ma_buffers), (_, current_buffers) in zip(self.get_buffers_iter(self.ema_model), self.get_buffers_iter(self.online_model)):
+        for (_, ma_buffers), (_, current_buffers) in zip(
+            self.get_buffers_iter(self.ema_model), self.get_buffers_iter(self.online_model)
+        ):
             ma_buffers.data.copy_(current_buffers.data)
 
     def get_current_decay(self):
-        epoch = clamp(self.step.item() - self.update_after_step - 1, min_value = 0.)
-        value = 1 - (1 + epoch / self.inv_gamma) ** - self.power
+        epoch = clamp(self.step.item() - self.update_after_step - 1, min_value=0.0)
+        value = 1 - (1 + epoch / self.inv_gamma) ** -self.power
 
         if epoch <= 0:
-            return 0.
+            return 0.0
 
-        return clamp(value, min_value = self.min_value, max_value = self.beta)
+        return clamp(value, min_value=self.min_value, max_value=self.beta)
 
     def update(self):
         step = self.step.item()
@@ -152,7 +159,9 @@ class EMA(nn.Module):
             difference.mul_(1.0 - current_decay)
             ma_params.sub_(difference)
 
-        for (name, current_buffer), (_, ma_buffer) in zip(self.get_buffers_iter(current_model), self.get_buffers_iter(ma_model)):
+        for (name, current_buffer), (_, ma_buffer) in zip(
+            self.get_buffers_iter(current_model), self.get_buffers_iter(ma_model)
+        ):
             if name in self.ignore_names:
                 continue
 
@@ -169,4 +178,3 @@ class EMA(nn.Module):
 
     def __call__(self, *args, **kwargs):
         return self.ema_model(*args, **kwargs)
-

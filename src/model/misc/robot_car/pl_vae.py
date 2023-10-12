@@ -1,9 +1,8 @@
 from argparse import ArgumentParser
-
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
 from lightning.pytorch import LightningModule, Trainer, seed_everything
-from torch import nn
-from torch.nn import functional as F
 
 
 class VAE(LightningModule):
@@ -23,8 +22,7 @@ class VAE(LightningModule):
         vae = VAE(input_height=32).from_pretrained('stl10-resnet18')
     """
 
-    pretrained_urls = {
-    }
+    pretrained_urls = {}
 
     def __init__(
         self,
@@ -80,8 +78,12 @@ class VAE(LightningModule):
             self.encoder = valid_encoders[enc_type]["enc"](first_conv, maxpool1)
             self.decoder = valid_encoders[enc_type]["dec"](self.latent_dim, self.input_height, first_conv, maxpool1)
 
-        self.fc_mu = nn.Sequential(nn.Linear(self.enc_out_dim, self.enc_out_dim), nn.LeakyReLU(), nn.Linear(self.enc_out_dim, self.latent_dim))
-        self.fc_var = nn.Sequential(nn.Linear(self.enc_out_dim, self.enc_out_dim), nn.LeakyReLU(), nn.Linear(self.enc_out_dim, self.latent_dim))
+        self.fc_mu = nn.Sequential(
+            nn.Linear(self.enc_out_dim, self.enc_out_dim), nn.LeakyReLU(), nn.Linear(self.enc_out_dim, self.latent_dim)
+        )
+        self.fc_var = nn.Sequential(
+            nn.Linear(self.enc_out_dim, self.enc_out_dim), nn.LeakyReLU(), nn.Linear(self.enc_out_dim, self.latent_dim)
+        )
 
     @staticmethod
     def pretrained_weights_available():
@@ -124,7 +126,7 @@ class VAE(LightningModule):
         kl = torch.distributions.kl_divergence(q, p)
         kl = kl.mean()
 
-        loss = kl*self.kl_coeff + recon_loss
+        loss = kl * self.kl_coeff + recon_loss
 
         logs = {
             "recon_loss": recon_loss,
@@ -208,11 +210,6 @@ def cli_main(args=None):
 
 if __name__ == "__main__":
     dm, model, trainer = cli_main()
-
-import torch
-from torch import nn
-from torch.nn import functional as F
-
 
 
 class Interpolate(nn.Module):
