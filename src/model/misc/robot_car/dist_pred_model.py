@@ -42,7 +42,6 @@ class DistPred(nn.Module):
         return py
 
     def predict_k(self, x, xk):
-
         sm = nn.Softmax(dim=1)
         py = sm(self.forward(x, xk))
 
@@ -53,7 +52,6 @@ class DistPred(nn.Module):
         return first_max
 
     def loss(self, x, xk, k):
-
         py = self.forward(x, xk)
 
         ce = nn.CrossEntropyLoss()
@@ -63,7 +61,6 @@ class DistPred(nn.Module):
 
 
 if __name__ == "__main__":
-
     dp = DistPred(64, 32 * 32 * 3).cuda()
 
     x = torch.randn(1, 3, 32, 32).repeat(100, 1, 1, 1).cuda()

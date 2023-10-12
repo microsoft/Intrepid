@@ -6,6 +6,7 @@ import time
 
 from environments.robot_car.client.client_utils import get_timestamp_str
 
+
 # The CarClient class sends commands and receives data from the car server
 class CarClient:
     def __init__(self, host, port):

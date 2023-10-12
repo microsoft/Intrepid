@@ -110,7 +110,6 @@ class EmpiricalMDP:
 
     @staticmethod
     def find_closest_value(target, arrays):
-
         # find index where target would need to be inserted
         index = np.searchsorted([np.linalg.norm(target - a) for a in arrays], 0)
 

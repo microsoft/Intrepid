@@ -66,7 +66,6 @@ class AC(nn.Module):
         self.tl = GaussianFourierProjectionTime(din // 2)
 
     def forward(self, st, stk, k, a=None, eval=False):
-
         ke = self.kemb(k)
         h = torch.cat([st, stk, ke], dim=1)
         h = self.m(h)

@@ -348,7 +348,6 @@ if __name__ == "__main__":
 
         print(f"data generated and stored in {dataset_path}")
     elif args.opr == "train":
-
         dataset = pickle.load(open(dataset_path, "rb"))
         X, A = dataset["X"], dataset["A"]
         if "ast" in dataset:
@@ -674,7 +673,6 @@ if __name__ == "__main__":
                 plt.savefig(os.path.join(field_folder, "distmap.jpg"))
 
             def vectorplot(a_use, name):
-
                 fig, ax1 = plt.subplots(1, 1, figsize=(16, 9))
                 fontdict = {"fontsize": 28, "fontweight": "bold"}
 
@@ -725,7 +723,6 @@ if __name__ == "__main__":
                 return xl, action
 
             def squareplot(x_r, a_r):
-
                 true_s = [0.4, 0.4]
                 xl = env.synth_obs(ap=true_s)
                 xl = torch.Tensor(xl).to(device).unsqueeze(0)
@@ -836,7 +833,6 @@ if __name__ == "__main__":
                     wandb.save(glob_str=model_path, policy="now")
 
     elif args.opr == "cluster-latent":
-
         # load model
         model = torch.load(model_path, map_location=torch.device("cpu"))
         enc.load_state_dict(model["enc"])
@@ -953,7 +949,10 @@ if __name__ == "__main__":
 
         # load-dataset
         dataset = pickle.load(open(dataset_path, "rb"))
-        X, A, = (
+        (
+            X,
+            A,
+        ) = (
             dataset["X"],
             dataset["A"],
         )
@@ -1005,7 +1004,6 @@ if __name__ == "__main__":
         if grounded_cluster_centers is not None:
             # draw action vectors on cluster-mdp
             for cluster_i, cluster_center in enumerate(grounded_cluster_centers):
-
                 print("cluster", cluster_i)
 
                 if cluster_i not in empirical_mdp.unique_states_dict:
@@ -1190,7 +1188,6 @@ if __name__ == "__main__":
         plt.clf()
 
     elif args.opr == "car-plan":
-
         # load model
         model = torch.load(model_path, map_location=torch.device("cpu"))
         enc.load_state_dict(model["enc"])

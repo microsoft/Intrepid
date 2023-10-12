@@ -17,6 +17,7 @@ from mock_pi_libraries import Picarx, PiCamera
 
 CAMERA_RESOLUTION = (256, 256)
 
+
 # The CarServer runs on the car itself and receives commands from the client
 class CarServer:
     def __init__(self, picture_out_dir="."):
