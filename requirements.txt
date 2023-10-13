@@ -11,6 +11,7 @@ imageio
 tensorboardX
 matplotlib
 ai2thor
+Pillow
 
 ## Requirements with Version Specifiers
 torch>=1.8.1
