@@ -1,10 +1,12 @@
 import argparse
 import numpy as np
-from ui import AppObservation, ToggleSwitch
-from run_interactive import run_interactive
+from environments.app_simulator.ui import AppObservation, ToggleSwitch
+from environments.app_simulator.run_interactive import run_interactive
+from environments.intrepid_env_meta.action_type import ActionType
+from environments.intrepid_env_meta.intrepid_env_interface import IntrepidEnvInterface
 
 
-class ToggleSwitchesApp:
+class ToggleSwitchesApp(IntrepidEnvInterface):
     def __init__(self, num_controllable_switches=1, num_random_switches=99, reset_behavior="keep_state", screenshot_size=512):
         """
         This app consists of a grid of toggle switches, some of which can be controlled
@@ -60,6 +62,9 @@ class ToggleSwitchesApp:
         done = False
         info = self.get_info()
         return obs, reward, done, info
+
+    def get_action_type(self):
+        return ActionType.Variable
 
     def get_ground_truth_state(self):
         return self.toggle_switches

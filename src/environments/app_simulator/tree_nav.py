@@ -1,10 +1,12 @@
 import argparse
 import numpy as np
-from ui import AppObservation, ToggleSwitch, Button, Text
-from run_interactive import run_interactive
+from environments.app_simulator.ui import AppObservation, ToggleSwitch, Button, Text
+from environments.app_simulator.run_interactive import run_interactive
+from environments.intrepid_env_meta.action_type import ActionType
+from environments.intrepid_env_meta.intrepid_env_interface import IntrepidEnvInterface
 
 
-class TreeNavApp:
+class TreeNavApp(IntrepidEnvInterface):
     def __init__(
         self,
         depth=4,
@@ -104,6 +106,9 @@ class TreeNavApp:
         done = False
         info = self.get_info()
         return obs, rewards, done, info
+
+    def get_action_type(self):
+        return ActionType.Variable
 
     def get_ground_truth_state(self):
         return {
