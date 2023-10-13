@@ -7,9 +7,15 @@ from run_interactive import run_interactive
 class ToggleSwitchesApp:
     def __init__(self, num_controllable_switches=1, num_random_switches=99, reset_behavior="keep_state", screenshot_size=512):
         """
+        This app consists of a grid of toggle switches, some of which can be controlled
+        by the agent and some of which will randomly toggle upon each action taken.
+
         num_controllable_switches: number of switches that can be controlled by the agent
         num_random_switches: number of switches that are randomly toggled
         reset_behavior: "zero", "random", "keep_state"
+            - "keep_state": do not reset toggle switches, reset action does nothing
+            - "zero": reset all agent controllable toggle switches to off
+            - "random": reset all toggle switches to random values
         """
         self.num_controllable_switches = num_controllable_switches
         self.num_random_switches = num_random_switches

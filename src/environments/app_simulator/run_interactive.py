@@ -6,6 +6,7 @@ def run_interactive(app):
     """
     Run app in human interactive mode
     This will open a window that allows the user to click on UI elements
+    Actions can also be taken by providing strings in the command prompt
     """
     def on_click(event):
         if event.xdata is None or event.ydata is None:
