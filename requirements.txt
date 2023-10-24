@@ -12,6 +12,10 @@ tensorboardX
 matplotlib
 ai2thor
 Pillow
+vector_quantize_pytorch
+tqdm
+wandb
+lightning
 
 ## Requirements with Version Specifiers
 torch>=1.8.1
