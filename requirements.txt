@@ -11,6 +11,7 @@ imageio
 tensorboardX
 matplotlib
 ai2thor
+Pillow
 vector_quantize_pytorch
 tqdm
 wandb
