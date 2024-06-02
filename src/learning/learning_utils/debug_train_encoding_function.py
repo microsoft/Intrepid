@@ -5,7 +5,7 @@ from environments.cerebral_env_meta.environment_wrapper import GenerateEnvironme
 from learning.learning_utils.encoder_sampler_wrapper import EncoderSamplerWrapper
 from learning.learning_utils.homer_train_encoding_function import TrainEncodingFunction
 from learning.learning_utils.rl_discrete_latent_state_util import RLDiscreteLatentStateUtil
-from learning.learning_utils.transition import TransitionDatapoint
+from learning.datastructures.transition import TransitionDatapoint
 from model.policy.stationary_action_condition_policy import StationaryActionConditionPolicy
 from utils.tensorboard import Tensorboard
 from functools import partial

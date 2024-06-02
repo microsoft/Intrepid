@@ -1,7 +1,7 @@
 import torch
 import random
 import utils.generic_policy as gp
-from learning.learning_utils.transition import TransitionDatapoint
+from learning.datastructures.transition import TransitionDatapoint
 
 from utils.cuda import cuda_var
 

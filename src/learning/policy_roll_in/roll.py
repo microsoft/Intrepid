@@ -1,6 +1,6 @@
 import random
 
-from learning.learning_utils.episode import Episode
+from learning.datastructures.episode import Episode
 from environments.cerebral_env_meta.environment_keys import EnvKeys
 
 

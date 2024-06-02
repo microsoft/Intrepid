@@ -3,7 +3,7 @@ import imageio
 import numpy as np
 
 from environments.cerebral_env_meta.environment_keys import EnvKeys
-from learning.learning_utils.count_probability import CountProbability
+from learning.datastructures.count_probability import CountProbability
 from learning.learning_utils.evaluate_state_decoder import EvaluateStateDecoder
 
 

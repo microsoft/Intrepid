@@ -4,7 +4,7 @@ import numpy as np
 import torch.nn as nn
 import torch.optim as optim
 
-from learning.learning_utils.episode import Episode
+from learning.datastructures.episode import Episode
 from learning.learning_utils.ricatti_solver import RicattiSolver
 from model.misc.richid_decoder import RichIDHTKModel, RichIDFModel, RichIDPolicy, RichIDHTModel
 from sklearn.decomposition import PCA

@@ -2,13 +2,12 @@ import math
 import time
 import pickle
 import random
-import threading
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 
-from learning.learning_utils.episode import Episode
-from learning.learning_utils.count_probability import CountProbability
+from learning.datastructures.episode import Episode
+from learning.datastructures.count_probability import CountProbability
 
 
 class Index(object):

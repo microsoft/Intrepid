@@ -1,4 +1,4 @@
-from learning.tabular_rl.abstract_tabular_mdp import AbstractTabularMDP
+from learning.datastructures.abstract_tabular_mdp import AbstractTabularMDP
 
 
 class DetTabularMDPBuilder(AbstractTabularMDP):

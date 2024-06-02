@@ -4,8 +4,8 @@ import pickle
 import random
 import numpy as np
 
-from learning.learning_utils.episode import Episode
-from learning.learning_utils.count_probability import CountProbability
+from learning.datastructures.episode import Episode
+from learning.datastructures.count_probability import CountProbability
 
 
 class FQIOracleDecoder:

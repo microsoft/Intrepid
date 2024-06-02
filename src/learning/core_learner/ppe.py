@@ -12,7 +12,7 @@ from model.policy.open_loop import OpenLoopPolicy
 from learning.tabular_rl.value_iteration import ValueIteration
 from learning.core_learner.ppe_util import PPEDebugger, ErrorUtil
 from environments.cerebral_env_meta.environment_keys import EnvKeys
-from learning.learning_utils.count_probability import CountProbability
+from learning.datastructures.count_probability import CountProbability
 from learning.tabular_rl.det_tabular_mdp_builder import DetTabularMDPBuilder
 from learning.learning_utils.generic_train_classifier import GenericTrainClassifier
 

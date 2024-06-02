@@ -1,7 +1,7 @@
 import random
 import numpy as np
 
-from learning.learning_utils.episode import Episode
+from learning.datastructures.episode import Episode
 from environments.cerebral_env_meta.environment_keys import EnvKeys
 
 
