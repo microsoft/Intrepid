@@ -1,6 +1,6 @@
 # INTeractive learning via REPresentatIon Discovery
 
-Version: 0.0.1 beta
+Version: 0.0.2 beta
 
 INTREPID (stands for INTeractive learning via REPresentatIon Discovery) is a library that contains various interactive learning algorithms that learn a representation (or a latent state) from observational data in order to complete their tasks. 
 
