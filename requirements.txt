@@ -12,7 +12,7 @@ tensorboardX
 matplotlib
 ai2thor
 Pillow
-vector_quantize_pytorch
+vector-quantize-pytorch
 tqdm
 wandb
 lightning
