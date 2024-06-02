@@ -73,8 +73,7 @@ class LSVIUCB:
                     if h == self.horizon - 1:
                         next_q_val = 0.0
                     else:
-                        next_q_val = self._get_vals(next_obs, encoder, weights[h + 1],
-                                                    elliptic_bonuses[h + 1], v_maxes[h + 1])
+                        next_q_val = self._get_vals(next_obs, encoder, weights[h + 1], elliptic_bonuses[h + 1], v_maxes[h + 1])
                     feature_val += features[action] * (reward + next_q_val)
 
                 weights[h] = inv_mat_h @ feature_val
