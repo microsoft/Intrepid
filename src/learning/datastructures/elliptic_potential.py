@@ -27,12 +27,9 @@ class EllipticPotential:
         """
 
         if feature.ndim == 1:
-            n = feature.shape[0]
             feature = feature.unsqueeze(0)
 
         elif feature.ndim == 2:
-
-            n = feature.shape[0]
             pass        # TODO
         else:
             raise AssertionError("Feature dimension must be either 1-D or 2D of type 1xd or dx1")
