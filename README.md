@@ -20,23 +20,27 @@ As the name suggests, INTREPID is designed to discover representation for the pu
 
 ## Algorithms Currently Supported
 
-1. **Homer**. Learns latent state/representation using temporal constrastive learning loss. Provably explores and optimizes reward in Block MDP setting. 
+1. **Video-based representation for RL**. We add support for 3 video-based representation for doing RL: autoencoder, forward modeling, and temporal contrastive learning.
+
+   **Citation:** Towards Principled Representation Learning from Videos for Reinforcement Learning, _Dipendra Misra*, Akanksha Saran*, Tengyang Xie, Alex Lamb, and John Langford (* equal contribution)_ [\[ICLR 2024 Spotlight]\](https://openreview.net/pdf?id=3mnWvUZIXt)
+
+2. **Homer**. Learns latent state/representation using temporal constrastive learning loss. Provably explores and optimizes reward in Block MDP setting. 
           
    **Citation**: Kinematic State Abstraction and Provably Efficient Rich-Observation Reinforcement Learning, _Dipendra Misra, Mikael Henaff, Akshay Krishnamurthy, John Langford_ [\[ICML 2020\]](http://proceedings.mlr.press/v119/misra20a/misra20a.pdf)
         
-2. **PPE: Path Prediction and Elimination**. Learns latent state/representation using a variant of multi-step inverse dynamics where the model predicts the identity of the path (sequence of actions) used to reach a given observation. Provably ignores noisy TV like temporal distractions. A very fast and scalable algorithm for near-deterministic problems.
+3. **PPE: Path Prediction and Elimination**. Learns latent state/representation using a variant of multi-step inverse dynamics where the model predicts the identity of the path (sequence of actions) used to reach a given observation. Provably ignores noisy TV like temporal distractions. A very fast and scalable algorithm for near-deterministic problems.
 
    **Citation**: Provable RL with Exogenous Distractors via Multistep Inverse Dynamics, _Yonathan Efroni, Dipendra Misra, Akshay Krishnamurthy, Alekh Agarwal, and John Langford_ [\[ICLR 2022 Oral\]](https://openreview.net/pdf?id=RQLLzMCefQu)
 
-3. **RicHID**: Algorithm designed for control problems where the latent dynamics are [LQR](https://en.wikipedia.org/wiki/Linear%E2%80%93quadratic_regulator) but the LQR state is obfuscated by rich observational noise. Provably explores and extracts the latent state by predicting past actions from observation.
+4. **RicHID**: Algorithm designed for control problems where the latent dynamics are [LQR](https://en.wikipedia.org/wiki/Linear%E2%80%93quadratic_regulator) but the LQR state is obfuscated by rich observational noise. Provably explores and extracts the latent state by predicting past actions from observation.
 
     **Citation**: Learning the Linear Quadratic Regulator from Nonlinear Observations, _Zakaria Mhammedi, Dylan J. Foster, Max Simchowitz, Dipendra Misra, Wen Sun, Akshay Krishnamurthy, Alexander Rakhlin, John Langford_ [\[NeurIPS 2020\]](https://papers.nips.cc/paper/2020/file/a70145bf8b173e4496b554ce57969e24-Paper.pdf)
 
-4. **FactoRL (pron. Factorel)**: Algorithm designed for settings where the latent representation is factorized over a set of states with sparse dynamical evolution (Factored MDP dynamics). The latent state is extracted by performing independence test over pairs of atoms (e.g., pixels/tokens) of the observation. This is followed by performing contrastive learning similar to in-painting. The algorithm has guarantee of success under certain assumptions. However, the algorithm is quite computationally expensive to run.
+5. **FactoRL (pron. Factorel)**: Algorithm designed for settings where the latent representation is factorized over a set of states with sparse dynamical evolution (Factored MDP dynamics). The latent state is extracted by performing independence test over pairs of atoms (e.g., pixels/tokens) of the observation. This is followed by performing contrastive learning similar to in-painting. The algorithm has guarantee of success under certain assumptions. However, the algorithm is quite computationally expensive to run.
 
      **Citation**: Provable Rich Observation Reinforcement Learning with Combinatorial Latent States, _Dipendra Misra, Qinghua Liu, Chi Jin, John Langford_ [\[ICLR 2021\]](https://openreview.net/pdf?id=hx1IXFHAw7R) [\[RL Theory Seminar\]](https://www.youtube.com/watch?v=SEE5Snqhd40&ab_channel=RLtheoryseminars)
 
-5. **Sabre**: Sabre is an algorithm for Safe Reinforcement Learning that assumes a safety function that can only provide binary feedback (safe/unsafe). This safety function is unknown but can be queried. The algorithm works by performing a sequence of active learning queries for safety while ensuring possible coverage so safety can be learned everywhere. Under certain assumptions, the algorithm can guarantee never taking any unsafe action even during training, optimizing calls to safety, and finding safest optimal policy.
+6. **Sabre**: Sabre is an algorithm for Safe Reinforcement Learning that assumes a safety function that can only provide binary feedback (safe/unsafe). This safety function is unknown but can be queried. The algorithm works by performing a sequence of active learning queries for safety while ensuring possible coverage so safety can be learned everywhere. Under certain assumptions, the algorithm can guarantee never taking any unsafe action even during training, optimizing calls to safety, and finding safest optimal policy.
 
     **Citation**: Provable Safe Reinforcement Learning with Binary Feedback, _Andrew Bennett, Dipendra Misra, and Nathan Kallus_ [\[AISTATS 2023\]](https://arxiv.org/pdf/2210.14492.pdf)
     
