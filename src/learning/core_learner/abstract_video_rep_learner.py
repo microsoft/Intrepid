@@ -7,8 +7,6 @@ from torch import optim
 from utils.cuda import cuda_var
 from utils.tensorboard import Tensorboard
 from utils.beautify_time import elapsed_from_str
-from learning.core_learner.acro_rep import ACRORep
-from learning.datastructures.episode import Episode
 # from learning.core_learner.ppo_learner import PPOLearner
 from learning.learning_utils.reconstruct_observation import ReconstructObservation
 from learning.learning_utils.collect_data_with_coverage import CollectDatawithCoverage
@@ -40,17 +38,6 @@ class AbstractVideoRepLearner:
         self.patience = exp_setup.constants["patience"]
         self.grad_clip = exp_setup.constants["grad_clip"]
         self.dataset_size = exp_setup.constants["max_episodes"]
-
-        # Check if two stage training is requested
-        # Two stage training is used by models that compute "latent actions" and then use it to label
-        # actions in the video and then use a different procedure to learn the encoder
-        # This may not be the suitable way to implement this functionality and perhaps it needs a different
-        # abstract class to deal with this
-        self.two_stage = exp_setup.constants["two_stage"] > 0
-        self.two_stage_bootstrapping = exp_setup.constants["two_stage_boostrap"] > 0
-        if self.two_stage:
-            # Currently only supports ACRO State
-            self.two_stage_learner = ACRORep(exp_setup)
 
         # Data collector
         self.data_collector = CollectDatawithCoverage(exp_setup)
@@ -209,121 +196,6 @@ class AbstractVideoRepLearner:
                                        base_folder=base_folder)
 
         return best_reconst_decoder, decoder_results
-
-    def _two_stage(self, latent_action_model, train_episodes, test_episodes, tensorboard):
-
-        # Step 1: Evaluate latent action
-        ######
-        # prep_test_batch = self.prep_batch(test_batches[0])
-        # self._calc_latent_action(model, prep_test_batch, test=True, save_img=True)
-        ######
-
-        # Step 2: Since for videos we cannot use true actions, we label the data with latent actions
-
-        time_s = time.time()
-        # We will streamline the entire episode and its transition so we can do fast batch processing
-        episodes = train_episodes + test_episodes
-        transitions = []
-
-        # We will rely on num_train and eps_len to recover the original episodic data
-        num_train = len(train_episodes)
-        eps_len = []
-        for episode in episodes:
-            if self.create_state:
-                episode_transitions = episode.get_multi_step_state_observation_transitions(k=1)
-            else:
-                episode_transitions = episode.get_multi_step_observation_transitions(k=1)
-            eps_len.append(episode.get_len())
-            transitions.extend(episode_transitions)
-
-        batches = [transitions[i:i + self.batch_size] for i in range(0, len(transitions), self.batch_size)]
-
-        # TODO: incorporate is_latent_action_discrete and calc_latent_action in interface or
-        # create a separate interface for two stage models
-        labeled_batches = []
-        discrete = self.is_latent_action_discrete()
-        action_size = self.get_latent_action_size()
-        encoder_dim = self.get_encoder_dim()
-
-        for batch in batches:
-            prep_batch = self.prep_batch(batch)
-            actions = self.calc_latent_action(prep_batch, latent_action_model)
-            
-            # TODO check type of actions
-            labeled_batches.extend(
-                [(batch[i][0], actions[i].item(), batch[i][2]) for i in range(len(batch))])
-            # labeled_batches.extend(
-            #     [(batch[i][0], batch[i][1], batch[i][2]) for i in range(len(batch))])
-
-        labeled_episodes = []
-        pad = 0
-        for i in range(len(eps_len)):
-            # An episode here are the transitions from pad to pad + eps_len[i] - 1 (including both)
-
-            observations = []
-            actions = []
-            for j in range(pad, pad + eps_len[i]):
-                observations.append(labeled_batches[j][0])
-                actions.append(labeled_batches[j][1])
-            observations.append(labeled_batches[pad + eps_len[i] - 1][2])
-
-            episode = Episode(state=None, observation=observations[0])
-            for act, next_obs in zip(actions, observations[1:]):
-                # Supplying a dummy reward due to syntactic necessity. It wont be used.
-                episode.add(action=act, reward=0.0, new_obs=next_obs, new_state=None)
-
-            labeled_episodes.append(episode)
-            pad += eps_len[i]
-
-        labeled_train_episodes = labeled_episodes[:num_train]
-        labeled_test_episodes = labeled_episodes[num_train:]
-
-        train_transition_dataset = self._get_multi_transition_dataset(labeled_train_episodes, max_k=self.horizon)
-        test_transition_dataset = self._get_multi_transition_dataset(labeled_test_episodes, max_k=self.horizon)
-
-        # train_transition_dataset = self._get_multi_transition_dataset(labeled_train_episodes,
-        #                                                               max_k=self.horizon, shuffle=False)
-        # test_transition_dataset = self._get_multi_transition_dataset(labeled_test_episodes,
-        #                                                              max_k=self.horizon, shuffle=False)
-
-        #############
-        # import pdb
-        # test1 = self._get_multi_transition_dataset(train_episodes, max_k=self.horizon, shuffle=False)
-        # test2 = self._get_multi_transition_dataset(test_episodes, max_k=self.horizon, shuffle=False)
-        # assert len(train_transition_dataset) == len(test1)
-        # for i in range(len(train_transition_dataset)):
-        #     assert (train_transition_dataset[i][0] == test1[i][0]).all()
-        #     assert train_transition_dataset[i][1] == test1[i][1]
-        #     assert (train_transition_dataset[i][2] == test1[i][2]).all()
-        #
-        # assert len(test_transition_dataset) == len(test2)
-        # for i in range(len(test_transition_dataset)):
-        #     assert (test_transition_dataset[i][0] == test2[i][0]).all()
-        #     assert test_transition_dataset[i][1] == test2[i][1]
-        #     assert (test_transition_dataset[i][2] == test2[i][2]).all()
-        # pdb.set_trace()
-        #############
-
-        dataset = {"train": train_transition_dataset,
-                   "test": test_transition_dataset}
-
-        if self.two_stage_bootstrapping and hasattr(latent_action_model, "encoder"):
-            self.logger.log("Bootstrapping Second Stage Encoder using First Stage Encoder")
-            encoder = latent_action_model.encoder
-        else:
-            encoder = None
-
-        # Train two stage learner
-        best_two_stage_model, two_stage_info = self.two_stage_learner.train(dataset=dataset,
-                                                                            discrete=discrete,
-                                                                            tensorboard=tensorboard,
-                                                                            encoder_dim=encoder_dim,
-                                                                            action_size=action_size,
-                                                                            encoder=encoder,
-                                                                            max_k=self.horizon)
-        self.logger.log("Two stage training took %s" % elapsed_from_str(time_s))
-
-        return best_two_stage_model, two_stage_info
 
     def _do_rl(self, env, encoder):
 
@@ -519,36 +391,8 @@ class AbstractVideoRepLearner:
             "first_stage/optimizer": optimizer.state_dict()
         }
 
-        # If two-stage is enabled then train the encoder using two stage
         # Stage 4: Train a decoder to reconstruct images from the dataset
-        if self.two_stage:
-            self.logger.log("Two stage enabled. Initiating second stage encoder training")
-            best_two_stage_model, two_stage_info = self._two_stage(best_model, train_episodes,
-                                                                   test_episodes, tensorboard)
-
-            self.logger.log("Two stage training completed.")
-            self.logger.log("Evaluating the two stage encoder by reconstructing observation from the fixed encoder")
-            best_reconst_decoder, decoder_results = self._train_decoder(best_two_stage_model.encoder, train_obs,
-                                                                        test_obs, tensorboard)
-
-            self.logger.log("Evaluating Encoder by performing RL with PPO.")
-            ppo_final_policy, rl_results = self._do_rl(env, best_two_stage_model.encoder)
-
-            for key, val in two_stage_info.items():
-                results["second_stage/%s" % key] = val
-
-            for key, val in decoder_results.items():
-                results["decoder/%s" % key] = val
-
-            for key, val in rl_results.items():
-                results["rl/%s" % key] = val
-
-            models_to_save["second_stage/best_model"] = best_two_stage_model.state_dict()
-            models_to_save["decoder/best_model"] = best_reconst_decoder.state_dict()
-            models_to_save["encoder/chosen_model"] = best_two_stage_model.encoder.state_dict()
-            models_to_save["rl/final_policy"] = ppo_final_policy.state_dict()
-
-        elif hasattr(best_model, "encoder"):
+        if hasattr(best_model, "encoder"):
 
             self.logger.log("Two stage not enabled and but base model has an encoder.")
             self.logger.log("Evaluating the encoder by reconstructing observation from the fixed encoder")
