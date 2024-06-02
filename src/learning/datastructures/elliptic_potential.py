@@ -5,11 +5,11 @@ class EllipticPotential:
 
     def __init__(self, lam=1.0):
         """
-            A function to keep track of the matrix
-               Lambda =  lambda I + \sum_{i=1}^0 v_i v_i^T
-               and return Lambda^{-1} and det(Lambda^{-1}) efficiently
+        A function to keep track of the matrix
+           Lambda =  lambda I + \sum_{i=1}^0 v_i v_i^T
+           and return Lambda^{-1} and det(Lambda^{-1}) efficiently
 
-            Supports features in both numpy and torch format.
+        Supports features in both numpy and torch format.
         """
         self.lam = lam
         self._inv_matrix = None
@@ -30,7 +30,7 @@ class EllipticPotential:
             feature = feature.unsqueeze(0)
 
         elif feature.ndim == 2:
-            pass        # TODO
+            pass  # TODO
         else:
             raise AssertionError("Feature dimension must be either 1-D or 2D of type 1xd or dx1")
 
@@ -48,18 +48,13 @@ class EllipticPotential:
 
     def get_elliptic_bonus(self, features):
         """
-            :param features: Given a feature of size either dim or batch x dim
-            :return: Bonus which is either scalar if input is 1-d or batch if 2-d
+        :param features: Given a feature of size either dim or batch x dim
+        :return: Bonus which is either scalar if input is 1-d or batch if 2-d
         """
 
-        bonus = torch.sqrt(
-            torch.diagonal(
-                features @ self._inv_matrix @ features.T
-            ))
+        bonus = torch.sqrt(torch.diagonal(features @ self._inv_matrix @ features.T))
 
         if features.ndim == 1:
             bonus = bonus[0]
 
         return bonus
-
-

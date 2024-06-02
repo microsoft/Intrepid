@@ -19,9 +19,7 @@ class LSVIUCB:
 
     def _get_all_features(self, obs, encoder):
 
-        features = torch.cat([
-            encoder.encode(obs, action).unsqueeze(1) for action in self.actions
-        ], dim=1)       # dim x num_actions
+        features = torch.cat([encoder.encode(obs, action).unsqueeze(1) for action in self.actions], dim=1)  # dim x num_actions
 
         return features
 
@@ -35,12 +33,11 @@ class LSVIUCB:
         :return:
         """
 
-        bonus = elliptic_potential.get_elliptic_bonus(features.T)        # actions
-        q_vals = (weight.T @ features).view(-1) + self.beta * bonus       # actions
+        bonus = elliptic_potential.get_elliptic_bonus(features.T)  # actions
+        q_vals = (weight.T @ features).view(-1) + self.beta * bonus  # actions
 
         if v_max is not None:
-            q_vals = torch.minimum(q_vals,
-                                   torch.ones_like(q_vals) * v_max)
+            q_vals = torch.minimum(q_vals, torch.ones_like(q_vals) * v_max)
 
         return q_vals
 
@@ -60,6 +57,9 @@ class LSVIUCB:
         # Weights for each time step to denote the ERM for value function
         weights = dict()
 
+        # Assuming reward is in [0, 1], Maximum V_max from time step h is H - h + 1
+        v_maxes = {h: env.horizon - h for h in range(env.horizon + 1)}
+
         for eps in range(0, self.max_episodes, self.batch_size):
 
             for h in range(self.horizon - 1, -1, -1):
@@ -74,25 +74,26 @@ class LSVIUCB:
                         next_q_val = 0.0
                     else:
                         next_q_val = self._get_vals(next_obs, encoder, weights[h + 1],
-                                                    elliptic_bonuses[h + 1],
-                                                    v_maxes[h + 1])
+                                                    elliptic_bonuses[h + 1], v_maxes[h + 1])
                     feature_val += features[action] * (reward + next_q_val)
 
                 weights[h] = inv_mat_h @ feature_val
 
             # Generate a batch of episode. In the original Jin et al., you have self.batch_size=1
-            total_return = 0.0
-            obs, info = env.reset()
+            for _ in range(self.batch_size):
 
-            for h in range(self.horizon):
+                total_return = 0.0
+                obs, info = env.reset()
 
-                # Get Q_h(x, .) vals
-                features = self._get_all_features(obs, encoder)
-                q_vals = self._get_vals(features, weights[h], elliptic_bonuses[h], v_maxes[h])        # num_actions
+                for h in range(self.horizon):
 
-                a = q_vals.argmax()
-                next_obs, r, done, info = env.step(a)
-                obs = next_obs
-                total_return += r
+                    # Get Q_h(x, .) vals
+                    features = self._get_all_features(obs, encoder)
+                    q_vals = self._get_vals(features, weights[h], elliptic_bonuses[h], v_maxes[h])  # num_actions
 
-        return policy
+                    a = q_vals.argmax()
+                    next_obs, r, done, info = env.step(a)
+                    obs = next_obs
+                    total_return += r
+
+            # TODO: return average of these policies

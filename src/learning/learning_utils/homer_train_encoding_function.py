@@ -4,7 +4,6 @@ import random
 import numpy as np
 import torch.optim as optim
 
-from learning.learning_utils.clustering_algorithm import *
 from learning.datastructures.count_conditional_probability import CountConditionalProbability
 from learning.learning_utils.clustering_algorithm import (
     ClusteringModel,
