@@ -6,6 +6,10 @@ INTREPID (stands for INTeractive learning via REPresentatIon Discovery) is a lib
 
 A list of algorithms, environments, and utils are given below. For full details see [Wiki](https://github.com/microsoft/Intrepid/wiki) of this repository.
 
+**Updates:**
+
+- June 2024: Video-based representation learning added from Misra, Saran, et al. [ICLR 2024 paper](https://openreview.net/pdf?id=3mnWvUZIXt)
+
 ## What is Interactive Learning and Representation Discovery
 
 Consider any agent, also called decision maker, (e.g., a bot, robot, LLM) that is taking actions in an environment (e.g., a place, an OS). The world changes as a effect of the agent's action and also because of other noise in (e.g., a person maybe moving in the background or an OS may receive a notification unrelated to what the bot did). The goal of this agent is to solve a task, e.g., navigate safetly to a given location, or compose an email and send it off. The agent maybe take a series of actions to accomplish its goal. This is called an *Interactive Learning* task as the agent interacts with the world.
