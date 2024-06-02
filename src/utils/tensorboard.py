@@ -2,7 +2,6 @@ from tensorboardX import SummaryWriter
 
 
 class Tensorboard:
-
     def __init__(self, log_dir):
         save_dir = log_dir + "/tensorboard_logs/"
         self.writer = SummaryWriter(save_dir)

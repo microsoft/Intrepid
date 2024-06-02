@@ -1,16 +1,13 @@
-import random
 import torch
 import multiprocessing as mp
 import torch.nn as nn
 import numpy as np
 
-from torch.autograd import Variable
 
 from utils.cuda import cuda_var
 
 
 class Worker:
-
     def __init__(self):
         pass
 
@@ -19,17 +16,12 @@ class Worker:
         output = model(vector)
         print("Client: %r Output Sum is %r" % (id, output.sum()))
 
-class Model(nn.Module):
 
+class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
 
-        self.transform = nn.Sequential(
-            nn.Linear(32, 64),
-            nn.ReLU(),
-            nn.Linear(64, 32),
-            nn.ReLU()
-        )
+        self.transform = nn.Sequential(nn.Linear(32, 64), nn.ReLU(), nn.Linear(64, 32), nn.ReLU())
 
         if torch.cuda.is_available():
             self.cuda()
@@ -40,7 +32,7 @@ class Model(nn.Module):
 
 if __name__ == "__main__":
     mp.freeze_support()
-    mp.set_start_method('spawn')
+    mp.set_start_method("spawn")
 
     a = np.random.rand(1, 32)
     a_v = cuda_var(torch.from_numpy(a)).float()

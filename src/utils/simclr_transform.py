@@ -26,16 +26,25 @@ from torchvision import transforms
 #         return torch.FloatTensor(sample)
 
 
-train_transform = transforms.Compose([
-    transforms.RandomResizedCrop(32),
-    transforms.RandomHorizontalFlip(p=0.5),
-    transforms.RandomApply([transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)], p=0.8),
-    transforms.RandomGrayscale(p=0.2),
-    transforms.RandomApply([transforms.GaussianBlur(kernel_size=int(0.1 * 32), sigma=(0.1, 2.0))], p=0.5),
-    # GaussianBlur(kernel_size=int(0.1 * 32)),
-    # transforms.ToTensor(),        # Removed it as it permuted the order, instead move it to the stop
-    transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010])])
+train_transform = transforms.Compose(
+    [
+        transforms.RandomResizedCrop(32),
+        transforms.RandomHorizontalFlip(p=0.5),
+        transforms.RandomApply([transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)], p=0.8),
+        transforms.RandomGrayscale(p=0.2),
+        transforms.RandomApply(
+            [transforms.GaussianBlur(kernel_size=int(0.1 * 32), sigma=(0.1, 2.0))],
+            p=0.5,
+        ),
+        # GaussianBlur(kernel_size=int(0.1 * 32)),
+        # transforms.ToTensor(),        # Removed it as it permuted the order, instead move it to the stop
+        transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010]),
+    ]
+)
 
-test_transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010])])
+test_transform = transforms.Compose(
+    [
+        transforms.ToTensor(),
+        transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010]),
+    ]
+)

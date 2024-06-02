@@ -11,19 +11,18 @@ from utils.tensorboard import Tensorboard
 from model.policy.open_loop import OpenLoopPolicy
 from learning.tabular_rl.value_iteration import ValueIteration
 from learning.core_learner.ppe_util import PPEDebugger, ErrorUtil
-from environments.cerebral_env_meta.environment_keys import EnvKeys
 from learning.datastructures.count_probability import CountProbability
+from environments.intrepid_env_meta.environment_keys import EnvKeys
 from learning.tabular_rl.det_tabular_mdp_builder import DetTabularMDPBuilder
 from learning.learning_utils.generic_train_classifier import GenericTrainClassifier
 
 
 class PPE:
     """
-        PPE algorithm (Efroni et al., 2021)
+    PPE algorithm (Efroni et al., 2021)
     """
 
     def __init__(self, exp_setup):
-
         self.config = exp_setup.config
         self.constants = exp_setup.constants
         self.logger = exp_setup.logger
@@ -39,7 +38,6 @@ class PPE:
 
     @staticmethod
     def _generate_dataset(env, path_map, num_samples):
-
         path_id_to_state_map = dict()
 
         dataset = []
@@ -60,7 +58,6 @@ class PPE:
 
     @staticmethod
     def _follow_path(env, path):
-
         obs, info = env.reset(generate_obs=False)
         reward = None
         path_len = path.num_timesteps()
@@ -73,7 +70,6 @@ class PPE:
 
     @staticmethod
     def log_dataset(dataset, prob, logger):
-
         prob = prob * prob.size(0)
 
         state_stats = dict()
@@ -93,12 +89,12 @@ class PPE:
 
         logger.log("Dataset Statistics.")
         for endo_state, state_prob in state_stats.items():
-
             empirical_prob_ = torch.cat(empirical_prob[endo_state], dim=0).mean(0)
             num_paths = empirical_prob_.size(0)
             entries = set(state_prob.get_entries())
-            learned_prob_str = "{%s" % ("; ".join(["%r: %f" % (entry_, empirical_prob_[entry_].item())
-                                                   for entry_ in sorted(entries)]))
+            learned_prob_str = "{%s" % (
+                "; ".join(["%r: %f" % (entry_, empirical_prob_[entry_].item()) for entry_ in sorted(entries)])
+            )
             suffix = []
             for ix in range(0, num_paths):
                 val = empirical_prob_[ix].item()
@@ -117,11 +113,9 @@ class PPE:
 
     @staticmethod
     def _get_reward_stats(dataset):
-
         mean_reward_path = dict()
-        max_reward = -float('inf')
+        max_reward = -float("inf")
         for dp in dataset:
-
             _, path_id, _, reward = dp
             max_reward = max(max_reward, reward)
 
@@ -134,13 +128,11 @@ class PPE:
 
     @staticmethod
     def _extract_reward_policy(model, q_val, init_state):
-
         # Given initial state, q_value and deterministic model
         # Extract the optimal reward-sensitive open loop policy
         state = init_state
         actions = []
         for h in range(0, model.horizon):
-
             action_id = q_val[(h, state)].argmax()
             action = model.actions[action_id]
             actions.append(action)
@@ -152,7 +144,7 @@ class PPE:
         return OpenLoopPolicy(actions=actions)
 
     def train(self, env, exp_id=1, opt_reward=False):
-        """ Execute Path Prediction Algorithm on an environment using
+        """Execute Path Prediction Algorithm on an environment using
 
         :param env: Environment
         :param exp_id: Experiment ID, used to separate different independent runs
@@ -165,21 +157,20 @@ class PPE:
         num_samples = self.constants["encoder_training_num_samples"]
         tensorboard = Tensorboard(log_dir=self.config["save_path"])
 
-        homing_policies = dict()            # Contains a set of homing policies for every time step
+        homing_policies = dict()  # Contains a set of homing policies for every time step
 
-        model = DetTabularMDPBuilder(actions=actions, horizon=horizon, gamma=1.0)      # Model for tabular MDP
+        model = DetTabularMDPBuilder(actions=actions, horizon=horizon, gamma=1.0)  # Model for tabular MDP
         model.add_state(state=(0, 0), timestep=0)
-        max_reward = -float('inf')
+        max_reward = -float("inf")
 
         abstract_to_state_map = {0: "sinit"}
         error_util = ErrorUtil()
         debugging_metrics = dict()
 
         for step in range(1, horizon + 1):
-
             self.logger.log("Running Path Prediction Algorithm: Step %r out of %r " % (step, horizon))
 
-            homing_policies[step] = []      # Homing policies for this time step
+            homing_policies[step] = []  # Homing policies for this time step
 
             prev_paths = [OpenLoopPolicy(path_id=0)] if step == 1 else homing_policies[step - 1]
             path_map = dict()
@@ -187,8 +178,14 @@ class PPE:
                 for action_id, action in enumerate(actions):
                     path_id = prev_id * len(actions) + action_id
                     path_map[path_id] = prev_path.extend(action, path_id=path_id)
-                    self.logger.log("Path ID %d: %r -> %s" % (path_id, abstract_to_state_map[prev_path.path_id],
-                                                              env.act_to_str(action)))
+                    self.logger.log(
+                        "Path ID %d: %r -> %s"
+                        % (
+                            path_id,
+                            abstract_to_state_map[prev_path.path_id],
+                            env.act_to_str(action),
+                        )
+                    )
 
             # num_samples = max(10 * len(path_map), 5000)
             # self.logger.log("Number of samples changed to %d to have at least 100 samples per path" % num_samples)
@@ -210,12 +207,12 @@ class PPE:
                 num_class=len(path_map),
                 dataset=dataset,
                 logger=self.logger,
-                tensorboard=tensorboard
+                tensorboard=tensorboard,
             )
             # self.util.save_encoder_model(classifier, experiment, trial, step, "backward")
             self.logger.log("Encoder: Training time %r" % (time.time() - time_encoder_start))
 
-            prob = self.train_classifier.get_class_mean_prob(classifier, dataset)     # Dim x num_class
+            prob = self.train_classifier.get_class_mean_prob(classifier, dataset)  # Dim x num_class
 
             state_stats = None if not self.debug else self.log_dataset(dataset, prob, self.logger)
 
@@ -226,12 +223,10 @@ class PPE:
             self.logger.log("Setting elim_param to %f as N=%d and K=%d" % (elim_param, len(path_map), len(actions)))
 
             for i in range(0, len(path_map)):
-
                 if i not in path_common:
                     continue
 
                 for j in range(i + 1, len(path_map)):
-
                     if j not in path_common:
                         continue
                     else:
@@ -245,7 +240,6 @@ class PPE:
 
             # Update the latent model
             for path_id, other_path_ids in path_common.items():
-
                 abstract_to_state_map[path_id] = path_id_to_state_map[path_id]
 
                 model.add_state(state=(step, path_id), timestep=step)
@@ -277,24 +271,32 @@ class PPE:
             # ony when debugging the algorithm.
             if self.debug:
                 state_decoder = PPEDecoder(self.config, classifier, path_common)
-                debugging_metrics[step] = self.ppe_debugger.debug(path_map, prob, path_common, env,
-                                                                  abstract_to_state_map, step, error_util, dataset,
-                                                                  state_stats, elim_param, state_decoder,
-                                                                  homing_policies)
+                debugging_metrics[step] = self.ppe_debugger.debug(
+                    path_map,
+                    prob,
+                    path_common,
+                    env,
+                    abstract_to_state_map,
+                    step,
+                    error_util,
+                    dataset,
+                    state_stats,
+                    elim_param,
+                    state_decoder,
+                    homing_policies,
+                )
 
         # Finalize the model so no further changes can be directly done via API
         model.finalize()
 
         if not opt_reward:
-
             return {
                 "coverage": horizon,
                 "error1": error_util.error1,
                 "error2": error_util.error2,
-                "debugging_metrics": debugging_metrics
+                "debugging_metrics": debugging_metrics,
             }
         else:
-
             self.logger.log("Reward Sensitive Learning: Computing the optimal policy for the environment reward.")
 
             # Compute the optimal policy
@@ -304,42 +306,53 @@ class PPE:
             expected_ret = q_val[(0, (0, 0))].max()
             v_star = env.get_optimal_value()
 
-            self.logger.log("Value Iteration performed. Expected policy value is %f. V* is %r. "
-                            "Max observed reward is %f" % (expected_ret, v_star, max_reward))
+            self.logger.log(
+                "Value Iteration performed. Expected policy value is %f. V* is %r. "
+                "Max observed reward is %f" % (expected_ret, v_star, max_reward)
+            )
             self.logger.log("Reward Sensitive Learning: Time %r" % (time.time() - plan_time))
 
             learned_policy = self._extract_reward_policy(model, q_val, init_state=(0, 0))
-            self.logger.log("Actual: Total number of episodes used %d. Total return %f. Mean return %f" %
-                       (env.num_eps, env.sum_return, env.get_mean_return()))
+            self.logger.log(
+                "Actual: Total number of episodes used %d. Total return %f. Mean return %f"
+                % (env.num_eps, env.sum_return, env.get_mean_return())
+            )
 
             # Evaluate the optimal policy
-            results = policy_evaluate.evaluate(env, learned_policy, horizon, self.logger,
-                                               env.num_eps, env.sum_return, regret=True)
+            results = policy_evaluate.evaluate(
+                env,
+                learned_policy,
+                horizon,
+                self.logger,
+                env.num_eps,
+                env.sum_return,
+                regret=True,
+            )
 
-            results.update({
-                "coverage": horizon,
-                "q_val": expected_ret,
-                "v_star": v_star,
-                "max_reward": max_reward,
-                "error1": error_util.error1,
-                "error2": error_util.error2,
-                "debugging_metrics": debugging_metrics
-            })
+            results.update(
+                {
+                    "coverage": horizon,
+                    "q_val": expected_ret,
+                    "v_star": v_star,
+                    "max_reward": max_reward,
+                    "error1": error_util.error1,
+                    "error2": error_util.error2,
+                    "debugging_metrics": debugging_metrics,
+                }
+            )
 
             return results
 
 
 class PPEDecoder:
-
     def __init__(self, config, classifier, path_common):
         self.config = config
         self.classifier = classifier
-        self. path_common = path_common
+        self.path_common = path_common
 
     def encode_observations(self, observations):
-
         observations = cuda_var(torch.from_numpy(np.array(observations))).float().view(1, -1)
-        prob = self.classifier.gen_prob(observations)[0][0]       # should be equal to number of classes
+        prob = self.classifier.gen_prob(observations)[0][0]  # should be equal to number of classes
 
         best_id = -1
         best_val = -1
@@ -353,16 +366,14 @@ class PPEDecoder:
 
 
 class PPEDecoder2:
-
     def __init__(self, config, classifier, epsilon):
         self.config = config
         self.classifier = classifier
         self.epsilon = epsilon
 
     def encode_observations(self, observations):
-
         observations = cuda_var(torch.from_numpy(np.array(observations))).float().view(1, -1)
-        prob = self.classifier.gen_prob(observations)[0][0]       # should be equal to number of classes
+        prob = self.classifier.gen_prob(observations)[0][0]  # should be equal to number of classes
         ixs = (prob - (prob.max() - self.epsilon)) >= 0.0
 
         choices = set()

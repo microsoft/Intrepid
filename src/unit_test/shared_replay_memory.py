@@ -1,6 +1,7 @@
 import random
 import multiprocessing as mp
 
+
 def square_list(n, results):
     """
     function to square a given list
@@ -16,11 +17,10 @@ def square_list(n, results):
 
 
 if __name__ == "__main__":
-
     # creating Array of int data type with space for 4 integers
     results = []
     for i in range(0, 2):
-        results.append(mp.Array('f', range(5)))
+        results.append(mp.Array("f", range(5)))
 
     # creating new process
     p1 = mp.Process(target=square_list, args=(0, results))

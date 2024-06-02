@@ -1,12 +1,11 @@
 class ActionType:
-
     Discrete = "discrete"
     Continuous = "continuous"
     Structured = "structured"
+    Variable = "variable"
 
     @staticmethod
     def get_action_type_from_name(act_type_name):
-
         if act_type_name == "discrete":
             return ActionType.Discrete
 
@@ -15,6 +14,9 @@ class ActionType:
 
         elif act_type_name == "structured":
             return ActionType.Structured
+
+        elif act_type_name == "variable":
+            return ActionType.Variable
 
         else:
             raise AssertionError("No action type found for %r" % act_type_name)

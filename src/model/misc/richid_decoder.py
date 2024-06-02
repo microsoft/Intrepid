@@ -1,13 +1,23 @@
 import torch
-import numpy as np
 import torch.nn as nn
 
 
 class RichIDHTKModel(nn.Module):
-    """ Take as input a sequence of observations y_{0:t} and a single observation y_{t+k} and predicts a vector
-        of length k * action_dim """
+    """Take as input a sequence of observations y_{0:t} and a single observation y_{t+k} and predicts a vector
+    of length k * action_dim"""
 
-    def __init__(self, feature_type, obs_dim, state_dim, hat_f, hat_A_k_1, hat_A_k, hat_B, hat_K, hat_M_k):
+    def __init__(
+        self,
+        feature_type,
+        obs_dim,
+        state_dim,
+        hat_f,
+        hat_A_k_1,
+        hat_A_k,
+        hat_B,
+        hat_K,
+        hat_M_k,
+    ):
         """
         :param feature_type: Type of feature
         :param obs_dim       observation dimension
@@ -32,7 +42,6 @@ class RichIDHTKModel(nn.Module):
         self.hat_M_k = hat_M_k
 
         if self.feature_type == "feature":
-
             self.h_model = nn.Sequential(
                 nn.Linear(obs_dim, state_dim),
                 nn.LeakyReLU(),
@@ -42,15 +51,10 @@ class RichIDHTKModel(nn.Module):
             self.m_layer = nn.Linear(state_dim, self.state_dim)
 
         elif self.feature_type == "image":
-
             # TODO fix channel size below
-            self.h_model = nn.Sequential(
-                nn.Conv2d(6, 16, 8, 4),
-                nn.LeakyReLU(),
-                nn.Conv2d(16, 16, 8, 2)
-            )
+            self.h_model = nn.Sequential(nn.Conv2d(6, 16, 8, 4), nn.LeakyReLU(), nn.Conv2d(16, 16, 8, 2))
 
-            self.m_layer = nn.Linear(16, self.state_dim)            # TODO 16 is hard-coded
+            self.m_layer = nn.Linear(16, self.state_dim)  # TODO 16 is hard-coded
         else:
             raise AssertionError("Unhandled feature_type %r" % self.feature_type)
 
@@ -60,7 +64,6 @@ class RichIDHTKModel(nn.Module):
             self.cuda()
 
     def get_h_val(self, obs):
-
         batch_size = obs.size(0)
         x = self.h_model(obs)
 
@@ -76,15 +79,17 @@ class RichIDHTKModel(nn.Module):
         :return:
         """
 
-        y_t = curr_obs_seq[:, -1, :]                       # batch x obs_shape
+        y_t = curr_obs_seq[:, -1, :]  # batch x obs_shape
 
-        embed_y_t_k = self.get_h_val(k_step_obs)           # h(y_{t+k}) of size batch x state_dim
-        embed_y_t = self.get_h_val(y_t)                    # h(y_t) of size batch x state_dim
-        embed_y_0_t = self.hat_f(curr_obs_seq).detach()    # \hat{f}(y_{0:t}) of size batch x state_dim
+        embed_y_t_k = self.get_h_val(k_step_obs)  # h(y_{t+k}) of size batch x state_dim
+        embed_y_t = self.get_h_val(y_t)  # h(y_t) of size batch x state_dim
+        embed_y_0_t = self.hat_f(curr_obs_seq).detach()  # \hat{f}(y_{0:t}) of size batch x state_dim
 
-        out = embed_y_t_k - \
-              torch.matmul(embed_y_t, torch.transpose(self.hat_A_k, 0, 1)) - \
-              torch.matmul(embed_y_0_t, torch.transpose(self.abk, 0, 1))        # batch x state_dim
+        out = (
+            embed_y_t_k
+            - torch.matmul(embed_y_t, torch.transpose(self.hat_A_k, 0, 1))
+            - torch.matmul(embed_y_0_t, torch.transpose(self.abk, 0, 1))
+        )  # batch x state_dim
 
         out = torch.matmul(out, torch.transpose(self.hat_M_k, 0, 1))
 
@@ -92,8 +97,8 @@ class RichIDHTKModel(nn.Module):
 
 
 class RichIDHTModel(nn.Module):
-    """ Take as input a sequence of observations y_{0:t} and a single observation y_{t+k} and predicts a vector
-        of length k * action_dim """
+    """Take as input a sequence of observations y_{0:t} and a single observation y_{t+k} and predicts a vector
+    of length k * action_dim"""
 
     def __init__(self, feature_type, obs_dim, state_dim, hat_f, hat_A, hat_B, hat_K, hat_M):
         """
@@ -118,7 +123,6 @@ class RichIDHTModel(nn.Module):
         self.hat_M = hat_M
 
         if self.feature_type == "feature":
-
             self.h_model = nn.Sequential(
                 nn.Linear(obs_dim, self.state_dim),
                 nn.LeakyReLU(),
@@ -128,15 +132,10 @@ class RichIDHTModel(nn.Module):
             self.m_layer = nn.Linear(self.state_dim, self.state_dim)
 
         elif self.feature_type == "image":
-
             # TODO fix channel size below
-            self.h_model = nn.Sequential(
-                nn.Conv2d(6, 16, 8, 4),
-                nn.LeakyReLU(),
-                nn.Conv2d(16, 16, 8, 2)
-            )
+            self.h_model = nn.Sequential(nn.Conv2d(6, 16, 8, 4), nn.LeakyReLU(), nn.Conv2d(16, 16, 8, 2))
 
-            self.m_layer = nn.Linear(16, self.state_dim)        # TODO 16 is hard-coded
+            self.m_layer = nn.Linear(16, self.state_dim)  # TODO 16 is hard-coded
         else:
             raise AssertionError("Unhandled feature_type %r" % self.feature_type)
 
@@ -146,7 +145,6 @@ class RichIDHTModel(nn.Module):
             self.cuda()
 
     def get_h_val(self, obs):
-
         batch_size = obs.size(0)
         x = self.h_model(obs)
 
@@ -163,9 +161,9 @@ class RichIDHTModel(nn.Module):
 
         y_t = curr_obs_seq[:, -1, :]
 
-        embed_y_t_1 = self.get_h_val(next_obs)                      # h(y_{t+1}) of size batch x state_dim
-        embed_y_t = self.get_h_val(y_t)                             # h(y_t) of size batch x state_dim
-        embed_y_0_t = self.hat_f(curr_obs_seq).detach()             # \hat{f}(y_{0:t}) of size batch x state_dim
+        embed_y_t_1 = self.get_h_val(next_obs)  # h(y_{t+1}) of size batch x state_dim
+        embed_y_t = self.get_h_val(y_t)  # h(y_t) of size batch x state_dim
+        embed_y_0_t = self.hat_f(curr_obs_seq).detach()  # \hat{f}(y_{0:t}) of size batch x state_dim
 
         term1 = embed_y_t_1
         term2 = torch.matmul(embed_y_t, self.hat_A.transpose(0, 1))
@@ -178,8 +176,8 @@ class RichIDHTModel(nn.Module):
 
 
 class RichIDFModel(nn.Module):
-    """ Take as input a sequence of observations y_{0:t} and a single observation y_{t+k} and predicts a vector
-        of length k * action_dim """
+    """Take as input a sequence of observations y_{0:t} and a single observation y_{t+k} and predicts a vector
+    of length k * action_dim"""
 
     def __init__(self, t, state_dim, A, prev_f_model, h_t_model):
         """
@@ -207,15 +205,17 @@ class RichIDFModel(nn.Module):
         :return:
         """
 
-        assert obs_seq.size(1) == self.t + 1, "Found %d and obs_seq size of %d" % (self.t + 1, obs_seq.size(1))
+        assert obs_seq.size(1) == self.t + 1, "Found %d and obs_seq size of %d" % (
+            self.t + 1,
+            obs_seq.size(1),
+        )
 
         if self.t == 0:
             return torch.zeros(self.state_dim).float()
         else:
-
-            last_obs = obs_seq[:, -1, :]        # y_t
-            snd_last_obs = obs_seq[:, -2, :]    # y_{t-1}
-            prev_obs_seq = obs_seq[:, :-1, :]   # y_{0: t-1}
+            last_obs = obs_seq[:, -1, :]  # y_t
+            snd_last_obs = obs_seq[:, -2, :]  # y_{t-1}
+            prev_obs_seq = obs_seq[:, :-1, :]  # y_{0: t-1}
 
             term1 = self.h_t_model.get_h_val(last_obs)
             term2 = torch.matmul(self.h_t_model.get_h_val(snd_last_obs), self.At)
@@ -229,8 +229,8 @@ class RichIDFModel(nn.Module):
 
 
 class RichIDPolicy(nn.Module):
-    """ Take as input a sequence of observations y_{0:t} and a single observation y_{t+k} and predicts a vector
-        of length k * action_dim """
+    """Take as input a sequence of observations y_{0:t} and a single observation y_{t+k} and predicts a vector
+    of length k * action_dim"""
 
     def __init__(self, K, f_model, add_noise=False):
         """
@@ -263,7 +263,7 @@ class RichIDPolicy(nn.Module):
 
 
 class RichIDPsiModel(nn.Module):
-    """ Take as input two observation and action and output a sequence of k actions """
+    """Take as input two observation and action and output a sequence of k actions"""
 
     def __init__(self, k, obs_dim, act_dim):
         super(RichIDPsiModel, self).__init__()
@@ -281,12 +281,11 @@ class RichIDPsiModel(nn.Module):
             nn.LeakyReLU(),
             nn.Linear(self.hidden_dim, self.hidden_dim),
             nn.LeakyReLU(),
-            nn.Linear(self.hidden_dim, self.output_dim)
+            nn.Linear(self.hidden_dim, self.output_dim),
         )
 
     def forward(self, curr_obs, new_obs, action):
-
-        x = torch.cat([curr_obs, new_obs, action], dim=1)        # Batch x (2 x Obs_dim + Act_dim)
+        x = torch.cat([curr_obs, new_obs, action], dim=1)  # Batch x (2 x Obs_dim + Act_dim)
         out = self.network(x)
 
         return out

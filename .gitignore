@@ -19,3 +19,6 @@ bin
 
 # Java
 java/pom.xml
+
+# Ruff linter
+.ruff_cache

@@ -8,34 +8,30 @@ from learning.learning_utils.abstract_encoder_sampler import AbstractEncoderSamp
 
 
 class EncoderSamplerSamePolicy(AbstractEncoderSampler):
-    """ Sampling procedure: sample a policy \pi for previous timestep, sample
-     (x_1, a_1, x_1') and (x_2, a_2, x_2') by rolling in with \pi and taking an action uniformly.
-     Sample y ~ Bernoulli(1/2) and if y ==1 then (x_1, a_1, x_1') and otherwise (x_2, a_2, x_2').
+    """Sampling procedure: sample a policy \pi for previous timestep, sample
+    (x_1, a_1, x_1') and (x_2, a_2, x_2') by rolling in with \pi and taking an action uniformly.
+    Sample y ~ Bernoulli(1/2) and if y ==1 then (x_1, a_1, x_1') and otherwise (x_2, a_2, x_2').
 
-     Each positive sample takes 1 episode and negative sample takes 2 episodes.
-     """
+    Each positive sample takes 1 episode and negative sample takes 2 episodes.
+    """
 
     def __init__(self):
         AbstractEncoderSampler.__init__(self)
 
     @staticmethod
     def gather_samples(num_samples, env, actions, step, homing_policies, selection_weights=None):
-
         dataset = []
         for _ in range(num_samples):
-            dataset.append(
-                EncoderSamplerSamePolicy._gather_sample(env, actions, step, homing_policies, selection_weights)
-            )
+            dataset.append(EncoderSamplerSamePolicy._gather_sample(env, actions, step, homing_policies, selection_weights))
 
         return dataset
 
     @staticmethod
     def _gather_sample(env, actions, step, homing_policies, selection_weights=None):
-        """ Gather sample using SAME_POLICY style """
+        """Gather sample using SAME_POLICY style"""
 
         start_obs, meta = env.reset()
         if step > 1:
-
             if selection_weights is None:
                 # Select a homing policy for the previous time step randomly uniformly
                 ix = random.randint(0, len(homing_policies[step - 1]) - 1)
@@ -69,7 +65,7 @@ class EncoderSamplerSamePolicy(AbstractEncoderSampler):
 
         if y == 0:  # Add imposter
             next_obs, new_meta = EncoderSamplerSamePolicy._gather_last_observation(env, actions, step, policy)
-            reward = None       # Reward for an imposter transition makes little sense
+            reward = None  # Reward for an imposter transition makes little sense
         elif y == 1:  # Take the action
             next_obs, reward, done, meta = env.step(deviation_action)
             new_meta = meta
@@ -81,26 +77,26 @@ class EncoderSamplerSamePolicy(AbstractEncoderSampler):
         else:
             next_state = None
 
-        data_point = TransitionDatapoint(curr_obs=current_obs,
-                                         action=deviation_action,
-                                         next_obs=next_obs,
-                                         y=y,
-                                         curr_state=curr_state,
-                                         next_state=next_state,
-                                         action_prob=action_prob,
-                                         policy_index=ix,
-                                         step=step,
-                                         reward=reward)
+        data_point = TransitionDatapoint(
+            curr_obs=current_obs,
+            action=deviation_action,
+            next_obs=next_obs,
+            y=y,
+            curr_state=curr_state,
+            next_state=next_state,
+            action_prob=action_prob,
+            policy_index=ix,
+            step=step,
+            reward=reward,
+        )
 
         return data_point
 
     @staticmethod
     def _gather_last_observation(env, actions, step, homing_policy):
-
         start_obs, meta = env.reset()
 
         if step > 1:
-
             # Use the homing policy already provided
             obs = start_obs
 

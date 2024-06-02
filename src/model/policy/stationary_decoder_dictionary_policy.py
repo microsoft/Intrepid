@@ -1,9 +1,8 @@
-from environments.cerebral_env_meta.action_type import ActionType
+from environments.intrepid_env_meta.action_type import ActionType
 from model.policy.stationary_dictionary_policy import StationaryDictionaryPolicy
 
 
 class StationaryDecoderLatentPolicy(ActionType):
-
     def __init__(self, decoder, q_val_dictionary, actions):
         super(ActionType, self).__init__()
 
@@ -22,7 +21,6 @@ class StationaryDecoderLatentPolicy(ActionType):
         return self.latent_policy.sample_action(latent_state)
 
     def get_argmax_action(self, obs):
-
         latent_state = self.decoder.encode_observations(obs)
         return self.latent_policy.get_argmax_action(latent_state)
 

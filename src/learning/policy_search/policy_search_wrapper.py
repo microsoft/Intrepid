@@ -5,13 +5,11 @@ from learning.policy_search.path_policy_search import PathPolicySearch
 
 
 class PolicySearchWrapper:
-
     def __init__(self):
         pass
 
     @staticmethod
     def generate_policy_search(policy_search_type, config, constants):
-
         if policy_search_type == "psdp":
             # Works for any setting. O(H^2) execution in horizon H.
             return PSDP(config, constants)
@@ -55,10 +53,10 @@ class PolicySearchWrapper:
             filtered_dataset = policy_cover_dataset[horizon]  # Only data for last time step
 
         elif isinstance(policy_search_routine, FQI):
-            filtered_dataset = policy_cover_dataset           # Utilizes data for each time step
+            filtered_dataset = policy_cover_dataset  # Utilizes data for each time step
 
         elif isinstance(policy_search_routine, PSDP):
-            filtered_dataset = []                             # Utilizes no data at all
+            filtered_dataset = []  # Utilizes no data at all
 
         else:
             raise AssertionError("Failed to find policy")

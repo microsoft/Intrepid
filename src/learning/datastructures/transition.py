@@ -1,6 +1,17 @@
 class TransitionDatapoint:
-
-    def __init__(self, curr_obs, action, next_obs, y, curr_state, next_state, action_prob, policy_index, step, reward):
+    def __init__(
+        self,
+        curr_obs,
+        action,
+        next_obs,
+        y,
+        curr_state,
+        next_state,
+        action_prob,
+        policy_index,
+        step,
+        reward,
+    ):
         """
         :param curr_obs: Current observation on which action is taken
         :param action: Action that was taken on current observation
@@ -61,7 +72,6 @@ class TransitionDatapoint:
         return self.reward
 
     def make_copy(self):
-
         return TransitionDatapoint(
             curr_obs=self.curr_obs,
             action=self.action,
@@ -72,5 +82,5 @@ class TransitionDatapoint:
             action_prob=self.action_prob,
             policy_index=self.policy_index,
             step=self.step,
-            reward=self.reward
+            reward=self.reward,
         )

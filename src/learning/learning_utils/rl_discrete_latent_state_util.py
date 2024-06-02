@@ -10,7 +10,6 @@ from utils.cuda import cuda_var
 
 
 class RLDiscreteLatentStateUtil:
-
     def __init__(self, exp_setup):
         self.config = exp_setup.config
         self.constants = exp_setup.constants
@@ -19,18 +18,16 @@ class RLDiscreteLatentStateUtil:
 
     @staticmethod
     def save_homing_policy_figures(env, env_name, homing_policies, step):
-
         num_samples = 20  # self.constants["eval_homing_policy_sample_size"]
         mixed_image = None
+        mixed_image_step = None
         ctr = 0
 
         for ix, policy in enumerate(homing_policies[step]):
-
             if not os.path.exists("./%s_policy/step_%d/" % (env_name, step)):
                 os.makedirs("./%s_policy/step_%d/" % (env_name, step))
 
             for j in range(1, num_samples + 1):
-
                 # Rollin for steps
                 obs, meta = env.reset()
 
@@ -52,30 +49,31 @@ class RLDiscreteLatentStateUtil:
 
             # Save the observation
             mixed_image_step = skimage.transform.resize(mixed_image_step, (600, 600))
-            imageio.imwrite("./%s_policy/step_%d/image_%d.png" %
-                            (env_name, step, ix + 1), mixed_image_step)
+            imageio.imwrite(
+                "./%s_policy/step_%d/image_%d.png" % (env_name, step, ix + 1),
+                mixed_image_step,
+            )
 
         mixed_image = skimage.transform.resize(mixed_image, (600, 600))
         imageio.imwrite("./%s_policy/step_%d/mixed_image.png" % (env_name, step), mixed_image)
 
     @staticmethod
     def save_abstract_state_figures(env_name, observation_samples, step):
-
         if not os.path.exists("./%s_policy/step_%d/" % (env_name, step)):
             os.makedirs("./%s_policy/step_%d/" % (env_name, step))
 
         for ix, figures in observation_samples.items():
-
             max_figure = figures[0]
             for figure in figures:
                 max_figure = np.maximum(max_figure, figure)
 
-            imageio.imwrite("./%s_policy/step_%d/abstract_state_%d.png" %
-                            (env_name, step, ix), skimage.transform.resize(max_figure, (600, 600)))
+            imageio.imwrite(
+                "./%s_policy/step_%d/abstract_state_%d.png" % (env_name, step, ix),
+                skimage.transform.resize(max_figure, (600, 600)),
+            )
 
     @staticmethod
     def save_newly_explored_states(env_name, dataset, step):
-
         if not os.path.exists("./%s_policy/step_%d/" % (env_name, step)):
             os.makedirs("./%s_policy/step_%d/" % (env_name, step))
 
@@ -96,15 +94,18 @@ class RLDiscreteLatentStateUtil:
                 mixed_image = np.maximum(mixed_image, dp.get_next_obs())
 
         # Save the images
-        imageio.imwrite("./%s_policy/step_%d/newly_explored_state.png" %
-                        (env_name, step), skimage.transform.resize(mixed_image, (600, 600)))
+        imageio.imwrite(
+            "./%s_policy/step_%d/newly_explored_state.png" % (env_name, step),
+            skimage.transform.resize(mixed_image, (600, 600)),
+        )
 
         for ix, image in mixed_image_ix.items():
-            imageio.imwrite("./%s_policy/step_%d/explored_state_from_%s.png" %
-                            (env_name, step, ix), skimage.transform.resize(image, (600, 600)))
+            imageio.imwrite(
+                "./%s_policy/step_%d/explored_state_from_%s.png" % (env_name, step, ix),
+                skimage.transform.resize(image, (600, 600)),
+            )
 
     def get_abstract_state_counts(self, encoding_function, dataset):
-
         count_stats = {}
         observation_samples = {}  # A collection of 20 observations that map to this value
 
@@ -151,23 +152,21 @@ class RLDiscreteLatentStateUtil:
             total_count = sum(real_abstract_corr[state].values())
             for abstract_state, count in real_abstract_corr[state].items():
                 pct = (count * 100.0) / float(max(1, total_count))
-                self.logger.log("Real state %r -> Abstract state %d, with count %d and pct %f" %
-                                (state, abstract_state, count, pct))
+                self.logger.log(
+                    "Real state %r -> Abstract state %d, with count %d and pct %f" % (state, abstract_state, count, pct)
+                )
 
         random.shuffle(sampled_plotting_data)
 
         return count_stats, observation_samples, sampled_plotting_data[:10000]
 
     def log_homing_policy_reward(self, env, homing_policies, step):
-
         num_samples = self.constants["eval_homing_policy_sample_size"]
         all_total_reward = 0.0
 
         for ix, policy in enumerate(homing_policies[step]):
-
             total_reward = 0.0
             for _ in range(0, num_samples):
-
                 # Rollin for steps
                 obs, meta = env.reset()
 
@@ -185,18 +184,15 @@ class RLDiscreteLatentStateUtil:
         self.logger.log("After horizon %r. Random Policy receives reward %r" % (step, all_total_reward))
 
     def evaluate_homing_policy(self, env, homing_policies, step):
-
         num_states = {}
         num_samples = self.constants["eval_homing_policy_sample_size"]
         policies_final_observations = []
 
         for ix, policy in enumerate(homing_policies[step]):
-
             policy_states = {}
             policy_final_observation = []
 
             for _ in range(0, num_samples):
-
                 # Rollin for steps
                 start_obs, meta = env.reset()
                 obs = start_obs
@@ -234,8 +230,10 @@ class RLDiscreteLatentStateUtil:
 
     @staticmethod
     def save_encoder_model(encoding_function, experiment, trial, step, category):
-
-        model_folder_name = experiment + "/trial_%d_encoder_model_%s/" % (trial, category)
+        model_folder_name = experiment + "/trial_%d_encoder_model_%s/" % (
+            trial,
+            category,
+        )
         if not os.path.exists(model_folder_name):
             os.makedirs(model_folder_name)
         encoding_function.save(model_folder_name, "encoder_model_%d" % step)

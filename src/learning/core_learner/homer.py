@@ -1,14 +1,16 @@
 from learning.learning_utils.encoder_sampler_wrapper import EncoderSamplerWrapper
 from learning.learning_utils.homer_train_encoding_function import TrainEncodingFunction
-from learning.core_learner.abstract_rl_discrete_latent_state import AbstractRLDiscreteLatentState
+from learning.core_learner.abstract_rl_discrete_latent_state import (
+    AbstractRLDiscreteLatentState,
+)
 
 
 class Homer(AbstractRLDiscreteLatentState):
     """
-        Homer algorithm described in
+    Homer algorithm described in
 
-            Kinematic state abstraction and provably efficient rich-observation reinforcement learning,
-            Dipendra Misra, Mikael Henaff, Akshay Krishnamurthy, John Langford, ICML 2020.
+        Kinematic state abstraction and provably efficient rich-observation reinforcement learning,
+        Dipendra Misra, Mikael Henaff, Akshay Krishnamurthy, John Langford, ICML 2020.
     """
 
     def __init__(self, exp_setup):
@@ -39,15 +41,28 @@ class Homer(AbstractRLDiscreteLatentState):
         episodes = [dp for dp in dataset if dp.is_valid() == 1]
         return dataset, episodes
 
-    def train_discrete_encoder(self, dataset, logger, tensorboard, debug, bootstrap_model,
-                               undiscretized_initialization=True):
+    def train_discrete_encoder(
+        self,
+        dataset,
+        logger,
+        tensorboard,
+        debug,
+        bootstrap_model,
+        undiscretized_initialization=True,
+    ):
         """
         Returns:
             - encoding_function: a function that maps an observation to one of the s values where s is a natural number
             - num_state_budget: the natural number s
         """
         encoding_function, num_state_budget = self.train_encoder.do_train(
-            dataset, self.logger, tensorboard, self.debug, bootstrap_model=bootstrap_model,
-            undiscretized_initialization=undiscretized_initialization, category="backward")
+            dataset,
+            self.logger,
+            tensorboard,
+            self.debug,
+            bootstrap_model=bootstrap_model,
+            undiscretized_initialization=undiscretized_initialization,
+            category="backward",
+        )
 
         return encoding_function, num_state_budget

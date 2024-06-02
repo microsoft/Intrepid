@@ -9,7 +9,6 @@ class TabularMDPBuilder(AbstractTabularMDP):
     """
 
     def __init__(self, actions, horizon, gamma=1.0):
-
         AbstractTabularMDP.__init__(self, actions, horizon, gamma)
 
         self.actions = actions
@@ -29,7 +28,6 @@ class TabularMDPBuilder(AbstractTabularMDP):
         self._finalize = False
 
     def add_state(self, state, timestep):
-
         assert not self._finalize, "This MDP has been finalized so new states cannot be added to it."
 
         if timestep not in self._states:
@@ -38,13 +36,11 @@ class TabularMDPBuilder(AbstractTabularMDP):
         self._states[timestep].append(state)
 
     def add_transition(self, state, action, new_state):
-
         assert not self._finalize, "This MDP has been finalized so new transitions cannot be added to it."
 
         self._transitions.add(new_state, (state, action))
 
     def add_reward(self, state, action, new_state, reward):
-
         assert not self._finalize, "This MDP has been finalized so new rewards cannot be added to it."
 
         if (state, action, new_state) not in self._rewards:
@@ -62,7 +58,6 @@ class TabularMDPBuilder(AbstractTabularMDP):
         return len(self._states[timestep])
 
     def get_transitions(self, state, action):
-
         res = self._transitions.get_entry((state, action))
 
         if res is None:
@@ -71,7 +66,6 @@ class TabularMDPBuilder(AbstractTabularMDP):
             return res.get_probability()
 
     def get_reward(self, state, action, next_state, step):
-
         if (state, action, next_state) not in self._rewards:
             raise AssertionError("No transition data found for this case")
         else:

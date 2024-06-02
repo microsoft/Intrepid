@@ -1,4 +1,3 @@
-import pdb
 import torch
 import random
 import imageio
@@ -8,11 +7,10 @@ import torch.multiprocessing as mp
 
 from experiments.experiment_save import terminate
 from experiments.experiment_header import get_header
-from environments.cerebral_env_meta.make_env import MakeEnvironment
+from environments.intrepid_env_meta.make_env import MakeEnvironment
 
 
 def main():
-
     exp_setup = get_header()
 
     performance = []
@@ -25,11 +23,9 @@ def main():
         num_runs = 1
 
     for exp_id in range(1, num_runs + 1):
-
         exp_setup.config["seed"] = seeds[exp_id - 1]
         exp_setup.config["env_seed"] = seeds[exp_id - 1] * 10
-        exp_setup.logger.log(
-            "========= STARTING EXPERIMENT %d (Seed = %d) ======== " % (exp_id, exp_setup.config["seed"]))
+        exp_setup.logger.log("========= STARTING EXPERIMENT %d (Seed = %d) ======== " % (exp_id, exp_setup.config["seed"]))
 
         # Set the random seed
         random.seed(exp_setup.config["seed"])
@@ -43,7 +39,7 @@ def main():
         env = make_env.make(exp_setup)
         exp_setup.logger.log("Environment Created")
 
-        actions = exp_setup.config["actions"]
+        exp_setup.config["actions"]
         total_return = 0.0
         obs, info = env.reset()
 
@@ -56,7 +52,6 @@ def main():
         plt.pause(1)
 
         for h in range(exp_setup.config["horizon"]):
-
             while True:
                 action_str = input("[Time Step %d] Enter action (or q to quit):" % (h + 1))
                 # action_str = str(random.choice(actions))
@@ -96,8 +91,7 @@ def main():
 
 
 if __name__ == "__main__":
-
     print("SETTING THE START METHOD ")
     mp.freeze_support()
-    mp.set_start_method('spawn')
+    mp.set_start_method("spawn")
     main()

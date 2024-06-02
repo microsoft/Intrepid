@@ -11,7 +11,7 @@ env = gym.make("MontezumaRevengeDeterministic-v4")
 
 
 def process_obs_and_show(obs, seq, ret):
-    obs = obs[34: 34 + 160, :160]
+    obs = obs[34 : 34 + 160, :160]
     obs = resize(obs, (500, 500, 3))
     seq_str = ", ".join([str(action) for action in seq])
     plt.clf()
@@ -46,16 +46,13 @@ obs = env.reset()
 process_obs_and_show(obs, seq, ret)
 
 while True:
-
     cmd_str = input("Enter a number between 0 and 18, and press b to go back, and press q to quit\n\n")
 
     cmd_seq = [tk.strip() for tk in cmd_str.split(",")]
     cmd_seq = [tk for tk in cmd_seq if len(tk) > 0]
 
     for cmd in cmd_seq:
-
         if cmd == "b":
-
             if len(seq) > 0:
                 # go back
                 seq.pop()
@@ -64,17 +61,15 @@ while True:
                 print("No observation to backtrack\n\n")
 
         elif cmd == "q":
-            with open("key-montezuma-achieved-return-%d-%d.pkl" % (ret, int(time.time())), "wb") as f:
-                pickle.dump(
-                    {
-                        "seq": seq,
-                        "total_return": ret
-                    }, f)
+            with open(
+                "key-montezuma-achieved-return-%d-%d.pkl" % (ret, int(time.time())),
+                "wb",
+            ) as f:
+                pickle.dump({"seq": seq, "total_return": ret}, f)
             print("Quitting.")
             exit(0)
 
         elif cmd.startswith("load"):
-
             with open(cmd.split()[1], "rb") as f:
                 data = pickle.load(f)
             obs, ret = play(data["seq"])
@@ -86,6 +81,6 @@ while True:
                 seq.append(action)
                 ret += reward
                 process_obs_and_show(obs, seq, ret)
-            except:
+            except Exception:
                 print("Enter b, q or a number")
                 continue

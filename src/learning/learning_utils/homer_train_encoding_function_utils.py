@@ -8,29 +8,39 @@ from utils.cuda import cuda_var
 
 
 def _cross_entropy_binary(p, q, eps=0.00001):
-    """ Compute cross entropy of two probability distributions p and q of size 2 """
-    return - p[0] * math.log(q[0] + eps) - p[1] * math.log(q[1] + eps)
+    """Compute cross entropy of two probability distributions p and q of size 2"""
+    return -p[0] * math.log(q[0] + eps) - p[1] * math.log(q[1] + eps)
 
 
 def l1_penalty(vector, sigmas):
-    """ Compute L1 penalty on Vector using hyperparameter sigma.
+    """Compute L1 penalty on Vector using hyperparameter sigma.
     :param vector of size batch-size x dimension
-    :param sigmas of size batch-size """
+    :param sigmas of size batch-size"""
     return (torch.abs(vector).sum(1) / sigmas).mean() - torch.log(2 * sigmas).mean()
 
 
 def save_correlation_figure_(num_homing_policies, model, test_batches, exp_name):
-
     correlation_stats = {}
 
     for batch in test_batches:
-
-        prev_observations = cuda_var(torch.cat([torch.from_numpy(np.array(point.get_curr_obs())).view(1, -1)
-                                                for point in batch], dim=0)).float()
-        actions = cuda_var(torch.cat([torch.from_numpy(np.array(point.get_action())).view(1, -1)
-                                      for point in batch], dim=0)).long()
-        observations = cuda_var(torch.cat([torch.from_numpy(np.array(point.get_next_obs())).view(1, -1)
-                                           for point in batch], dim=0)).float()
+        prev_observations = cuda_var(
+            torch.cat(
+                [torch.from_numpy(np.array(point.get_curr_obs())).view(1, -1) for point in batch],
+                dim=0,
+            )
+        ).float()
+        actions = cuda_var(
+            torch.cat(
+                [torch.from_numpy(np.array(point.get_action())).view(1, -1) for point in batch],
+                dim=0,
+            )
+        ).long()
+        observations = cuda_var(
+            torch.cat(
+                [torch.from_numpy(np.array(point.get_next_obs())).view(1, -1) for point in batch],
+                dim=0,
+            )
+        ).float()
 
         # Compute loss
         _, info_dict = model.gen_prob(prev_observations, actions, observations)  # batch x 2
@@ -55,13 +65,12 @@ def save_correlation_figure_(num_homing_policies, model, test_batches, exp_name)
     image = np.vstack(image)
     image = scipy.misc.imresize(image, (num_states * 100, num_homing_policies * 100))
 
-    filelist = os.listdir('./%s' % exp_name)
+    filelist = os.listdir("./%s" % exp_name)
     num_images = len(filelist)
     scipy.misc.imsave("./%s/image_%d.png" % (exp_name, num_images + 1), image)
 
 
 def log_model_performance(num_homing_policies, model, test_batches, best_test_loss, logger):
-
     predictions_weight = {}
     predictions_values_gold = {}
     predictions_values_inferred = {}
@@ -72,19 +81,32 @@ def log_model_performance(num_homing_policies, model, test_batches, best_test_lo
     states_mapping = {}
 
     for batch in test_batches:
-
-        prev_observations = cuda_var(torch.cat([torch.from_numpy(np.array(point.get_curr_obs())).view(1, -1)
-                                                for point in batch], dim=0)).float()
-        actions = cuda_var(torch.cat([torch.from_numpy(np.array(point.get_action())).view(1, -1)
-                                      for point in batch], dim=0)).long()
-        observations = cuda_var(torch.cat([torch.from_numpy(np.array(point.get_next_obs())).view(1, -1)
-                                           for point in batch], dim=0)).float()
+        prev_observations = cuda_var(
+            torch.cat(
+                [torch.from_numpy(np.array(point.get_curr_obs())).view(1, -1) for point in batch],
+                dim=0,
+            )
+        ).float()
+        actions = cuda_var(
+            torch.cat(
+                [torch.from_numpy(np.array(point.get_action())).view(1, -1) for point in batch],
+                dim=0,
+            )
+        ).long()
+        observations = cuda_var(
+            torch.cat(
+                [torch.from_numpy(np.array(point.get_next_obs())).view(1, -1) for point in batch],
+                dim=0,
+            )
+        ).float()
 
         # Compute loss
-        batch_probs, info_dict = model.gen_prob(prev_observations=prev_observations,
-                                                actions=actions,
-                                                observations=observations,
-                                                discretized=True)  # batch x 2
+        batch_probs, info_dict = model.gen_prob(
+            prev_observations=prev_observations,
+            actions=actions,
+            observations=observations,
+            discretized=True,
+        )  # batch x 2
         inferred_labels = torch.distributions.Bernoulli(batch_probs[:, 1]).sample()
 
         if "assigned_states" not in info_dict or "prob" not in info_dict:
@@ -96,7 +118,6 @@ def log_model_performance(num_homing_policies, model, test_batches, best_test_lo
         num_abstract_states = assigned_prob.size(1)
 
         for i, point in enumerate(batch):
-
             assigned_state = int(assigned_states[i])
             next_state = point.get_next_state()
 
@@ -118,7 +139,11 @@ def log_model_performance(num_homing_policies, model, test_batches, best_test_lo
                     prob_correlation_stats[next_state][j] += float(assigned_prob[i][j])
 
             num_counts = num_counts + 1
-            key = "%r -> %r -> %r" % (point.get_curr_state(), point.get_action(), point.get_next_state())
+            key = "%r -> %r -> %r" % (
+                point.get_curr_state(),
+                point.get_action(),
+                point.get_next_state(),
+            )
             if key in predictions_weight:
                 predictions_weight[key] = predictions_weight[key] + 1
             else:
@@ -147,7 +172,7 @@ def log_model_performance(num_homing_policies, model, test_batches, best_test_lo
     optimal_loss, predicted_loss = 0.0, 0.0
 
     for state, vec in sorted(mode_correlation_stats.items()):
-        norm_vec = (vec/max(1.0, vec.sum())).tolist()
+        norm_vec = (vec / max(1.0, vec.sum())).tolist()
         norm_vec = [(i, round(v, 2)) for i, v in enumerate(norm_vec) if v > 0.0]
         logger.log("Real State: %r mode correlations %r" % (state, norm_vec))
 
@@ -162,14 +187,14 @@ def log_model_performance(num_homing_policies, model, test_batches, best_test_lo
         vec = np.zeros(num_states, dtype=np.float32)
         for j, state in enumerate(ordered_states):
             vec[j] += mode_correlation_stats[state][i]  # number of times i matched to state
-        vec = vec/max(1.0, vec.sum())
+        vec = vec / max(1.0, vec.sum())
         log_str = ""
         for j, state in enumerate(ordered_states):
             if vec[j] > 0:
                 log_str += "%r: %r,  " % (state, round(vec[j], 2))
         logger.log("Abstract State: %r correlations %r" % (i, log_str))
 
-    for key in sorted(predictions_weight, key=lambda x: x[::-1]):   # Sort based on ordering of reverse of key strings
+    for key in sorted(predictions_weight, key=lambda x: x[::-1]):  # Sort based on ordering of reverse of key strings
         prior = predictions_weight[key] / float(max(1, num_counts))
 
         gold = predictions_values_gold[key]
@@ -181,20 +206,32 @@ def log_model_performance(num_homing_policies, model, test_batches, best_test_lo
 
         inferred = predictions_values_inferred[key]
         inferred_z = float(max(1, inferred[0] + inferred[1]))
-        inferred = [round(inferred[0] / inferred_z, 2), round(inferred[1] / inferred_z, 2)]
+        inferred = [
+            round(inferred[0] / inferred_z, 2),
+            round(inferred[1] / inferred_z, 2),
+        ]
         entropy_loss_predicted = _cross_entropy_binary(gold, inferred)
         predicted_loss_ = prior * entropy_loss_predicted
         predicted_loss += predicted_loss_
 
-        logger.log("%r: Prior: %r, Gold: %r, Inferred: %r, Delta: %r" %
-                   (key, prior, gold, inferred, round(abs(predicted_loss_ - optimal_loss_), 2)))
+        logger.log(
+            "%r: Prior: %r, Gold: %r, Inferred: %r, Delta: %r"
+            % (
+                key,
+                prior,
+                gold,
+                inferred,
+                round(abs(predicted_loss_ - optimal_loss_), 2),
+            )
+        )
 
-    logger.log("Optimal Loss %r vs Model Loss %r (Model empirical loss %r)" %
-               (round(optimal_loss, 2), round(predicted_loss, 2), round(best_test_loss, 2)))
+    logger.log(
+        "Optimal Loss %r vs Model Loss %r (Model empirical loss %r)"
+        % (round(optimal_loss, 2), round(predicted_loss, 2), round(best_test_loss, 2))
+    )
 
 
 def log_dataset_stats(dataset, logger):
-
     dataset_size = len(dataset)
 
     # Find number of positive and negative samples
@@ -218,7 +255,7 @@ def log_dataset_stats(dataset, logger):
     neg = (neg * 100.0) / float(max(1, dataset_size))
 
     for state in state_counts:
-        state_counts[state] = round((state_counts[state] * 100.0)/float(max(1, dataset_size)), 2)
+        state_counts[state] = round((state_counts[state] * 100.0) / float(max(1, dataset_size)), 2)
 
     logger.log("Dataset size %r {pos: %r, neg: %r}" % (dataset_size, round(pos, 2), round(neg, 2)))
     logger.log("State Visitation Stats %s" % state_counts)

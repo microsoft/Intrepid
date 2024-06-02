@@ -1,5 +1,5 @@
 class Episode:
-    """ Represents a single episode """
+    """Represents a single episode"""
 
     def __init__(self, state, observation, gamma=1.0):
         """
@@ -111,7 +111,13 @@ class Episode:
         """
         :return: Return all state and observation transitions in this episode in the form (s, x, a, s', x')
         """
-        return zip(self._states[:-1], self._observations[:-1], self._actions, self._states[1:], self._observations[1:])
+        return zip(
+            self._states[:-1],
+            self._observations[:-1],
+            self._actions,
+            self._states[1:],
+            self._observations[1:],
+        )
 
     def get_multi_step_observation_transitions(self, k):
         """
@@ -119,7 +125,6 @@ class Episode:
         """
         klst = [k] * len(self._observations[:-k])
         return zip(self._observations[:-k], self._actions, self._observations[k:], klst)
-
 
     def get_acro_transitions(self, k):
         """
@@ -129,10 +134,10 @@ class Episode:
         # print('k: {}; [:-k]: {}; [1:-(k-1)]: {}; [k:]: {}'.format(k,len(self._observations[:-k]), len(self._observations[1:-(k-1)]), len(self._observations[k:])))
         # raise Exception
         klst = [k] * len(self._observations[:-k])
-        if k==1:
+        if k == 1:
             obs_n = self._observations[1:]
         else:
-            obs_n = self._observations[1:-(k-1)]
+            obs_n = self._observations[1 : -(k - 1)]
         return zip(self._observations[:-k], self._actions, obs_n, self._observations[k:], klst)
 
     def get_len(self):
@@ -150,7 +155,12 @@ class Episode:
         if step + 1 >= len(self._observations):
             return None
         else:
-            return self._observations[step], self._actions[step], self._rewards[step], self._observations[step + 1]
+            return (
+                self._observations[step],
+                self._actions[step],
+                self._rewards[step],
+                self._observations[step + 1],
+            )
 
     def is_terminated(self):
         """
@@ -159,7 +169,9 @@ class Episode:
         return self._terminated
 
     def __str__(self):
-
-        return "%r -> " % (self._states[0],) + \
-               "-> ".join(["%r -> %r, %r" % (action, reward, state) for (action, reward, state) in
-                           zip(self._actions, self._rewards, self._states[1:])])
+        return "%r -> " % (self._states[0],) + "-> ".join(
+            [
+                "%r -> %r, %r" % (action, reward, state)
+                for (action, reward, state) in zip(self._actions, self._rewards, self._states[1:])
+            ]
+        )

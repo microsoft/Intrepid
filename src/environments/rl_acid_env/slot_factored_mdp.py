@@ -4,13 +4,11 @@ import numpy as np
 
 
 class SlotFactoredMDP:
-
     GAUSSIAN, GAUSSIAN2 = range(2)
 
     env_name = "slotfactoredmdp"
 
     def __init__(self, config):
-
         # Dimension of the world
         self.horizon = config["horizon"]
         self.num_factors = config["state_dim"]
@@ -46,7 +44,7 @@ class SlotFactoredMDP:
                 self.atom_factor_set[step].append([atom_set[2 * i], atom_set[2 * i + 1]])
 
                 # y = np.random.randint(0, 2)
-                y = 0       # TODO enable other noise
+                y = 0  # TODO enable other noise
                 if y == 0:
                     self.noise_type[step].append(SlotFactoredMDP.GAUSSIAN)
                 else:
@@ -59,7 +57,6 @@ class SlotFactoredMDP:
         self.timestep = 0
 
     def reset(self):
-
         curr_state_ = [0] * self.num_factors
         self.curr_state = np.array(curr_state_)
 
@@ -74,17 +71,15 @@ class SlotFactoredMDP:
         return 0.0
 
     def make_obs(self, state):
-        """ Each state currently gets two atoms """
+        """Each state currently gets two atoms"""
 
         data = []
         for ix in range(0, self.num_factors):
-
             # vec = np.zeros(2).astype(np.float32)
             # vec[state[ix]] = 1.0
             # vec += np.random.normal(loc=0.0, scale=0.1, size=(2,))      # Add noise
 
             if self.noise_type[self.timestep][ix] == SlotFactoredMDP.GAUSSIAN:
-
                 if state[ix] == 0:
                     vec = np.array([1.0, 0.0]).astype(np.float32)
                 elif state[ix] == 1:
@@ -95,7 +90,6 @@ class SlotFactoredMDP:
                 vec += np.random.normal(loc=0.0, scale=0.1, size=(1,))  # Add noise
 
             elif self.noise_type[self.timestep][ix] == SlotFactoredMDP.GAUSSIAN2:
-
                 val = -1.0 if random.randint(0, 1) == 0 else 1.0
                 if state[ix] == 0:
                     vec = np.array([0.5, val]).astype(np.float32)
@@ -121,12 +115,11 @@ class SlotFactoredMDP:
         return shuffled_obs
 
     def get_children_factors(self, step):
-
         return self.atom_factor_set[step]
 
     def step(self, action):
-        """ Given an action which is the acceleration output. Returns
-            obs, reward, done, info
+        """Given an action which is the acceleration output. Returns
+        obs, reward, done, info
         """
 
         # self.visualize(self.curr_state, action)
@@ -136,7 +129,6 @@ class SlotFactoredMDP:
             raise AssertionError("Cannot take any more actions this episode. Horizon completed")
 
         else:
-
             new_state = self.curr_state.copy()
 
             for i in range(self.num_factors):
@@ -158,9 +150,7 @@ class SlotFactoredMDP:
 
 
 class SlotFactoredMDP1:
-
     def __init__(self, config):
-
         # Dimension of the world
         self.grid_x = config["grid_x"]
         self.grid_y = config["grid_y"]
@@ -178,7 +168,6 @@ class SlotFactoredMDP1:
         self.timestep = 0
 
     def reset(self):
-
         curr_state_ = []
 
         for _ in range(self.grid_y):
@@ -186,7 +175,7 @@ class SlotFactoredMDP1:
             random.shuffle(indices)
             curr_state_.append(indices)
 
-        self.curr_state = np.array(curr_state_).transpose()         # self.grid_x x self.grid_y
+        self.curr_state = np.array(curr_state_).transpose()  # self.grid_x x self.grid_y
 
         self.timestep = 0
         curr_obs = self.make_obs(self.curr_state)
@@ -199,7 +188,6 @@ class SlotFactoredMDP1:
         return 0.0
 
     def make_obs(self, state):
-
         data = []
         for row in range(0, self.grid_x):
             for col in range(0, self.grid_y):
@@ -211,8 +199,8 @@ class SlotFactoredMDP1:
         return np.array(data).astype(np.float32)
 
     def step(self, action):
-        """ Given an action which is the acceleration output. Returns
-            obs, reward, done, info
+        """Given an action which is the acceleration output. Returns
+        obs, reward, done, info
         """
 
         # self.visualize(self.curr_state, action)
@@ -222,7 +210,6 @@ class SlotFactoredMDP1:
             raise AssertionError("Cannot take any more actions this episode. Horizon completed")
 
         else:
-
             action_x, action_y = action // self.grid_y, action % self.grid_y
             new_state = self.curr_state.copy()
             prev_x = (action_x - 1) % self.grid_x

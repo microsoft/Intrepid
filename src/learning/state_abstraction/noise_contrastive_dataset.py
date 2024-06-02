@@ -7,7 +7,7 @@ from learning.learning_utils.entropy_decay_policy import EntropyDecayPolicy
 
 class NoiseContrastiveDataset:
     """
-        State abstraction using noise contrastive learning using an existing dataset
+    State abstraction using noise contrastive learning using an existing dataset
     """
 
     def __init__(self, constants, epoch):
@@ -15,21 +15,38 @@ class NoiseContrastiveDataset:
         self.entropy_coeff = constants["entropy_reg_coeff"]
 
     def calc_loss(self, model, batch, epoch, discretized, test_set_errors=None, past_entropy=None):
-
-        prev_observations = cuda_var(torch.cat([torch.from_numpy(np.array(point.get_curr_obs())).view(1, -1)
-                                                for point in batch], dim=0)).float()
-        actions = cuda_var(torch.cat([torch.from_numpy(np.array(point.get_action())).view(1, -1)
-                                      for point in batch], dim=0)).long()
-        observations = cuda_var(torch.cat([torch.from_numpy(np.array(point.get_next_obs())).view(1, -1)
-                                           for point in batch], dim=0)).float()
-        gold_labels = cuda_var(torch.cat([torch.from_numpy(np.array(point.is_valid())).view(1, -1)
-                                          for point in batch], dim=0)).long()
+        prev_observations = cuda_var(
+            torch.cat(
+                [torch.from_numpy(np.array(point.get_curr_obs())).view(1, -1) for point in batch],
+                dim=0,
+            )
+        ).float()
+        actions = cuda_var(
+            torch.cat(
+                [torch.from_numpy(np.array(point.get_action())).view(1, -1) for point in batch],
+                dim=0,
+            )
+        ).long()
+        observations = cuda_var(
+            torch.cat(
+                [torch.from_numpy(np.array(point.get_next_obs())).view(1, -1) for point in batch],
+                dim=0,
+            )
+        ).float()
+        gold_labels = cuda_var(
+            torch.cat(
+                [torch.from_numpy(np.array(point.is_valid())).view(1, -1) for point in batch],
+                dim=0,
+            )
+        ).long()
 
         # Compute loss
-        log_probs, meta_dict = model.gen_log_prob(prev_observations=prev_observations,
-                                                  actions=actions,
-                                                  observations=observations,
-                                                  discretized=discretized)  # outputs a matrix of size batch x 2
+        log_probs, meta_dict = model.gen_log_prob(
+            prev_observations=prev_observations,
+            actions=actions,
+            observations=observations,
+            discretized=discretized,
+        )  # outputs a matrix of size batch x 2
         classification_loss = -torch.mean(log_probs.gather(1, gold_labels.view(-1, 1)))
 
         if discretized:
