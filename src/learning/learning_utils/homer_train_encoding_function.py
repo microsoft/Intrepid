@@ -1,12 +1,10 @@
-import numpy as np
-import random
 import time
 import torch
+import random
+import numpy as np
 import torch.optim as optim
 
-from learning.learning_utils.count_conditional_probability import (
-    CountConditionalProbability,
-)
+from learning.datastructures.count_conditional_probability import CountConditionalProbability
 from learning.learning_utils.clustering_algorithm import (
     ClusteringModel,
     CompositionalFeatureComputation,

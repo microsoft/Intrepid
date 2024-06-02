@@ -1,7 +1,5 @@
-from learning.learning_utils.count_conditional_probability import (
-    CountConditionalProbability,
-)
-from learning.tabular_rl.abstract_tabular_mdp import AbstractTabularMDP
+from learning.datastructures.count_conditional_probability import CountConditionalProbability
+from learning.datastructures.abstract_tabular_mdp import AbstractTabularMDP
 from utils.average import AverageUtil
 
 

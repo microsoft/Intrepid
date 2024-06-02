@@ -6,15 +6,13 @@ import torch.optim as optim
 import utils.generic_policy as gp
 
 from learning.learning_utils.entropy_decay_policy import EntropyDecayPolicy
-from learning.learning_utils.count_probability import CountProbability
-from learning.learning_utils.count_conditional_probability import (
-    CountConditionalProbability,
-)
+from learning.datastructures.count_probability import CountProbability
+from learning.datastructures.count_conditional_probability import CountConditionalProbability
+from learning.datastructures.transition import TransitionDatapoint
 from learning.learning_utils.encoder_sampler_wrapper import EncoderSamplerWrapper
 from learning.learning_utils.factorl_graph_identification import (
     FactoRLGraphIdentification,
 )
-from learning.learning_utils.transition import TransitionDatapoint
 from model.policy.stationary_decoder_dictionary_policy import (
     StationaryDecoderLatentPolicy,
 )

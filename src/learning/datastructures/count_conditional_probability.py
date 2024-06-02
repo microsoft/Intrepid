@@ -1,4 +1,4 @@
-from learning.learning_utils.count_probability import CountProbability
+from learning.datastructures.count_probability import CountProbability
 
 
 class CountConditionalProbability:

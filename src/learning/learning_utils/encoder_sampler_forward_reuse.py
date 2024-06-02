@@ -4,7 +4,7 @@ import utils.generic_policy as gp
 
 from utils.cuda import cuda_var
 from learning.learning_utils.abstract_encoder_sampler import AbstractEncoderSampler
-from learning.learning_utils.transition import TransitionDatapoint
+from learning.datastructures.transition import TransitionDatapoint
 
 
 class EncoderSamplerForwardReUse(AbstractEncoderSampler):

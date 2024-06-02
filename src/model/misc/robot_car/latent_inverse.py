@@ -119,7 +119,7 @@ class ActionPredictor(nn.Module):
         self.net = nn.Sequential(
             nn.Linear(2 * latent_dim, 256),
             nn.LeakyReLU(),
-            nn.Linear(256, action_dim)
+            nn.Linear(256, action_dim),
             # nn.Linear(2*latent_dim, 256), nn.LeakyReLU(), nn.BatchNorm1d(256),
             # nn.Linear(256, 64), nn.LeakyReLU(), nn.BatchNorm1d(64),
             # nn.Linear(64, action_dim)
